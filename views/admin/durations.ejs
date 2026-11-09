@@ -1,0 +1,68 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Harga &amp; foto edit per durasi</h2>
+      <p class="admin-muted">
+        Semua durasi dari semua paket dalam satu layar. Isi <strong>harga</strong> dan <strong>jumlah foto edit</strong>
+        untuk setiap durasi, lalu simpan. Perubahan langsung tampil di website publik.
+        Untuk menambah atau menghapus pilihan durasi, buka halaman edit paketnya.
+      </p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/durations" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <% if (!packages.length) { %>
+      <p class="admin-muted">Belum ada paket.</p>
+    <% } else { %>
+      <% packages.forEach(function (p) { %>
+        <% const rows = byPackage[p.id] || []; %>
+        <fieldset class="admin-fieldset">
+          <legend><%= p.name %> · <%= p.category_name || 'Tanpa kategori' %> · <%= p.city_name %></legend>
+          <% if (!rows.length) { %>
+            <p class="admin-hint">Paket ini belum memiliki pilihan durasi. <a class="admin-link" href="<%= base %>/admin/packages/<%= p.id %>/edit">Tambah durasi</a></p>
+          <% } else { %>
+            <div class="table-wrap">
+              <table class="admin-table admin-table--durations">
+                <thead><tr><th>Durasi</th><th>Harga</th><th>Foto edit</th><th>Catatan</th><th>Aktif</th></tr></thead>
+                <tbody>
+                  <% rows.forEach(function (d) { %>
+                    <tr>
+                      <td><strong><%= d.duration_minutes %> menit</strong></td>
+                      <td>
+                        <input type="hidden" name="touched_<%= d.id %>" value="1">
+                        <div class="price-input">
+                          <span>Rp</span>
+                          <input type="text" inputmode="numeric" name="price_<%= d.id %>"
+                                 value="<%= d.price || '' %>" placeholder="belum diatur">
+                        </div>
+                      </td>
+                      <td>
+                        <input type="number" name="photos_<%= d.id %>" min="0" max="9999"
+                               value="<%= d.edited_photos == null ? '' : d.edited_photos %>"
+                               placeholder="contoh 20" class="input-compact" aria-label="Foto edit <%= d.duration_minutes %> menit">
+                      </td>
+                      <td><%= d.description || '—' %></td>
+                      <td>
+                        <label class="admin-check">
+                          <input type="checkbox" name="active_<%= d.id %>" value="1" <%= Number(d.is_active) ? 'checked' : '' %>>
+                          <span>Aktif</span>
+                        </label>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </fieldset>
+      <% }); %>
+    <% } %>
+
+    <div class="admin-sticky-actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan semua perubahan</button>
+      <a class="admin-btn" href="<%= base %>/pricelist" target="_blank" rel="noopener">Lihat pricelist &nearr;</a>
+    </div>
+  </form>
+</section>

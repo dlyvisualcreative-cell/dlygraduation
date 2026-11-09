@@ -1,0 +1,232 @@
+<%
+  /**
+   * Notifikasi HP / Web Push (Tahap 6).
+   *
+   * Izin notifikasi HANYA diminta setelah tombol ditekan (tidak pernah otomatis saat
+   * halaman dibuka). Di iPhone, Safari baru mengizinkan Web Push setelah website
+   * ditambahkan ke Home Screen (iOS 16.4+), jadi panduannya ditampilkan di halaman ini.
+   */
+%>
+
+<section class="admin-panel push-hero">
+  <div class="push-hero__text">
+    <span class="admin-eyebrow">Notifikasi perangkat</span>
+    <h2>Notifikasi masuk ke HP Anda</h2>
+    <p class="admin-muted">
+      Aktifkan agar dashboard tidak perlu dibuka terus-menerus. Notifikasi dikirim saat ada
+      booking baru, pembayaran tercatat, pilihan foto masuk, deadline seleksi mendekat,
+      jadwal pemotretan besok, dan perubahan antrean editing (opsional).
+    </p>
+    <p class="push-hero__privacy">
+      Isi notifikasi sengaja dibuat umum (tanpa nama klien, nomor HP, atau nominal) supaya
+      aman bila muncul di layar kunci. Detailnya dibuka setelah Anda menekan notifikasi dan
+      login ke dashboard.
+    </p>
+  </div>
+  <div class="push-hero__action">
+    <span class="push-state" data-push-state>Memeriksa status…</span>
+    <button type="button" class="admin-btn admin-btn--primary" data-push-enable
+            data-csrf="<%= csrf %>" data-base="<%= base %>" data-key="<%= publicKey %>">
+      Aktifkan Notifikasi
+    </button>
+    <button type="button" class="admin-btn" data-push-disable hidden>Aktifkan di perangkat lain / lepas perangkat ini</button>
+    <p class="push-hero__hint" data-push-hint></p>
+  </div>
+</section>
+
+<% if (!vapidOk) { %>
+  <div class="admin-note admin-note--err">
+    <p>Kunci VAPID tidak valid sehingga notifikasi tidak dapat dikirim. Buka halaman ini lagi
+      atau buat ulang kunci di bagian bawah.</p>
+  </div>
+<% } %>
+
+<div class="push-grid">
+  <section class="admin-panel">
+    <div class="admin-panel__head"><div><h2>Jenis notifikasi</h2>
+      <p class="admin-muted">Matikan jenis yang tidak perlu Anda terima.</p></div></div>
+    <form method="post" action="<%= base %>/admin/push/settings" class="push-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+      <label class="push-toggle">
+        <input type="checkbox" name="push_enabled" <%= enabled ? 'checked' : '' %>>
+        <span class="push-toggle__box" aria-hidden="true"></span>
+        <span class="push-toggle__text">
+          <strong>Kirim notifikasi ke perangkat</strong>
+          <small>Mematikan ini menghentikan semua notifikasi HP tanpa menghapus perangkat.</small>
+        </span>
+      </label>
+
+      <% eventGroups.forEach(function (group) { %>
+        <div class="push-group">
+          <span class="push-group__label"><%= group.label %></span>
+          <% group.items.forEach(function (ev) { %>
+            <label class="push-toggle">
+              <input type="checkbox" name="<%= ev.setting %>" <%= ev.enabled ? 'checked' : '' %>>
+              <span class="push-toggle__box" aria-hidden="true"></span>
+              <span class="push-toggle__text">
+                <strong><%= ev.title %></strong>
+                <small><%= ev.role === 'client' ? 'Dikirim hanya ke perangkat milik client pada booking terkait.' : 'Terkirim otomatis saat kejadian terjadi.' %></small>
+              </span>
+            </label>
+          <% }); %>
+        </div>
+      <% }); %>
+
+      <div class="push-group">
+        <span class="push-group__label">Disiapkan (belum aktif)</span>
+        <p class="admin-hint">
+          Role <strong><%= preparedRoles.join(' &amp; ') %></strong> sudah dirancang di sistem, tetapi
+          pengiriman belum diaktifkan sampai Team Portal tersedia.
+        </p>
+      </div>
+
+      <label class="admin-field">
+        <span>Kontak VAPID (subject)</span>
+        <input type="text" name="push_vapid_subject" value="<%= subject %>" placeholder="mailto:email@domain.com">
+        <span class="admin-hint">Dipakai layanan push untuk menghubungi Anda bila ada masalah teknis.</span>
+      </label>
+
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan</button>
+    </form>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div><h2>Perangkat terhubung</h2>
+        <p class="admin-muted">
+          <%= activeDevices %> perangkat aktif ·
+          <%= adminDeviceCount %> admin · <%= clientDevices %> client
+        </p></div>
+    </div>
+
+    <% if (!devices.length) { %>
+      <p class="admin-muted">Belum ada perangkat. Tekan <strong>Aktifkan Notifikasi</strong> di atas
+        pada HP yang ingin menerima notifikasi.</p>
+    <% } else { %>
+      <ul class="push-devices">
+        <% devices.forEach(function (d) { %>
+          <li class="push-device <%= Number(d.is_active) ? '' : 'is-off' %>">
+            <span class="push-device__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>
+            </span>
+            <div class="push-device__main">
+              <strong><%= d.label %></strong>
+              <small>
+                <span class="admin-badge admin-badge--<%= d.role === 'client' ? 'ok' : 'muted' %>"><%= d.role === 'client' ? 'Client' : 'Admin' %></span>
+                <%= d.platform %>
+                · ditambahkan <%= String(d.created_at || '').slice(0, 10) %>
+                <% if (d.last_ok_at) { %> · terakhir terkirim <%= String(d.last_ok_at).slice(0, 16) %><% } %>
+              </small>
+              <% if (d.last_error) { %><small class="push-device__err"><%= d.last_error %></small><% } %>
+            </div>
+            <div class="push-device__actions">
+              <form method="post" action="<%= base %>/admin/push/devices/<%= d.id %>/toggle" class="inline-form">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="admin-btn admin-btn--sm" type="submit"><%= Number(d.is_active) ? 'Nonaktifkan' : 'Aktifkan' %></button>
+              </form>
+              <form method="post" action="<%= base %>/admin/push/devices/<%= d.id %>/delete"
+                    data-confirm="Hapus perangkat ini dari daftar notifikasi?">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="admin-btn admin-btn--sm admin-btn--danger" type="submit">Hapus</button>
+              </form>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+
+    <div class="push-test">
+      <form method="post" action="<%= base %>/admin/push/test" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn" type="submit" <%= devices.length ? '' : 'disabled' %>>Kirim notifikasi percobaan</button>
+      </form>
+      <p class="admin-hint">
+        Percobaan memakai judul &amp; isi notifikasi "Booking baru" yang sebenarnya.
+        <% if (lastRunAt) { %>Pemeriksaan terjadwal terakhir: <%= lastRunAt %>.<% } %>
+      </p>
+    </div>
+  </section>
+</div>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div><h2>Log pengiriman</h2>
+      <p class="admin-muted">Setiap event punya <code>event_id</code> unik — satu aktivitas tidak pernah
+        mengirim notifikasi berulang. Baris di bawah adalah percobaan terakhir per perangkat.</p></div>
+  </div>
+  <% if (!deliveries.length) { %>
+    <p class="admin-muted">Belum ada pengiriman tercatat.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table push-log">
+        <thead><tr><th>Waktu</th><th>Event</th><th>Role</th><th>Perangkat</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <% deliveries.forEach(function (d) { %>
+            <tr>
+              <td><%= String(d.created_at || '').slice(0, 16) %></td>
+              <td><code class="push-log__id"><%= d.event_id %></code><small class="cell-sub"><%= d.kind %></small></td>
+              <td><%= d.role %></td>
+              <td><%= d.device_label || d.device || '—' %></td>
+              <td>
+                <span class="admin-badge admin-badge--<%= d.status === 'sent' ? 'ok' : d.status === 'gone' ? 'muted' : 'danger' %>"><%= d.status %></span>
+                <% if (d.retry) { %><small class="cell-sub">retry <%= d.retry %>×</small><% } %>
+              </td>
+              <td><small><%= d.reason || '—' %></small></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="admin-panel push-guide">
+  <div class="admin-panel__head"><div><h2>Panduan mengaktifkan di HP</h2>
+    <p class="admin-muted">Pilih sesuai perangkat yang Anda pakai.</p></div></div>
+
+  <div class="push-guide__grid">
+    <div class="push-guide__card">
+      <h3><span aria-hidden="true">🤖</span> Android (Chrome)</h3>
+      <ol>
+        <li>Buka website ini di <strong>Chrome</strong>.</li>
+        <li>Kalau muncul tombol <em>Pasang aplikasi</em>, tekan tombol itu (opsional tapi disarankan).</li>
+        <li>Tekan <strong>Aktifkan Notifikasi</strong> di halaman ini.</li>
+        <li>Pilih <strong>Izinkan</strong> pada permintaan izin dari browser.</li>
+        <li>Notifikasi akan muncul di layar kunci dan panel notifikasi.</li>
+      </ol>
+    </div>
+    <div class="push-guide__card push-guide__card--ios">
+      <h3><span aria-hidden="true">🍎</span> iPhone / iPad (Safari)</h3>
+      <ol>
+        <li>Harus <strong>iOS 16.4 atau lebih baru</strong>.</li>
+        <li>Buka website ini di <strong>Safari</strong> (bukan Chrome di iPhone).</li>
+        <li>Tekan tombol <strong>Bagikan</strong> (kotak dengan tanda panah ke atas).</li>
+        <li>Pilih <strong>Tambahkan ke Layar Utama</strong> (Add to Home Screen).</li>
+        <li>Buka website dari <strong>ikon di Layar Utama</strong> — bukan dari tab Safari.</li>
+        <li>Baru setelah itu tekan <strong>Aktifkan Notifikasi</strong> dan pilih <strong>Izinkan</strong>.</li>
+      </ol>
+      <p class="push-guide__note">Selama website belum ditambahkan ke Layar Utama, Safari tidak
+        menyediakan Web Push — tombol aktivasi akan menampilkan penjelasan ini.</p>
+    </div>
+  </div>
+
+  <details class="push-guide__advanced">
+    <summary>Kunci VAPID &amp; pemecahan masalah</summary>
+    <p class="admin-muted">
+      Kunci publik: <code class="push-key"><%= publicKey ? publicKey.slice(0, 24) + '…' : '(belum dibuat)' %></code>
+    </p>
+    <p class="admin-muted">
+      Jika notifikasi tidak masuk: pastikan izin situs masih "Izinkan" di pengaturan browser,
+      pastikan perangkat masih muncul di daftar di atas (bukan <em>nonaktif</em>), dan coba
+      tombol notifikasi percobaan. Membuat ulang kunci akan mematikan semua perangkat lama.
+    </p>
+    <form method="post" action="<%= base %>/admin/push/keys/reset"
+          data-confirm="Buat ulang kunci VAPID? Semua perangkat yang sudah terhubung harus mengaktifkan notifikasi ulang.">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="admin-btn admin-btn--sm admin-btn--danger" type="submit">Buat ulang kunci VAPID</button>
+    </form>
+  </details>
+</section>
+
+<script src="<%= base %>/assets/push-admin.js?v=<%= assetVersion.pushAdmin %>" defer></script>

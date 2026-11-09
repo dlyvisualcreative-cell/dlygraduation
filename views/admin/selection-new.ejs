@@ -1,0 +1,215 @@
+<%
+  /**
+   * Buat Portal Seleksi Foto (redesain — referensi Pilihin.app, brand DLY).
+   *
+   * Struktur: header ringkas → kartu form di tengah (lebar nyaman) dengan 4 bagian:
+   *   1 Sumber Foto   2 Aturan Seleksi   3 Informasi Client   4 Portal & Unduhan
+   * Satu tombol utama "Buat Portal Seleksi Foto". Satu booking = satu portal (tidak duplikat).
+   */
+  const driveLabel = driveMode === 'none' ? 'Belum terhubung'
+    : driveMode === 'oauth' ? 'OAuth akun Drive' : 'API key';
+%>
+
+<section class="xx-head">
+  <div class="xx-head__inner">
+    <div>
+      <a class="xx-back" href="<%= base %>/admin/bookings/<%= booking.id %>">&larr; Kembali ke booking</a>
+      <h1>Buat Portal Seleksi Foto</h1>
+      <p class="admin-muted">
+        <code class="sel-code"><%= booking.code %></code>
+        · <%= booking.client_name %>
+        · <%= formatDateID(booking.shooting_date, true) %>
+      </p>
+    </div>
+    <div class="xx-head__meta">
+      <span class="xx-pill xx-pill--<%= driveMode === 'none' ? 'warn' : 'ok' %>">
+        Google Drive: <%= driveLabel %>
+      </span>
+      <a class="admin-btn admin-btn--sm" href="<%= base %>/admin/selection/settings">Pengaturan</a>
+    </div>
+  </div>
+</section>
+
+<div class="xx-wrap">
+  <% if (driveMode === 'none') { %>
+    <div class="admin-panel admin-panel--warn">
+      <strong>Akses baca Google Drive belum diatur.</strong>
+      <span class="admin-muted">
+        Isi <em>API key</em> atau hubungkan akun Drive di
+        <a href="<%= base %>/admin/selection/settings">Pengaturan Seleksi Foto</a>. Tanpa itu portal
+        tetap bisa dibuat, tetapi fotonya harus diunggah manual.
+      </span>
+    </div>
+  <% } %>
+
+  <% if (error) { %>
+    <div class="admin-flash admin-flash--err" role="alert"><%= error %></div>
+  <% } %>
+
+  <% if (probe && probe.ok) { %>
+    <div class="admin-flash admin-flash--ok" role="status">
+      Folder “<%= probe.folder.name || 'tanpa nama' %>” terbaca: <strong><%= probe.total %> foto</strong> ditemukan.
+      <% if (probe.truncated) { %>Folder sangat besar — sebagian foto dibaca setelah portal dibuat.<% } %>
+      <% if (probe.sample && probe.sample.length) { %>
+        <div class="sel-probe-list">
+          <% probe.sample.forEach(function (name) { %><code><%= name %></code><% }); %>
+          <% if (probe.total > probe.sample.length) { %><span class="admin-muted">+<%= probe.total - probe.sample.length %> lainnya</span><% } %>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <% if (booking.drive_folder_url) { %>
+    <div class="admin-note">
+      Folder Drive booking ini:
+      <a href="<%= booking.drive_folder_url %>" target="_blank" rel="noopener"><%= booking.drive_folder_path || 'buka folder' %></a>
+      — tempel link-nya di bawah untuk mengambil fotonya.
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/portal" class="xx-card" data-portal-wizard>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <section class="xx-sec">
+      <div class="xx-sec__head">
+        <span class="xx-sec__num">1</span>
+        <div>
+          <h2>Sumber Foto: 01. FILE MENTAH</h2>
+          <p>Link folder sudah terisi otomatis dari subfolder <strong>01. FILE MENTAH</strong> booking ini.</p>
+        </div>
+      </div>
+      <label class="xx-field">
+        <span>Link Folder Google Drive (otomatis)</span>
+        <input type="text" id="drive_url" name="drive_url" maxlength="500"
+               value="<%= values.driveUrl %>"
+               <%= autoSource ? 'readonly aria-readonly="true"' : 'inputmode="url"' %>
+               placeholder="<%= autoSource ? '' : 'https://drive.google.com/drive/folders/...' %>">
+        <small>
+          <% if (autoSource) { %>
+            Terhubung ke subfolder <strong>01. FILE MENTAH</strong>. Link ini tidak perlu diketik —
+            sistem selalu membaca folder tersebut.
+          <% } else { %>
+            Booking ini belum punya subfolder 01. FILE MENTAH. Tempel link folder foto mentahnya, atau
+            siapkan subfolder 01/02/03 dulu di tab Workflow booking.
+          <% } %>
+        </small>
+      </label>
+      <div class="xx-row">
+        <button class="admin-btn" type="submit" formnovalidate
+                formaction="<%= base %>/admin/bookings/<%= booking.id %>/portal/test">
+          Cek Folder &amp; Hitung Foto
+        </button>
+        <span class="admin-hint">Isi folder bisa diperbarui kapan saja lewat tombol “Perbarui dari 01. File Mentah”.</span>
+      </div>
+    </section>
+
+    <section class="xx-sec">
+      <div class="xx-sec__head">
+        <span class="xx-sec__num">2</span>
+        <div><h2>Aturan Seleksi</h2><p>Batas jumlah foto dan waktu pemilihan.</p></div>
+      </div>
+      <div class="xx-grid2">
+        <label class="xx-field">
+          <span>Maksimal foto dipilih</span>
+          <input type="number" id="quota" name="quota" min="1" max="500" value="<%= values.quota %>" required>
+          <small>Saran dari paket: <%= values.quota %> foto.</small>
+        </label>
+        <label class="xx-field">
+          <span>Batas waktu (deadline)</span>
+          <input type="date" id="deadline" name="deadline" value="<%= values.deadline %>">
+          <small>Kosongkan bila tanpa batas waktu.</small>
+        </label>
+      </div>
+      <div class="xx-chips" role="group" aria-label="Preset deadline">
+        <% [3, 7, 14, 30].forEach(function (d) { %>
+          <button type="button" class="xx-chip" data-deadline-days="<%= d %>"><%= d %> hari</button>
+        <% }); %>
+      </div>
+    </section>
+
+    <section class="xx-sec">
+      <div class="xx-sec__head">
+        <span class="xx-sec__num">3</span>
+        <div><h2>Informasi Client</h2><p>Dipakai sebagai identitas portal (tidak mengubah data booking).</p></div>
+      </div>
+      <div class="xx-grid2">
+        <label class="xx-field">
+          <span>Nama lengkap client</span>
+          <input type="text" value="<%= booking.client_name %>" readonly>
+        </label>
+        <label class="xx-field">
+          <span>Nama kampus</span>
+          <input type="text" value="<%= booking.campus || '—' %>" readonly>
+        </label>
+        <label class="xx-field">
+          <span>Tanggal acara</span>
+          <input type="text" value="<%= formatDateID(booking.shooting_date, true) %>" readonly>
+        </label>
+        <label class="xx-field">
+          <span>Jam sesi</span>
+          <input type="text" value="<%= booking.shooting_time ? booking.shooting_time + ' WIB' : '—' %>" readonly>
+        </label>
+        <label class="xx-field">
+          <span>Nomor WhatsApp</span>
+          <input type="text" value="<%= booking.client_phone %>" readonly>
+        </label>
+        <label class="xx-field">
+          <span>Email client</span>
+          <input type="text" value="<%= booking.email || '—' %>" readonly>
+        </label>
+      </div>
+      <p class="admin-hint">Data ini otomatis dari booking. Mengubah identitas portal tidak mengubah data booking asli.</p>
+    </section>
+
+    <section class="xx-sec">
+      <div class="xx-sec__head">
+        <span class="xx-sec__num">4</span>
+        <div><h2>Unduhan</h2><p>Apakah client boleh mengunduh foto yang dipilihnya.</p></div>
+      </div>
+      <label class="xx-switch">
+        <input type="checkbox" name="allow_download" value="1" <%= values.allowDownload ? 'checked' : '' %>>
+        <span class="xx-switch__box" aria-hidden="true"></span>
+        <span class="xx-switch__text">
+          <strong>Izinkan client mengunduh foto</strong>
+          <small>Jika mati, tombol unduh tidak ditampilkan dan server menolak permintaan unduhan.</small>
+        </span>
+      </label>
+      <label class="xx-switch">
+        <input type="checkbox" name="require_full_quota" value="1" <%= values.requireFullQuota ? 'checked' : '' %>>
+        <span class="xx-switch__box" aria-hidden="true"></span>
+        <span class="xx-switch__text">
+          <strong>Wajib memenuhi kuota sebelum mengirim</strong>
+          <small>Client harus memilih tepat sebanyak kuota sebelum bisa menekan Kirim Pilihan.</small>
+        </span>
+      </label>
+    </section>
+
+    <div class="xx-actions">
+      <button class="admin-btn admin-btn--primary admin-btn--lg" type="submit">Buat Portal Seleksi Foto</button>
+      <button class="admin-btn" type="submit" name="no_drive" value="1" formnovalidate>Buat tanpa folder Drive</button>
+      <a class="admin-btn admin-btn--ghost" href="<%= base %>/admin/bookings/<%= booking.id %>">Batal</a>
+    </div>
+    <p class="admin-hint xx-footnote">
+      Satu booking hanya punya satu portal — menekan tombol ini lagi tidak membuat portal duplikat.
+    </p>
+  </form>
+</div>
+
+<script>
+  // Preset deadline: mengisi date picker relatif terhadap hari ini.
+  (function () {
+    var input = document.getElementById('deadline');
+    if (!input) return;
+    document.querySelectorAll('[data-deadline-days]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var days = Number(btn.getAttribute('data-deadline-days')) || 0;
+        var d = new Date();
+        d.setDate(d.getDate() + days);
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        input.value = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+        document.querySelectorAll('[data-deadline-days]').forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+      });
+    });
+  })();
+</script>

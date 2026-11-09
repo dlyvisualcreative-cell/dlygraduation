@@ -1,0 +1,80 @@
+  ok  Client can submit the photo selection
+  ok  Submitting a selection queues an editing job automatically
+  ok  The auto-queued job snapshots the number of picked photos
+  ok  Manifest is served as a manifest
+  ok  Manifest has a name + short_name
+  ok  short_name is a launcher label, not a chopped name
+  ok  Manifest start_url/scope point at the app root
+  ok  Manifest is standalone
+  ok  Manifest declares 192 + 512 + maskable icons
+  ok  Icon /appicon/YXBwaWNvbnx2M3wxOTJ8MHwvdXBsb2Fkcy9ETFktR1JBRFVBVElPTi0yLTE3OTQxNDcyNzk1MTYtNTMyYzczLnBuZw.png loads (192x192)
+  ok  Icon /appicon/YXBwaWNvbnx2M3w1MTJ8MHwvdXBsb2Fkcy9ETFktR1JBRFVBVElPTi0yLTE3OTQxNDcyNzk1MTYtNTMyYzczLnBuZw.png loads (512x512)
+  ok  Icon /appicon/YXBwaWNvbnx2M3w1MTJ8MXwvdXBsb2Fkcy9ETFktR1JBRFVBVElPTi0yLTE3OTQxNDcyNzk1MTYtNTMyYzczLnBuZw.png loads (512x512)
+  ok  Homepage links the manifest
+  ok  Service worker registers and activates
+  ok  Service worker is not pinned by the HTTP cache
+  ok  Install chip is hidden until the browser offers it
+  ok  Public pages are cached for offline use
+  ok  Admin is never cached by the service worker
+  ok  Offline fallback page is precached
+  ok  Homepage opens while offline
+  ok  Pricelist opens while offline
+  ok  Portfolio opens while offline
+  ok  An uncached page falls back to the offline screen
+  ok  Admin is never served from the offline cache
+  ok  Topbar has a notification bell
+  ok  Bell shows an unread badge
+  ok  Sidebar exposes Notifikasi as a real link
+  ok  Notifikasi page lists a new booking
+  ok  Notifikasi page lists a recorded payment
+  ok  Notifikasi page lists the client photo picks
+  ok  Notifikasi page lists a passed selection deadline
+  ok  Notifikasi page lists tomorrow's shoot
+  ok  Every notification has a working target link
+  ok  Marking all read clears the unread counter
+  ok  Unread badge disappears after mark-all-read
+  ok  Unread filter is empty after marking read
+  ok  Type filter works
+  ok  Type filter excludes other types
+  ok  Sidebar exposes Antrean Editing as a real link
+  ok  Editing board has exactly 2 columns
+  ok  Columns are Antrean Editing / Selesai
+  ok  The queue job belongs to the test booking
+  ok  A submitted selection landed in "Antrean Editing" automatically
+  ok  Every queue card has a SELESAI button
+  ok  The first card in the queue shows that it is being edited
+  ok  Stage "editing" is accepted by the server (koordinasi internal)
+  ok  An unknown stage is rejected
+  ok  A move without a CSRF token is refused
+  ok  Client-facing portal status mirrors "Diedit" (Sedang Diproses)
+  ok  An internal note field exists but is not exposed to the client view
+  ok  Queue moves are recorded in the booking activity log
+  ok  Editor/target/note are saved on the job
+  ok  Client portal shows the editing status
+  ok  Client portal shows the 3-stage strip even before any move
+  ok  Client portal shows the stage label ("Diedit")
+  ok  Client portal shows the 3-stage progress strip
+  ok  Internal editing note never reaches the client portal
+  ok  Internal target date never reaches the client portal
+  ok  Client portal defines no editing admin controls
+  ok  SELESAI ditolak saat link Google Drive belum valid
+  ok  Order TIDAK ditandai selesai saat validasi Drive gagal
+  ok  Job bisa diselesaikan setelah link final valid
+  ok  Portal status becomes "Selesai" when the job is done
+  ok  Finished job records a completion timestamp
+  ok  Client sees "Selesai" on the portal
+  ok  Booking detail shows a real editing status row
+  ok  A booking can be queued manually
+  ok  After queueing, the button becomes a link to the queue
+  ok  A repeated queue request is handled (redirect with a message), not duplicated
+  ok  Exactly one active job per booking survives a double click
+  ok  A job can be removed from the queue
+  ok  Without a job the portal says it is waiting to be queued
+  ok  The progress strip is still shown with no stage active
+  ok  Deleting a job keeps the client photo picks
+  ok  Mobile /admin/notifications has no horizontal overflow
+  ok  Mobile /admin/editing has no horizontal overflow
+  ok  Notification bell is reachable on mobile
+  ok  No JavaScript errors across the tested pages
+
+78 checks passed, 0 failed

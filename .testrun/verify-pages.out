@@ -1,0 +1,21 @@
+
+6 checks passed, 18 failed
+ FAIL GET /gallery → 200 — 404
+ FAIL GET /portfolio → 200 — 404
+ FAIL GET /pricelist → 200 — 404
+ FAIL GET /city → 200 — 404
+ FAIL GET /city/bandung → 200 — 404
+ FAIL GET /cara-order → 200 — 404
+ FAIL GET /ulasan → 200 — 404
+ FAIL GET /syarat-ketentuan → 200 — 404
+ FAIL GET /tentang → 200 — 404
+ FAIL GET /artikel → 200 — 404
+ FAIL GET /faq → 200 — 404
+ FAIL GET /booking → 200 — 404
+ FAIL GET /sitemap.xml → 200 — 404
+ FAIL GET /robots.txt → 200 — 404
+ FAIL GET /paket/individual → 200 — 404
+ FAIL GET /selection/040ee9768d5d2207311e3b45a18eb2b210ed1d56cb0c7b18 → 200 — 404
+ FAIL CSS served with long immutable cache — public, max-age=3600
+ FAIL CSS is compressed on the wire — none
+ note images fetched: 0, total 0KB

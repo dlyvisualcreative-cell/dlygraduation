@@ -1,0 +1,41 @@
+<%
+  /**
+   * Harga Extra Time (revisi pemilik).
+   *
+   * Dua pilihan tetap: +30 menit dan +60 menit. Harganya bisa diubah kapan saja.
+   * Harga 0 / kosong = "belum diatur": tombol pengajuan Extra Time di Client Portal
+   * dinonaktifkan, tidak ada nominal yang dikarang sistem.
+   */
+%>
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Harga Extra Time</h2>
+      <p class="admin-muted">
+        Tambahan waktu sesi foto. Klien hanya bisa mengajukan Extra Time
+        <strong>setelah sesi foto selesai</strong>, dan harga baru berlaku setelah pengajuan
+        disetujui di menu <a href="<%= base %>/admin/upgrades">Upgrade Paket</a>.
+      </p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/extra-time" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field-grid">
+      <% options.forEach(function (o) { %>
+        <div class="admin-field">
+          <label for="extra_<%= o.minutes %>">Extra Time +<%= o.minutes %> menit (Rp)</label>
+          <input type="number" id="extra_<%= o.minutes %>" name="extra_time_<%= o.minutes %>_price"
+                 min="0" step="1000" value="<%= o.price || 0 %>"
+                 placeholder="0 = belum diatur">
+          <span class="admin-hint">
+            <% if (o.available) { %>Tampil di portal sebagai <strong><%= rupiah(o.price) %></strong>.<% } else { %>Belum ada harga — tombol pengajuan dinonaktifkan.<% } %>
+          </span>
+        </div>
+      <% }); %>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan harga</button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= pageTitle ? pageTitle + ' — ' + brand.name : 'Client Portal ' + brand.name %></title>
+  <meta name="theme-color" content="<%= appearance.primary %>">
+  <%# Portal klien berisi data & foto pribadi: never indexable, never cached by proxies. %>
+  <meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="<%= favicon.src %>" type="image/png">
+  <link rel="alternate icon" href="<%= favicon.fallback %>" type="image/svg+xml">
+  <% if (theme.fontsUrl) { %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="<%= theme.fontsUrl %>" rel="stylesheet">
+  <% } %>
+  <link rel="stylesheet" href="<%= base %>/assets/app.css?v=<%= assetVersion.app %>">
+  <link rel="stylesheet" href="<%= base %>/assets/selection.css?v=<%= assetVersion.selection %>">
+  <link rel="stylesheet" href="<%= base %>/assets/client-portal.css?v=<%= assetVersion.portal %>">
+  <style>:root { <%- theme.vars %>; }</style>
+</head>
+<body class="cp-body<%= typeof bodyClass !== 'undefined' && bodyClass ? ' ' + bodyClass : '' %>" data-base="<%= base %>">
+  <a class="cp-skip" href="#cp-main">Lewati ke konten</a>
+
+  <aside class="cp-side" data-cp-side aria-label="Menu portal">
+    <div class="cp-side__brand">
+      <% const portalLogo = logoFor(settings.selection_portal_logo, 'light'); %>
+      <% if (portalLogo) { %>
+        <%- picture(portalLogo, { alt: brand.name, className: 'cp-side__logo', widths: [96, 192], sizes: '96px', eager: true }) %>
+      <% } else { %>
+        <span class="cp-side__mark" aria-hidden="true">DLY</span>
+      <% } %>
+      <span class="cp-side__eyebrow">Client Portal</span>
+    </div>
+
+    <div class="cp-side__who">
+      <strong><%= portalClient.name %></strong>
+      <small><%= portalClient.code %></small>
+    </div>
+
+    <nav class="cp-nav">
+      <% cpMenus.forEach(function (m) { %>
+        <% if (m.disabled) { %>
+          <span class="cp-nav__item is-disabled" title="<%= m.hint %>">
+            <span class="cp-nav__icon"><%- m.icon %></span>
+            <span class="cp-nav__label"><%= m.label %></span>
+            <span class="cp-nav__tag">Belum aktif</span>
+          </span>
+        <% } else { %>
+          <a class="cp-nav__item <%= cpActive === m.key ? 'is-active' : '' %>"
+             href="<%= base %>/portal<%= m.path %>"
+             <%= cpActive === m.key ? 'aria-current="page"' : '' %>>
+            <span class="cp-nav__icon"><%- m.icon %></span>
+            <span class="cp-nav__label"><%= m.label %></span>
+            <% if (m.badge) { %><span class="cp-nav__badge"><%= m.badge %></span><% } %>
+          </a>
+        <% } %>
+      <% }); %>
+    </nav>
+
+    <div class="cp-side__foot">
+      <form method="post" action="<%= base %>/portal/keluar">
+        <input type="hidden" name="_csrf" value="<%= cpCsrf %>">
+        <button type="submit" class="cp-side__out">Keluar</button>
+      </form>
+      <a class="cp-side__wa" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya klien dengan kode booking ' + portalClient.code + '.') %>"
+         target="_blank" rel="noopener">Hubungi admin</a>
+    </div>
+  </aside>
+
+  <div class="cp-backdrop" data-cp-backdrop hidden></div>
+
+  <div class="cp-main">
+    <header class="cp-top">
+      <button class="cp-burger" type="button" data-cp-toggle aria-label="Buka menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="cp-top__title">
+        <span class="cp-top__eyebrow">Portal Client</span>
+        <strong><%= pageTitle || 'Ringkasan' %></strong>
+      </div>
+      <span class="cp-top__who"><%= portalClient.name %><small><%= portalClient.code %></small></span>
+    </header>
+
+    <main id="cp-main" class="cp-content">
+      <%- body %>
+    </main>
+
+    <footer class="cp-foot">
+      <p><%= brand.name %> · <a href="https://instagram.com/<%= brand.instagram %>" target="_blank" rel="noopener">@<%= brand.instagram %></a>
+        · <a href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya klien dengan kode booking ' + portalClient.code + '.') %>" target="_blank" rel="noopener">WhatsApp</a></p>
+      <p class="cp-foot__note">Halaman ini pribadi — mohon tidak membagikan kode booking atau tautannya.</p>
+    </footer>
+  </div>
+
+  <div class="lightbox" data-lightbox-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pratinjau foto">
+    <button class="lightbox__close" type="button" data-lb-close aria-label="Tutup">&times;</button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" data-lb-prev aria-label="Foto sebelumnya">&#8249;</button>
+    <button class="lightbox__nav lightbox__nav--next" type="button" data-lb-next aria-label="Foto berikutnya">&#8250;</button>
+    <span class="lightbox__counter" data-lb-counter hidden></span>
+    <figure class="lightbox__figure">
+      <img data-lb-img alt="">
+      <figcaption>
+        <strong data-lb-title></strong>
+        <span data-lb-meta></span>
+        <p data-lb-desc></p>
+      </figcaption>
+      <div class="lightbox__thumbs" data-lb-thumbs hidden></div>
+    </figure>
+  </div>
+
+  <script src="<%= base %>/assets/app.js?v=<%= assetVersion.app %>" defer></script>
+  <script src="<%= base %>/assets/client-portal.js?v=<%= assetVersion.portal %>" defer></script>
+  <% if (typeof cpNeedsSelection !== 'undefined' && cpNeedsSelection) { %>
+    <script src="<%= base %>/assets/selection.js?v=<%= assetVersion.selection %>" defer></script>
+  <% } %>
+</body>
+</html>

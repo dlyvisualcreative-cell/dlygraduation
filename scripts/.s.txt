@@ -1,0 +1,137 @@
+PASS  Homepage renders hero headline
+PASS  Navigation keeps the core items — Home | Gallery | Pricelist | Cara Order | Ulasan | Syarat & Ketentuan
+PASS  Navigation includes Syarat & Ketentuan — Home | Gallery | Pricelist | Cara Order | Ulasan | Syarat & Ketentuan
+PASS  Hero slideshow loads slides from DB — slides=4
+PASS  Hero is 85–100vh on desktop — height=846
+PASS  Hero uses object-fit cover
+PASS  Hero autoplay advances (crossfade) — 0 → 2
+PASS  Hero dot navigates
+PASS  Hero previous arrow works
+PASS  Hero autoplay toggle works
+PASS  Homepage renders the active DB sections — 9 sections
+PASS  Our Services shows 4 services — cards=4
+PASS  No horizontal overflow (desktop home) — overflow=0
+FAIL  No broken images on homepage — /uploads/DLY-GRADUATION.PNG
+PASS  Page renders: /cara-order
+PASS  Page renders: /ulasan
+PASS  Page renders: /faq
+PASS  Page renders: /tentang
+PASS  Page renders: /artikel
+PASS  FAQ items render from DB — items=5
+PASS  Legacy /portfolio redirects to /gallery — status=301
+PASS  City page heading is "Archives by Location"
+PASS  City page breadcrumb Home > Choose Location
+PASS  City archive cards render — cards=2
+PASS  City card shows "Harga belum dikonfigurasi" when no price
+PASS  Selecting a city shows its pricelist on the same page — tabs=3
+PASS  Pricelist categories come from DB — individual,couple,group
+PASS  No Basic/Standard/Premium tiers exposed
+PASS  Durations render for a category (60/90/120) — 60,90,120
+PASS  Price cell shows a price or the not-available label — Rp 375.000
+PASS  CTA enabled exactly when a price exists — {"href":"/paket/individual?kota=bandung&durasi=60","disabled":null}
+PASS  Edited-photo count is shown per duration in the spec block — 30 foto
+PASS  Each duration card carries its own photo count — 30,40,55
+PASS  Package cards use an editorial 2-column layout
+PASS  Admin area redirects to login
+PASS  Wrong password rejected
+PASS  Admin login works
+PASS  Admin menu covers the V4 modules — Overview | Teks Website | Identitas Brand | Warna & Font | Urutan Section | Hero Slideshow | Statistik Homepage | Halaman & Navigasi | Kota | Kategori Paket | Paket | Harga & Foto Edit | Add-on | Booking | Jadwal Tersedia | Tim yang Bertugas | Portfolio | Google Calendar | Artikel | FAQ | Testimoni | Link Testimoni | Template WhatsApp | Pembayaran (DP) | Kontak & Password
+PASS  Admin menu is grouped into clear sections — Konten website | Katalog & harga | Operasional | Komunikasi | Pengaturan
+PASS  Durations screen lists all duration rows — rows=9
+PASS  Durations screen exposes a photo count per duration — photo inputs=9
+PASS  Package prices saved
+PASS  Public pricelist shows saved price — Rp 350.000
+PASS  Switching duration updates the price instantly — Rp 600.000
+PASS  CTA carries the selected duration — /paket/individual?kota=bandung&durasi=120
+PASS  Add-on structure seeded (inactive) — rows=4
+PASS  Add-on created & activated
+PASS  Active add-on with price appears in booking
+PASS  Unpriced add-on stays hidden from visitors
+PASS  Booking form has 3 steps
+PASS  Wizard starts on step 1
+PASS  Package list follows the selected category — Individu Package
+PASS  Estimate shows the package price — Rp 450.000
+PASS  Add-on total is added to the estimate — Rp 125.000
+PASS  Total = package + add-ons — Rp 575.000
+PASS  Calendar renders day cells — cells=30
+PASS  Calendar disables unavailable dates — disabled=5
+PASS  Calendar next month works — November 2026 → Desember 2026
+PASS  Selecting a date works — 2026-11-06
+PASS  Selected date is echoed to the user — Tanggal dipilih: Jumat, 6 November 2026
+PASS  Selected date stored in the form — 2026-11-06
+PASS  Session step blocks a missing location
+PASS  Continue moves to the review step
+PASS  Review shows the identity captured on step 1 — Klien V3
+PASS  Review shows the chosen date — Jumat, 6 November 2026
+PASS  Review shows the add-on — Extra Edit Uji
+PASS  Review shows the estimated total — Rp 575.000
+PASS  Booking saved and confirmation shown — DLY-261106-D8C3
+PASS  Confirmation shows Pending status
+PASS  Confirmation lists add-on and total
+PASS  WhatsApp link uses the business number — https://wa.me/6289629619590?text=Halo%20
+PASS  Message contains Booking ID
+PASS  Message contains name & phone
+PASS  Message contains Instagram
+PASS  Message contains faculty & major
+PASS  Message contains city/date/location
+PASS  Message contains category/duration/price
+PASS  Message contains add-on & total
+PASS  Message keeps closing line
+PASS  Server rejects booking when price is empty — status=422
+PASS  Same-day bookings allowed when lead time is 0 — leadDays=0 status=200
+PASS  Server requires terms consent
+PASS  Booking listed in admin — DLY-261106-D8C3
+PASS  Admin sees add-on and total snapshot
+PASS  Admin sees faculty & major
+PASS  Booking status updated & persisted
+PASS  Internal note persisted
+PASS  Status filter includes confirmed booking
+PASS  Status filter excludes non-matching booking
+PASS  City filter works
+PASS  Date range filter works
+PASS  Availability page groups rules, calendar and overrides
+PASS  Availability API returns day map
+PASS  Blocking a date changes public availability — true → false
+PASS  Re-opening a date restores availability
+PASS  Availability rules persist after reload
+PASS  Content saved as draft
+PASS  Draft does NOT change the public site
+PASS  Admin preview shows the draft
+PASS  Publish applies the draft to the public site
+PASS  Section manager lists intro & services
+PASS  Disabled section disappears from home
+PASS  Appearance colour reaches the public CSS — #123456
+PASS  Preset restores brand navy
+PASS  Draft articles are hidden from the public list
+PASS  Published article appears publicly
+PASS  Article detail page renders body
+PASS  Article created with cover upload
+PASS  New article live at its slug
+PASS  New FAQ appears publicly
+PASS  Logout works
+PASS  Protected admin page redirects when logged out
+PASS  Admin POST rejected without a session — status=302
+PASS  Anonymous preview cannot see drafts
+PASS  Anonymous public page cannot see drafts
+PASS  Admin preview can see the same draft
+PASS  Test booking deleted
+PASS  Test add-on deleted
+PASS  Test article deleted
+PASS  Test FAQ deleted
+PASS  No horizontal overflow (mobile home)
+PASS  Hero fills mobile viewport
+PASS  Mobile menu opens with the visible items
+PASS  Mobile nav navigates correctly
+PASS  No horizontal overflow (mobile pricelist)
+PASS  Featured package card stacks on mobile — cols=1
+PASS  No horizontal overflow (mobile city archives)
+PASS  No horizontal overflow (mobile booking)
+PASS  Calendar fits mobile width — width=0
+PASS  Wizard continue button usable on mobile — width=130
+PASS  Wizard starts on step 1 (mobile)
+PASS  No horizontal overflow (mobile admin)
+PASS  Admin sidebar opens on mobile
+PASS  Availability calendar fits mobile admin
+PASS  No JavaScript errors on tested pages
+
+1 OF 135 CHECKS FAILED

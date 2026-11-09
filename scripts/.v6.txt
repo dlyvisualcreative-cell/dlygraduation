@@ -1,0 +1,54 @@
+PASS  Admin login works
+PASS  Panels use a rounded radius (14–22px) — 18px
+PASS  Panels have a soft shadow — rgba(11, 35, 64, 0.04) 0px 1px 2px 0px, 
+PASS  Sidebar items carry icons — icons=26
+PASS  Sidebar has a collapse control
+PASS  Sidebar collapses on desktop
+PASS  Stat cards animate with count-up — counters=11
+PASS  Count-up produces a number — 2
+PASS  Toast container present
+FAIL  Brand page renders logo variants
+PASS  Brand identity saves
+PASS  Header shows the studio description
+PASS  Homepage statistics render from DB — stats=3
+PASS  Counter reaches its configured target — 350+
+PASS  Pricelist cards are rounded — 18px
+PASS  Card CTA opens the package detail page — Pesan Sesimu Sekarang
+PASS  Best Seller + sold info saved
+PASS  Best Seller badge appears
+PASS  Sold info appears — 150 Sesi Telah Dipesan
+          
+PASS  CTA points to /paket/<slug> — /paket/individual?kota=bandung&durasi=60
+PASS  Package detail page loads
+PASS  Detail page lists durations — chips=3
+PASS  Price reacts to the duration choice — Rp 375.000 → Rp 450.000
+PASS  Booking handoff carries package + duration — /booking?kota=bandung&paket=2&durasi=90
+PASS  Sticky CTA hidden on desktop — none
+PASS  Step 1 is identity first — Identitas klien
+PASS  Step 2 is session detail — Detail sesi foto
+PASS  Photo-publication consent removed
+PASS  TnC consent still required
+PASS  Wizard labels updated — 1 Identitas | 2 Detail Sesi | 3 Review
+PASS  Identity step blocks when empty
+PASS  Template is editable and pre-filled
+PASS  Custom template is used as-is (owner may include emoji) — Halo Kak {{nama}}!🤩👋🏻
+
+Terima kasih sudah
+PASS  Placeholder list shown — chips=19
+PASS  Preview renders real data (no raw placeholders) — Halo Kak Nama Klien!🤩👋🏻
+
+Terima kasih sudah melakukan boo
+PASS  Chat Klien uses the saved template — Halo Kak Budi!🤩👋🏻
+
+Teri
+PASS  No replacement characters in the message
+PASS  Message length stays WhatsApp-friendly — 733 chars
+PASS  No JavaScript errors
+PASS  [mobile] no overflow on / — overflow=0
+PASS  [mobile] no overflow on /pricelist?kota=bandung — overflow=0
+PASS  [mobile] no overflow on /paket/individual — overflow=0
+PASS  [mobile] no overflow on /booking?kota=bandung — overflow=0
+PASS  [mobile] sticky CTA visible
+PASS  [mobile] admin has no horizontal overflow — overflow=0
+PASS  [mobile] sidebar opens as drawer
+1 FAILED

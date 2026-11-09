@@ -1,0 +1,104 @@
+<section class="city-hero">
+  <div class="city-hero__media">
+    <% if (city.cover_image) { %>
+      <%- picture(city.cover_image, {
+            alt: 'Fotografi wisuda ' + city.name,
+            widths: [480, 800, 1200, 1600], sizes: '100vw', priority: true
+          }) %>
+    <% } %>
+    <div class="city-hero__scrim" aria-hidden="true"></div>
+  </div>
+  <div class="container city-hero__content">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <a href="<%= base %>/city">Choose Location</a><span aria-hidden="true">/</span>
+      <span><%= city.name %></span>
+    </nav>
+    <span class="eyebrow eyebrow--light">Layanan di <%= city.name %></span>
+    <h1>Fotografi Wisuda <%= city.name %></h1>
+    <p class="city-hero__desc"><%= city.description || ('Sesi foto wisuda di ' + city.name + ' bersama DLY Graduation.') %></p>
+    <div class="city-hero__actions">
+      <a class="btn btn--light" href="<%= base %>/booking?kota=<%= city.slug %>">Booking di <%= city.name %></a>
+      <a class="btn btn--outline-light" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai sesi foto wisuda di ' + city.name + '.') %>" target="_blank" rel="noopener">Tanya jadwal</a>
+    </div>
+  </div>
+</section>
+
+<% if (!city.is_active) { %>
+  <section class="section section--tight">
+    <div class="container">
+      <div class="empty-state">
+        <h2>Layanan <%= city.name %> belum dibuka</h2>
+        <p>Kota ini belum diaktifkan oleh admin. Silakan pilih kota lain atau hubungi kami untuk informasi jadwal.</p>
+        <a class="btn btn--primary" href="<%= base %>/city">Lihat kota lain</a>
+      </div>
+    </div>
+  </section>
+<% } else { %>
+  <section class="section" id="harga-<%= city.slug %>">
+    <div class="container">
+      <div class="section-head section-head--split">
+        <div>
+          <span class="eyebrow">Sesi &amp; Harga <%= city.name %></span>
+          <h2>Pilih kategori, lalu durasi</h2>
+          <p class="section-sub">Harga menyesuaikan durasi yang Anda pilih dan berasal dari data resmi kota ini.</p>
+        </div>
+        <a class="link-arrow" href="<%= base %>/pricelist?kota=<%= city.slug %>">Pricelist <%= city.name %> <span aria-hidden="true">&rarr;</span></a>
+      </div>
+
+      <% if (!catalogCity || !catalogCity.categories.length) { %>
+        <div class="empty-state">
+          <h2>Belum ada sesi aktif di <%= city.name %></h2>
+          <p>Hubungi kami via WhatsApp untuk informasi terbaru mengenai jadwal kota ini.</p>
+        </div>
+      <% } else { %>
+        <%- include('partials/package-browser', { catalogCity: catalogCity, alternating: true }) %>
+      <% } %>
+    </div>
+  </section>
+
+  <% if (gallery.length) { %>
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div><span class="eyebrow">Gallery <%= city.name %></span><h2>Sesi terbaru di <%= city.name %></h2></div>
+          <a class="link-arrow" href="<%= base %>/gallery?kota=<%= city.slug %>">Semua foto <%= city.name %> <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <div class="masonry-grid" data-gallery>
+          <% gallery.forEach(function (item) { %>
+            <figure class="masonry-item">
+              <button class="masonry-item__btn" type="button"
+                      data-lightbox data-src="<%= lightboxUrl(item.image_src) %>"
+                      data-title="<%= item.title %>"
+                      data-meta="<%= [(PORTFOLIO_CATEGORIES.find(function(c){return c.value===item.category;})||{}).label || item.category, item.city_name].filter(Boolean).join(' · ') %>"
+                      data-desc="<%= item.description || '' %>">
+                <%- picture(item.image_src, {
+                      alt: item.alt_text || item.title,
+                      widths: [320, 480, 800],
+                      sizes: '(max-width: 560px) 45vw, 22vw'
+                    }) %>
+                <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+              </button>
+            </figure>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+<% } %>
+
+<% if (otherCities.length) { %>
+<section class="section section--tight">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div><span class="eyebrow">Kota lain</span><h2>Layanan di kota lain</h2></div>
+      <a class="link-arrow" href="<%= base %>/city">Semua kota <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="chip-row">
+      <% otherCities.forEach(function (c) { %>
+        <a class="chip" href="<%= base %>/city/<%= c.slug %>"><%= c.name %></a>
+      <% }); %>
+    </div>
+  </div>
+</section>
+<% } %>

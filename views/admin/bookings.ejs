@@ -1,0 +1,280 @@
+<%
+  // Semua tautan di halaman ini mempertahankan filter lain (`builder`) supaya
+  // mengubah satu filter tidak menghapus pilihan filter lainnya.
+  const builder = (patch) => {
+    const q = new URLSearchParams();
+    const merged = { ...filters, ...patch };
+    Object.entries(merged).forEach(([k, v]) => {
+      if (v === '' || v === undefined || v === null) return;
+      if (k === 'page' && Number(v) <= 1) return;
+      if (k === 'tab' && v === 'all') return;
+      if (k === 'bulan' && !merged.view) return;
+      q.set(k, String(v));
+    });
+    const s = q.toString();
+    return `${base}/admin/bookings${s ? '?' + s : ''}`;
+  };
+  const activeTab = tabs.find((t) => t.value === filters.tab) || tabs[0];
+  const view = filters.view || 'grid';
+  const anyFilter = filters.tab !== 'all' || filters.kota || filters.kategori || filters.tim
+    || filters.bayar || filters.tanggal || filters.dari || filters.sampai || filters.q;
+  const payTone = (p) => (p ? p.tone : 'muted');
+%>
+
+<section class="kb-head">
+  <div>
+    <h2>Kelola Booking</h2>
+    <p class="admin-muted">
+      <%= totalRows %> booking pada filter ini
+      · Nilai tercatat: <strong><%= rupiah(paidTotal) %></strong> diterima dari <strong><%= rupiah(billTotal) %></strong> tagihan
+    </p>
+  </div>
+  <div class="cell-actions">
+    <a class="admin-btn admin-btn--primary admin-btn--sm" href="<%= base %>/admin/bookings/new">+ Tambah Client Manual</a>
+    <a class="admin-link" href="<%= base %>/admin/availability">Jadwal tersedia</a>
+    <a class="admin-btn admin-btn--sm" href="<%= builder({ tab: 'all', kota: '', kategori: '', tim: '', bayar: '', tanggal: '', dari: '', sampai: '', q: '', page: 1 }) %>">Reset filter</a>
+  </div>
+</section>
+
+<nav class="kb-tabs" aria-label="Filter cepat booking">
+  <% tabs.forEach(function (t) { %>
+    <a class="kb-tab <%= filters.tab === t.value ? 'is-active' : '' %>" href="<%= builder({ tab: t.value, page: 1 }) %>">
+      <%= t.label %>
+      <span class="kb-tab__n"><%= counts[t.value] || 0 %></span>
+    </a>
+  <% }); %>
+</nav>
+
+<form class="kb-filters" method="get" action="<%= base %>/admin/bookings" data-auto-filter>
+  <input type="hidden" name="tab" value="<%= filters.tab %>">
+  <input type="hidden" name="view" value="<%= view %>">
+
+  <label class="kb-field">
+    <span>Tanggal pekerjaan</span>
+    <!-- ONE date picker: memilih tanggal menampilkan booking pada tanggal itu saja -->
+    <input type="date" name="tanggal" value="<%= filters.tanggal %>">
+  </label>
+
+  <label class="kb-field">
+    <span>Kategori paket</span>
+    <select name="kategori">
+      <option value="">Semua kategori</option>
+      <% categories.forEach(function (c) { %>
+        <option value="<%= c.slug %>" <%= filters.kategori === c.slug ? 'selected' : '' %>><%= c.name %></option>
+      <% }); %>
+    </select>
+  </label>
+
+  <label class="kb-field">
+    <span>Kota</span>
+    <select name="kota">
+      <option value="">Semua kota</option>
+      <% cities.forEach(function (c) { %>
+        <option value="<%= c.id %>" <%= String(filters.kota) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+      <% }); %>
+    </select>
+  </label>
+
+  <label class="kb-field">
+    <span>Tim yang bertugas</span>
+    <select name="tim">
+      <option value="">Semua tim</option>
+      <option value="none" <%= filters.tim === 'none' ? 'selected' : '' %>>Belum ditentukan</option>
+      <% teamMembers.forEach(function (m) { %>
+        <option value="<%= m.id %>" <%= String(filters.tim) === String(m.id) ? 'selected' : '' %>><%= m.name %></option>
+      <% }); %>
+    </select>
+  </label>
+
+  <label class="kb-field">
+    <span>Status pembayaran</span>
+    <select name="bayar">
+      <option value="">Semua status</option>
+      <% paymentFilters.forEach(function (p) { %>
+        <option value="<%= p.value %>" <%= filters.bayar === p.value ? 'selected' : '' %>><%= p.label %></option>
+      <% }); %>
+    </select>
+  </label>
+
+  <label class="kb-field kb-field--grow">
+    <span>Cari</span>
+    <input type="search" name="q" value="<%= filters.q %>" placeholder="Nama klien, kode booking, WhatsApp, kampus…">
+  </label>
+
+  <% if (filters.dari || filters.sampai) { %>
+    <p class="kb-field kb-field--note">
+      Rentang tanggal lama aktif: <strong><%= filters.dari || '…' %></strong> – <strong><%= filters.sampai || '…' %></strong>.
+      <a href="<%= builder({ dari: '', sampai: '' }) %>">Hapus rentang</a>
+    </p>
+  <% } %>
+
+  <div class="kb-filters__actions">
+    <button class="admin-btn admin-btn--primary admin-btn--sm" type="submit">Terapkan</button>
+    <% if (anyFilter) { %>
+      <a class="admin-btn admin-btn--sm admin-btn--ghost" href="<%= builder({ tab: 'all', kota: '', kategori: '', tim: '', bayar: '', tanggal: '', dari: '', sampai: '', q: '', page: 1 }) %>">Reset</a>
+    <% } %>
+  </div>
+</form>
+
+<div class="kb-views" role="tablist" aria-label="Mode tampilan">
+  <% views.forEach(function (v) { %>
+    <a role="tab" class="kb-view <%= view === v.value ? 'is-active' : '' %>"
+       aria-selected="<%= view === v.value ? 'true' : 'false' %>"
+       href="<%= builder({ view: v.value, page: 1 }) %>" data-view-link="<%= v.value %>"><%= v.label %></a>
+  <% }); %>
+</div>
+
+<% if (!totalRows && view !== 'calendar') { %>
+  <div class="admin-panel kb-empty">
+    <p class="admin-muted">
+      Tidak ada booking pada filter ini.
+      <% if (anyFilter) { %><a href="<%= builder({ tab: 'all', kota: '', kategori: '', tim: '', bayar: '', tanggal: '', dari: '', sampai: '', q: '', page: 1 }) %>">Reset filter</a> untuk melihat semua.<% } %>
+    </p>
+  </div>
+
+<% } else if (view === 'grid') { %>
+  <div class="kb-grid">
+    <% bookings.forEach(function (b) { %>
+      <%- include('partials/booking-card', { b: b, filters: filters, selectionStatus: selectionStatus, selectionStatusLabel: selectionStatusLabel }) %>
+    <% }); %>
+  </div>
+  <% if (totalRows > bookings.length) { %>
+    <p class="admin-hint" style="margin-top:14px">Menampilkan <%= bookings.length %> dari <%= totalRows %> booking — persempit filter atau buka mode Daftar untuk melihat semuanya.</p>
+  <% } %>
+
+<% } else if (view === 'list') { %>
+  <div class="admin-panel">
+    <div class="table-wrap">
+      <table class="admin-table kb-table">
+        <thead>
+          <tr>
+            <th>Klien</th><th>Booking</th><th>Tanggal</th><th>Jam</th><th>Paket</th>
+            <th>Lokasi</th><th>Status</th><th>Pembayaran</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% bookings.forEach(function (b) { %>
+            <tr>
+              <td>
+                <strong><%= b.client_name %></strong>
+                <small class="cell-sub"><%= b.campus %></small>
+              </td>
+              <td><code class="sel-code"><%= b.code %></code></td>
+              <td><%= formatDateID(b.shooting_date) %></td>
+              <td><%= b.shooting_time || '—' %></td>
+              <td>
+                <%= b.package_name %>
+                <small class="cell-sub"><%= b.category_name || '—' %> · <%= b.duration_minutes || b.duration %> mnt</small>
+              </td>
+              <td>
+                <%= b.location %>
+                <small class="cell-sub"><%= b.city_name %></small>
+              </td>
+              <td><span class="bk-status bk-status--<%= b.status %>"><%= b.status %></span></td>
+              <td>
+                <span class="pay-chip pay-chip--<%= payTone(b.pay) %>"><%= b.pay ? b.pay.label : '—' %></span>
+                <small class="cell-sub"><%= b.pay && b.pay.total ? rupiah(b.pay.paid) + ' / ' + rupiah(b.pay.total) : '—' %></small>
+              </td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/bookings/<%= b.id %>">Detail</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <% if (pageCount > 1) { %>
+    <nav class="kb-pager" aria-label="Halaman booking">
+      <% if (filters.page > 1) { %>
+        <a class="kb-pager__btn" href="<%= builder({ page: filters.page - 1 }) %>">&larr; Sebelumnya</a>
+      <% } else { %><span class="kb-pager__btn is-disabled">&larr; Sebelumnya</span><% } %>
+      <span class="kb-pager__info">Halaman <%= filters.page %> dari <%= pageCount %></span>
+      <% if (filters.page < pageCount) { %>
+        <a class="kb-pager__btn" href="<%= builder({ page: filters.page + 1 }) %>">Berikutnya &rarr;</a>
+      <% } else { %><span class="kb-pager__btn is-disabled">Berikutnya &rarr;</span><% } %>
+    </nav>
+  <% } %>
+
+<% } else if (view === 'calendar') { %>
+  <%
+    const monthLabel = new Date(`${filters.bulan}-01T00:00:00Z`)
+      .toLocaleDateString('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    const prevMonth = (() => { const [y, m] = filters.bulan.split('-').map(Number);
+      const d = new Date(Date.UTC(y, m - 2, 1)); return d.toISOString().slice(0, 7); })();
+    const nextMonth = (() => { const [y, m] = filters.bulan.split('-').map(Number);
+      const d = new Date(Date.UTC(y, m, 1)); return d.toISOString().slice(0, 7); })();
+  %>
+  <section class="admin-panel kb-cal">
+    <div class="kb-cal__head">
+      <a class="admin-btn admin-btn--sm" href="<%= builder({ bulan: prevMonth }) %>" aria-label="Bulan sebelumnya">&larr;</a>
+      <h3><%= monthLabel %></h3>
+      <a class="admin-btn admin-btn--sm" href="<%= builder({ bulan: nextMonth }) %>" aria-label="Bulan berikutnya">&rarr;</a>
+      <span class="kb-cal__legend">
+        <% statuses.forEach(function (s) { %>
+          <span class="kb-cal__key kb-cal__key--<%= s.value %>"><%= s.label %></span>
+        <% }); %>
+      </span>
+    </div>
+    <div class="kb-cal__weekdays" aria-hidden="true">
+      <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+    </div>
+    <div class="kb-cal__grid">
+      <%# Kolom dimulai Senin: geser grid satu sel bila bulan mulai hari Minggu %>
+      <% calendarWeeks.forEach(function (week) { %>
+        <% week.forEach(function (cell) { %>
+          <% if (cell.empty) { %>
+            <span class="kb-cal__cell is-empty"></span>
+          <% } else { %>
+            <a class="kb-cal__cell <%= cell.iso === today ? 'is-today' : '' %> <%= cell.events.length ? 'has-events' : '' %>"
+               href="<%= builder({ tanggal: cell.iso, view: 'list', page: 1 }) %>"
+               title="<%= cell.events.length %> booking pada <%= formatDateID(cell.iso) %>">
+              <span class="kb-cal__num"><%= cell.day %></span>
+              <% cell.events.slice(0, 3).forEach(function (ev) { %>
+                <span class="kb-cal__ev kb-cal__ev--<%= ev.status %>">
+                  <%= ev.shooting_time || '—' %> <%= ev.client_name.split(' ')[0] %>
+                </span>
+              <% }); %>
+              <% if (cell.events.length > 3) { %>
+                <span class="kb-cal__more">+<%= cell.events.length - 3 %> lagi</span>
+              <% } %>
+            </a>
+          <% } %>
+        <% }); %>
+      <% }); %>
+    </div>
+  </section>
+
+<% } else { %>
+  <div class="kb-kanban" data-kanban data-csrf="<%= csrf %>" data-base="<%= base %>">
+    <% statuses.forEach(function (s) { %>
+      <section class="kb-col" data-col="<%= s.value %>">
+        <header class="kb-col__head">
+          <span class="kb-col__dot kb-col__dot--<%= s.value %>"></span>
+          <h3><%= s.label %></h3>
+          <span class="kb-col__n" data-col-count>
+            <%= bookings.filter(function (b) { return b.status === s.value; }).length %>
+          </span>
+        </header>
+        <div class="kb-col__body" data-col-body>
+          <% bookings.filter(function (b) { return b.status === s.value; }).forEach(function (b) { %>
+            <article class="kb-kcard" draggable="true" data-booking-id="<%= b.id %>" data-status="<%= b.status %>">
+              <a class="kb-kcard__link" href="<%= base %>/admin/bookings/<%= b.id %>">
+                <strong><%= b.client_name %></strong>
+                <span class="kb-kcard__meta"><%= formatDateID(b.shooting_date) %><%= b.shooting_time ? ' · ' + b.shooting_time : '' %></span>
+                <span class="kb-kcard__meta"><%= b.package_name %></span>
+                <span class="kb-kcard__foot">
+                  <code class="sel-code"><%= b.code %></code>
+                  <span class="pay-chip pay-chip--<%= payTone(b.pay) %>"><%= b.pay ? b.pay.label : '—' %></span>
+                </span>
+              </a>
+            </article>
+          <% }); %>
+          <p class="kb-col__empty">Tidak ada booking</p>
+        </div>
+      </section>
+    <% }); %>
+  </div>
+  <p class="admin-hint kb-kanban__hint">Tarik kartu ke kolom lain untuk mengubah status. Setiap perubahan divalidasi server dan dicatat di riwayat aktivitas booking.</p>
+<% } %>

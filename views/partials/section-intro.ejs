@@ -1,0 +1,39 @@
+<%
+  const points = (site['intro.points'] || '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean)
+    .map(function (line) { const p = line.split('|'); return { title: (p[0] || '').trim(), description: (p[1] || '').trim() }; })
+    .filter(function (p) { return p.title; });
+  const imgFirst = s.layout === 'image-left';
+%>
+<section class="section section--intro layout-<%= s.layout %>">
+  <div class="container intro">
+    <div class="intro__media <%= imgFirst ? 'intro__media--first' : '' %>">
+      <% if (site['intro.image']) { %>
+        <%- picture(site['intro.image'], {
+              alt: s.title || site['intro.title'],
+              widths: [480, 800, 1200], sizes: '(max-width: 900px) 92vw, 46vw'
+            }) %>
+      <% } %>
+      <span class="intro__media-frame" aria-hidden="true"></span>
+    </div>
+
+    <div class="intro__body">
+      <span class="eyebrow"><%= site['intro.eyebrow'] %></span>
+      <h2><%= s.title || site['intro.title'] %></h2>
+      <p class="intro__lede"><%= s.description || site['intro.description'] %></p>
+
+      <% if (points.length) { %>
+        <ul class="intro__points">
+          <% points.forEach(function (p) { %>
+            <li><strong><%= p.title %></strong><% if (p.description) { %><span><%= p.description %></span><% } %></li>
+          <% }); %>
+        </ul>
+      <% } %>
+
+      <% if (site['intro.cta_label']) { %>
+        <a class="link-arrow" href="<%= base %><%= site['intro.cta_link'] || '/tentang' %>">
+          <%= site['intro.cta_label'] %> <span aria-hidden="true">&rarr;</span>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</section>

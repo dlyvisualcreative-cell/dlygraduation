@@ -1,0 +1,20 @@
+<section class="<%= sectionClass(s, 'section section--alt section--packages layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <span class="eyebrow">Featured Packages</span>
+        <h2><%= s.title || site['packages.title'] %></h2>
+        <% if (s.description || site['packages.description']) { %>
+          <p class="section-sub"><%= s.description || site['packages.description'] %></p>
+        <% } %>
+      </div>
+      <a class="link-arrow" href="<%= base %>/pricelist">Buka pricelist lengkap <span aria-hidden="true">&rarr;</span></a>
+    </div>
+
+    <% if (!catalogCity || !catalogCity.categories.length) { %>
+      <p class="empty-state">Paket fotografi belum tersedia. Hubungi kami via WhatsApp untuk informasi terbaru.</p>
+    <% } else { %>
+      <%- include('package-browser', { catalogCity: catalogCity }) %>
+    <% } %>
+  </div>
+</section>

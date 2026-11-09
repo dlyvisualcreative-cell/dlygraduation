@@ -1,0 +1,74 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Portfolio</h2>
+      <p class="admin-muted">Seret kartu untuk mengatur urutan. “Unggulan” tampil di Homepage; foto lain tetap muncul di Gallery.</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/portfolio/new">+ Tambah portfolio</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/portfolio/city-visibility" class="inline-form portfolio-city-toggle">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label class="admin-check">
+      <input type="checkbox" name="portfolio_show_city" value="1" <%= showCity ? 'checked' : '' %>>
+      <span>Tampilkan nama kota pada cover portfolio di website</span>
+    </label>
+    <button class="admin-btn admin-btn--sm" type="submit">Simpan</button>
+  </form>
+  <p class="admin-hint" style="margin-bottom:18px">
+    Secara bawaan kota <strong>disembunyikan</strong> dari cover, tetapi tetap tersimpan dan dipakai untuk filter
+    Gallery. Ini pengaturan global; tiap portfolio juga punya centang sendiri di halaman editnya.
+  </p>
+
+  <% if (!items.length) { %>
+    <div class="empty-box">
+      <p>Belum ada portfolio.</p>
+      <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/portfolio/new">+ Tambah portfolio</a>
+    </div>
+  <% } else { %>
+    <div class="portfolio-admin-grid" data-reorder-list data-reorder-type="portfolio">
+      <% items.forEach(function (item) { %>
+        <article class="portfolio-admin-card <%= item.is_active ? '' : 'is-inactive' %>" data-reorder-item data-id="<%= item.id %>">
+          <div class="portfolio-admin-card__media">
+            <img src="<%= imageUrl(item.image_src) %>" alt="<%= item.alt_text || item.title %>" loading="lazy">
+            <span class="drag-handle drag-handle--abs" draggable="true" title="Seret untuk mengubah urutan">&#8597;</span>
+            <div class="portfolio-admin-card__flags">
+              <% if (item.is_featured) { %><span class="admin-badge admin-badge--ok">Unggulan</span><% } %>
+              <% if (item.is_placeholder) { %><span class="admin-badge admin-badge--warn">Contoh</span><% } %>
+              <% if (!item.is_active) { %><span class="admin-badge admin-badge--muted">Nonaktif</span><% } %>
+              <% if (item.collection === 'carousel' || item.collection === 'both') { %><span class="admin-badge admin-badge--muted">Carousel</span><% } %>
+              <% if (item.photo_count) { %><span class="admin-badge admin-badge--muted"><%= item.photo_count %> foto galeri</span><% } %>
+            </div>
+          </div>
+          <div class="portfolio-admin-card__body">
+            <strong><%= item.client_name || item.title %><%= item.client_degree ? ', ' + item.client_degree : '' %></strong>
+            <small>
+              <%= item.campus || '—' %><%= item.taken_at ? ' · ' + formatDateID(item.taken_at) : '' %>
+            </small>
+            <small class="cell-sub"><%= item.city_name || 'Tanpa kota' %><%= item.session_time ? ' · ' + item.session_time + ' WIB' : '' %></small>
+            <%# Kategori = sumber filter Gallery (dikelola di Admin → Kategori Gallery). %>
+            <small class="cell-sub">Kategori: <%= portfolioCategoryLabel(item.category) %></small>
+            <div class="portfolio-admin-card__actions">
+              <a class="admin-link" href="<%= base %>/admin/portfolio/<%= item.id %>/edit">Edit</a>
+              <% if (item.slug) { %>
+                <a class="admin-link" href="<%= base %>/portfolio/<%= item.slug %>" target="_blank" rel="noopener">Halaman &nearr;</a>
+              <% } %>
+              <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/feature">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button type="submit" class="admin-link-btn"><%= item.is_featured ? 'Batalkan unggulan' : 'Unggulan' %></button>
+              </form>
+              <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/toggle">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button type="submit" class="admin-link-btn"><%= item.is_active ? 'Nonaktifkan' : 'Aktifkan' %></button>
+              </form>
+              <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/delete" data-confirm="Hapus portfolio “<%= item.client_name || item.title %>”?">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+</section>

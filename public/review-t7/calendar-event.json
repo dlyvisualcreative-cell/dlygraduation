@@ -1,0 +1,35 @@
+{
+  "id": "evt10",
+  "summary": "Dly Visual | Vieke Melani | Graduation",
+  "description": "DLY GRADUATION - DETAIL BOOKING\n\nNama: Vieke Melani\nKode Booking: DLY-261106-3171\nAcara: INDIVIDUAL PACKAGE\nWhatsApp: 6281200000001\nInstagram: @vieke.melani\nKampus: ITB\nLokasi: Gedung Sate, Bandung\nPaket: Individu Package\nJam: 09:00–10:30 WIB\nDurasi: 90 menit\nAddon: Fish Eye\nTim yang bertugas: Fadhli, Fadlan\nStatus: SUDAH TERKONFIRMASI\n\n📁 LINK GOOGLE DRIVE\nhttps://drive.google.com/drive/folders/fld8\n\nCatatan: -\n\n================================\n\nTemplate Chat Client H-1\n\nHalo kak Vieke Melani\nPerkenalkan aku Fadhli, Fadlan dari DLY Graduation. Izin konfirmasi ya kak untuk sesi foto besok.\n\n📅 Kamis, 12 November 2026\n🕘 09:00–10:30\n📍 Gedung Sate, Bandung\n\nApakah sudah benar? Terimakasih kak 🙏",
+  "location": "Gedung Sate, Bandung",
+  "start": {
+    "dateTime": "2026-11-12T09:00:00",
+    "timeZone": "Asia/Jakarta"
+  },
+  "end": {
+    "dateTime": "2026-11-12T10:30:00",
+    "timeZone": "Asia/Jakarta"
+  },
+  "attendees": [
+    {
+      "email": "fadhliganteng042@gmail.com",
+      "displayName": "Fadhli"
+    },
+    {
+      "email": "fadlanalsabil@gmail.com",
+      "displayName": "Fadlan"
+    }
+  ],
+  "guestsCanInviteOthers": false,
+  "reminders": {
+    "useDefault": true
+  },
+  "extendedProperties": {
+    "private": {
+      "dlyBookingCode": "DLY-261106-3171",
+      "dlyBookingId": "9",
+      "dlyDriveFolder": "https://drive.google.com/drive/folders/fld8"
+    }
+  }
+}

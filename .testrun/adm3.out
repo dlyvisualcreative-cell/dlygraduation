@@ -1,0 +1,74 @@
+  ok  Admin login works
+  ok  Sidebar is grouped (6 collapsible groups)
+  ok  Group holding the active page starts open
+  ok  A group can be opened by clicking its header
+  ok  A group can be closed again
+  ok  Group state is remembered in localStorage
+  ok  Sidebar exposes Kelola Booking
+  ok  Sidebar shows a real pending badge
+  ok  Antrean Editing is a real navigation link
+  ok  No dead placeholder row remains for Antrean Editing
+  ok  Overview renders 5 stat cards
+  ok  Overview headline reports today/tomorrow from the DB
+  ok  Overview lists upcoming jobs
+  ok  Overview shows action needed (pending)
+  ok  Payment total card equals the sum of recorded payments
+  ok  Activity feed section exists
+  ok  Kelola Booking shows 10 quick filter tabs
+  ok  Job Hari Ini lists only today's job
+  ok  Job Besok lists only tomorrow's job
+  ok  Menunggu Konfirmasi filters by pending
+  ok  There is exactly ONE date input in the filters
+  ok  No "dari/sampai" range inputs remain
+  ok  Picking one date narrows the list
+  ok  Facet filters keep the active tab
+  ok  The tab survives a filter submit through a hidden field
+  ok  Every filter can be combined at once
+  ok  Reset filter link clears all facets
+  ok  Grid view renders booking tiles
+  ok  Grid tile shows client, code, date, location, package and payment
+  ok  Grid tile is compact (no inline edit forms)
+  ok  List view renders the table
+  ok  List view has the expected columns
+  ok  Calendar view renders a month grid
+  ok  Calendar events are colour-coded by status
+  ok  Calendar pagination arrows exist
+  ok  Kanban shows 4 status columns
+  ok  Kanban cards are draggable
+  ok  Returning to Kelola Booking restores the last view (kanban)
+  ok  Detail page opens
+  ok  Detail has 3 tabs (Detail Booking · Pembayaran · Workflow)
+  ok  Detail Booking tab shows identity fields
+  ok  Two different WhatsApp buttons are present
+  ok  Confirm button deep-links to the client WhatsApp with a message
+  ok  Job tab shows date, time, location, package, duration
+  ok  Payment tab shows the snapshot total
+  ok  Payment tab says no payment recorded yet
+  ok  Recording a DP works
+  ok  Status becomes DP Dibayar for a partial payment
+  ok  Remaining balance is computed (450.000 - 150.000)
+  ok  Status becomes Lunas when paid >= total
+  ok  Two payment rows are listed
+  ok  Overview payment total now counts the recorded payments (+450.000)
+  ok  A payment row can be deleted
+  ok  Workflow tab shows booking + selection + editing status
+  ok  Workflow tab shows Google Drive + portal links
+  ok  Activity history lists the payment events
+  ok  Status change from the detail page is saved
+  ok  Saving from the detail page keeps the Workflow tab open
+  ok  Status change is recorded in the activity history
+  ok  Target card is in the Confirmed column before the move
+  ok  Kanban status endpoint accepts a valid move
+  ok  Invalid status is rejected by the backend
+  ok  Status change without a CSRF token is refused
+  ok  The kanban move is recorded in the history
+  ok  Legacy ?status= filter still works
+  ok  Legacy date-range params still work
+  ok  Mobile Kelola Booking has no horizontal overflow
+  ok  Mobile drawer opens
+  ok  Mobile drawer still shows collapsible group headers
+  ok  Mobile Overview has no horizontal overflow
+  ok  Mobile detail page has no horizontal overflow
+  ok  No JavaScript errors across admin pages
+
+72 checks passed, 0 failed

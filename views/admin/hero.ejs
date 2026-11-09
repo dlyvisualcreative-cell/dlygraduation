@@ -1,0 +1,106 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Pengaturan slideshow</h2>
+      <p class="admin-muted">Mengatur perilaku hero di homepage. Disimpan sebagai draft sampai dipublikasikan.</p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/hero/settings" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field-grid admin-field-grid--3">
+      <div class="admin-field">
+        <label for="interval_ms">Interval antar foto (ms)</label>
+        <input type="number" id="interval_ms" name="interval_ms" min="2500" max="20000" step="500" value="<%= heroSettings.interval_ms %>">
+        <span class="admin-hint">2500–20000 ms (contoh 6000 = 6 detik).</span>
+      </div>
+      <div class="admin-field">
+        <label for="transition_ms">Durasi transisi (ms)</label>
+        <input type="number" id="transition_ms" name="transition_ms" min="300" max="3000" step="100" value="<%= heroSettings.transition_ms %>">
+        <span class="admin-hint">300–3000 ms (crossfade).</span>
+      </div>
+      <div class="admin-field">
+        <label for="overlay_opacity">Overlay opacity (%)</label>
+        <input type="number" id="overlay_opacity" name="overlay_opacity" min="0" max="90" step="1" value="<%= heroSettings.overlay_opacity %>">
+        <span class="admin-hint">0–90%. Semakin tinggi, teks makin terbaca.</span>
+      </div>
+      <div class="admin-field">
+        <label for="overlay_color">Warna overlay</label>
+        <div class="color-field">
+          <input type="color" id="overlay_color" name="overlay_color" value="<%= heroSettings.overlay_color %>">
+          <input type="text" value="<%= heroSettings.overlay_color %>" readonly>
+        </div>
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="autoplay" value="1" <%= heroSettings.autoplay === '1' ? 'checked' : '' %>>
+          <span>Autoplay aktif</span>
+        </label>
+        <label class="admin-check">
+          <input type="checkbox" name="kenburns" value="1" <%= heroSettings.kenburns === '1' ? 'checked' : '' %>>
+          <span>Efek Ken Burns (zoom halus)</span>
+        </label>
+        <label class="admin-check">
+          <input type="checkbox" name="show_controls" value="1" <%= heroSettings.show_controls === '1' ? 'checked' : '' %>>
+          <span>Tampilkan dots, panah &amp; counter</span>
+        </label>
+      </div>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Save Draft</button>
+      <a class="admin-btn" href="<%= base %>/admin/preview?path=%2F" target="_blank" rel="noopener">Preview Website</a>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Foto slideshow</h2>
+      <p class="admin-muted">Seret kartu untuk mengubah urutan. Foto pertama yang aktif menjadi slide awal. Foto nonaktif tidak tampil di website.</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/hero/new">+ Tambah foto</a>
+  </div>
+
+  <% if (!slides.length) { %>
+    <div class="empty-box">
+      <p>Belum ada foto hero. Unggah foto wisuda pertama Anda.</p>
+      <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/hero/new">+ Tambah foto</a>
+    </div>
+  <% } else { %>
+    <div class="hero-list" data-reorder-list data-reorder-type="hero">
+      <% slides.forEach(function (slide, idx) { %>
+        <article class="hero-row <%= Number(slide.is_active) ? '' : 'is-inactive' %>" data-reorder-item data-id="<%= slide.id %>">
+          <span class="drag-handle" draggable="true" title="Seret untuk mengubah urutan" aria-hidden="true">&#8597;</span>
+          <div class="hero-row__thumb">
+            <img src="<%= imageUrl(slide.image_url) %>" alt="<%= slide.alt_text || slide.title %>" loading="lazy">
+            <span class="hero-row__index"><%= String(idx + 1).padStart(2, '0') %></span>
+          </div>
+          <div class="hero-row__body">
+            <strong><%= slide.title || 'Tanpa judul' %></strong>
+            <small><%= slide.alt_text || 'Belum ada alt text' %></small>
+            <div class="hero-row__meta">
+              <span class="admin-badge <%= Number(slide.is_active) ? 'admin-badge--ok' : 'admin-badge--muted' %>">
+                <%= Number(slide.is_active) ? 'Aktif' : 'Nonaktif' %>
+              </span>
+              <span class="admin-badge admin-badge--muted">Desktop: <%= slide.desktop_position %></span>
+              <span class="admin-badge admin-badge--muted">Mobile: <%= slide.mobile_position %></span>
+            </div>
+          </div>
+          <div class="hero-row__actions">
+            <a class="admin-link" href="<%= base %>/admin/hero/<%= slide.id %>/edit">Edit</a>
+            <form method="post" action="<%= base %>/admin/hero/<%= slide.id %>/toggle">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button type="submit" class="admin-link-btn"><%= Number(slide.is_active) ? 'Nonaktifkan' : 'Aktifkan' %></button>
+            </form>
+            <form method="post" action="<%= base %>/admin/hero/<%= slide.id %>/delete" data-confirm="Hapus slide ini?">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+            </form>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+    <p class="admin-hint" style="margin-top:14px">Perubahan urutan & status aktif tersimpan otomatis, dan tampil di website setelah <strong>Publish Changes</strong>.</p>
+  <% } %>
+</section>

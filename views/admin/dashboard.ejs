@@ -1,0 +1,172 @@
+<%
+  // Semua angka di halaman ini dihitung langsung dari database (lihat route GET /admin).
+%>
+<section class="ov-hero">
+  <div>
+    <span class="ov-hero__eyebrow">Ringkasan hari ini</span>
+    <h2><%= stats.today %> job hari ini · <%= stats.tomorrow %> besok</h2>
+    <p class="admin-muted">
+      <%= stats.newBookings %> booking baru dalam <%= newDays %> hari terakhir
+      · <%= stats.pending %> menunggu konfirmasi
+    </p>
+  </div>
+  <div class="cell-actions">
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/bookings?tab=today">Lihat job hari ini</a>
+    <a class="admin-btn" href="<%= base %>/admin/bookings?tab=new">Booking baru</a>
+  </div>
+</section>
+
+<div class="ov-stats">
+  <a class="ov-stat" href="<%= base %>/admin/bookings">
+    <span class="ov-stat__label">Total booking</span>
+    <strong class="ov-stat__value" data-count="<%= stats.bookings %>">0</strong>
+    <span class="ov-stat__meta"><%= stats.cancelled %> dibatalkan</span>
+  </a>
+  <a class="ov-stat ov-stat--warn" href="<%= base %>/admin/bookings?tab=pending">
+    <span class="ov-stat__label">Menunggu konfirmasi</span>
+    <strong class="ov-stat__value" data-count="<%= stats.pending %>">0</strong>
+    <span class="ov-stat__meta">perlu ditindak</span>
+  </a>
+  <a class="ov-stat" href="<%= base %>/admin/bookings?tab=confirmed">
+    <span class="ov-stat__label">Confirmed</span>
+    <strong class="ov-stat__value" data-count="<%= stats.confirmed %>">0</strong>
+    <span class="ov-stat__meta"><%= stats.ongoing || stats.today %> berjalan hari ini</span>
+  </a>
+  <a class="ov-stat ov-stat--ok" href="<%= base %>/admin/bookings?tab=done">
+    <span class="ov-stat__label">Selesai</span>
+    <strong class="ov-stat__value" data-count="<%= stats.completed %>">0</strong>
+    <span class="ov-stat__meta">booking completed</span>
+  </a>
+  <a class="ov-stat ov-stat--money" href="<%= base %>/admin/bookings?bayar=paid">
+    <span class="ov-stat__label">Pembayaran diterima</span>
+    <strong class="ov-stat__value" data-count="<%= stats.paidTotal %>" data-prefix="Rp ">Rp 0</strong>
+    <span class="ov-stat__meta">
+      <% if (stats.paymentsRecorded) { %>
+        <%= stats.paymentsRecorded %> catatan · sisa <%= rupiah(stats.outstanding) %>
+      <% } else { %>
+        belum ada pembayaran tercatat
+      <% } %>
+    </span>
+  </a>
+</div>
+
+<div class="ov-cols">
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div><h2>Jadwal terdekat</h2><p class="admin-muted">Pekerjaan yang perlu dipersiapkan.</p></div>
+      <a class="admin-link" href="<%= base %>/admin/bookings?tab=today">Semua</a>
+    </div>
+    <% if (!upcoming.length) { %>
+      <p class="admin-muted">Belum ada pekerjaan mendatang.</p>
+    <% } else { %>
+      <ul class="ov-list">
+        <% upcoming.forEach(function (b) { %>
+          <li>
+            <div class="ov-list__date">
+              <strong><%= formatDateID(b.shooting_date) %></strong>
+              <small><%= b.shooting_time ? b.shooting_time + ' WIB' : 'jam belum diisi' %></small>
+            </div>
+            <div class="ov-list__main">
+              <a href="<%= base %>/admin/bookings/<%= b.id %>"><%= b.client_name %></a>
+              <small class="cell-sub"><%= b.package_name %> · <%= b.location %> · <%= b.city_name %></small>
+            </div>
+            <span class="bk-status bk-status--<%= b.status %>"><%= b.status %></span>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div><h2>Perlu ditindak</h2><p class="admin-muted">Booking yang masih pending.</p></div>
+      <a class="admin-link" href="<%= base %>/admin/bookings?tab=pending">Semua</a>
+    </div>
+    <% if (!needsAction.length) { %>
+      <p class="admin-muted">Tidak ada booking yang menunggu konfirmasi. 🎉</p>
+    <% } else { %>
+      <ul class="ov-list">
+        <% needsAction.forEach(function (b) { %>
+          <li>
+            <div class="ov-list__date">
+              <strong><%= formatDateID(b.shooting_date) %></strong>
+              <small><%= b.code %></small>
+            </div>
+            <div class="ov-list__main">
+              <a href="<%= base %>/admin/bookings/<%= b.id %>"><%= b.client_name %></a>
+              <small class="cell-sub"><%= b.package_name %> · <%= rupiah(b.pay && b.pay.total) || 'harga belum diisi' %></small>
+            </div>
+            <a class="admin-link" href="<%= base %>/admin/bookings/<%= b.id %>?tab=workflow">Konfirmasi</a>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+</div>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div><h2>Aktivitas terbaru</h2><p class="admin-muted">Perubahan status, tim, catatan, dan pembayaran.</p></div>
+  </div>
+  <% if (!recentEvents.length) { %>
+    <p class="admin-muted">Belum ada aktivitas. Riwayat muncul setelah Anda mengubah status booking atau mencatat pembayaran.</p>
+  <% } else { %>
+    <ol class="bd-timeline bd-timeline--compact">
+      <% recentEvents.forEach(function (e) { %>
+        <li>
+          <span class="bd-timeline__dot bd-timeline__dot--<%= e.kind %>"></span>
+          <div>
+            <strong><a href="<%= base %>/admin/bookings/<%= e.booking_id %>"><%= e.client_name %></a> · <%= e.description %></strong>
+            <small class="cell-sub"><%= e.code %> · <%= String(e.created_at || '').slice(0, 16) %></small>
+          </div>
+        </li>
+      <% }); %>
+    </ol>
+  <% } %>
+</section>
+
+<% if (missingPrices.length) { %>
+  <section class="admin-panel admin-panel--warn">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Harga belum lengkap</h2>
+        <p class="admin-muted">Selama harga kosong, pengunjung melihat “Harga belum tersedia” dan tidak dapat melanjutkan booking untuk kombinasi tersebut.</p>
+      </div>
+      <span class="admin-badge admin-badge--warn"><%= missingPrices.length %> paket</span>
+    </div>
+    <ul class="mini-list">
+      <% missingPrices.forEach(function (p) { %>
+        <li>
+          <span>
+            <strong><%= p.name %></strong>
+            <small class="cell-sub"><%= p.category_name || 'Tanpa kategori' %> · <%= p.city_name %></small>
+          </span>
+          <span class="mini-list__tags">
+            <% if (!p.duration_count) { %>
+              <span class="admin-badge admin-badge--warn">belum ada durasi</span>
+            <% } else { %>
+              <span class="admin-badge admin-badge--warn"><%= p.missing_count %> durasi tanpa harga</span>
+            <% } %>
+          </span>
+          <a class="admin-link" href="<%= base %>/admin/packages/<%= p.id %>/edit">Atur harga</a>
+        </li>
+      <% }); %>
+    </ul>
+  </section>
+<% } else if (stats.packages) { %>
+  <div class="admin-flash admin-flash--ok" style="margin:0 0 20px">Semua paket aktif sudah memiliki harga pada setiap durasinya.</div>
+<% } %>
+
+<section class="admin-panel">
+  <div class="admin-panel__head"><h2>Aksi cepat</h2></div>
+  <div class="quick-actions">
+    <a class="quick-action" href="<%= base %>/admin/bookings">Kelola booking</a>
+    <a class="quick-action" href="<%= base %>/admin/availability">Atur jadwal tersedia</a>
+    <a class="quick-action" href="<%= base %>/admin/durations">Isi harga durasi</a>
+    <a class="quick-action" href="<%= base %>/admin/portfolio/new">+ Upload portfolio</a>
+    <a class="quick-action" href="<%= base %>/admin/hero/new">+ Upload foto hero</a>
+    <a class="quick-action" href="<%= base %>/admin/addons/new">+ Add-on</a>
+    <a class="quick-action" href="<%= base %>/admin/articles/new">+ Artikel</a>
+    <a class="quick-action" href="<%= base %>/admin/selection/settings">Pengaturan seleksi foto</a>
+  </div>
+</section>

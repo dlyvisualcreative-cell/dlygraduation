@@ -1,0 +1,50 @@
+<%
+  // Rows come from the admin (Editor Baris Homepage). Falls back to sensible defaults.
+  const fallback = [
+    { title: 'Individual', description: 'Portrait wisuda satu orang — formal, casual, maupun editorial.', image: '/ph/portfolio-portrait-1.svg', link: '' },
+    { title: 'Couple', description: 'Sesi berdua bersama pasangan, sahabat, atau keluarga.', image: '/ph/portfolio-couple.svg', link: '' },
+    { title: 'Group', description: 'Satu angkatan, satu komunitas, atau circle terdekat.', image: '/ph/portfolio-group.svg', link: '' },
+    { title: 'Graduation Event', description: 'Liputan acara wisuda dan momen selebrasi di sekitarnya.', image: '/ph/portfolio-event.svg', link: '' }
+  ];
+  const rows = (s.items && s.items.length) ? s.items : fallback;
+  const citySlug = mainCity ? mainCity.slug : '';
+  const slugify = function (t) {
+    return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  };
+%>
+<section class="<%= sectionClass(s, 'section section--services layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <span class="eyebrow">Our Services</span>
+        <h2><%= s.title || site['services.title'] %></h2>
+        <% if (s.description || site['services.description']) { %>
+          <p class="section-sub"><%= s.description || site['services.description'] %></p>
+        <% } %>
+      </div>
+      <a class="link-arrow" href="<%= base %>/pricelist<%= citySlug ? '?kota=' + citySlug : '' %>">Lihat semua paket <span aria-hidden="true">&rarr;</span></a>
+    </div>
+
+    <div class="service-grid layout-<%= s.layout %>">
+      <% rows.forEach(function (svc, i) { %>
+        <a class="service-card" href="<%= svc.link ? (svc.link.indexOf('http') === 0 ? svc.link : base + svc.link) : (base + '/pricelist' + (citySlug ? '?kota=' + citySlug : '') + '#kategori-' + slugify(svc.title)) %>">
+          <span class="service-card__media">
+            <% if (svc.image) { %>
+              <%- picture(svc.image, {
+                    alt: svc.title, widths: [320, 480, 800],
+                    sizes: '(max-width: 720px) 92vw, (max-width: 1100px) 46vw, 30vw'
+                  }) %>
+            <% } else { %>
+              <span class="service-card__placeholder"><%= svc.title %></span>
+            <% } %>
+            <span class="service-card__index"><%= String(i + 1).padStart(2, '0') %></span>
+          </span>
+          <span class="service-card__body">
+            <strong><%= svc.title %></strong>
+            <% if (svc.description) { %><span><%= svc.description %></span><% } %>
+          </span>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+</section>

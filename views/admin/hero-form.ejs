@@ -1,0 +1,74 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah foto hero' : 'Edit foto hero' %></h2>
+      <p class="admin-muted">Gunakan foto wisuda asli beresolusi tinggi (disarankan minimal 2000px lebar). Maksimal 10MB.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/hero">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/hero/save" enctype="multipart/form-data" class="admin-form" data-upload-form>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (slide.id) { %><input type="hidden" name="id" value="<%= slide.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="image_file">Upload foto</label>
+        <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml">
+        <span class="admin-hint">Gambar besar dioptimalkan otomatis di browser sebelum diunggah.</span>
+      </div>
+      <div class="admin-field">
+        <label for="image_url">atau URL / path gambar</label>
+        <input type="text" id="image_url" name="image_url" value="<%= slide.image_url %>" placeholder="/ph/hero-1.svg atau https://...">
+      </div>
+      <div class="admin-field">
+        <label for="title">Judul slide</label>
+        <input type="text" id="title" name="title" value="<%= slide.title %>" placeholder="Golden Hour">
+        <span class="admin-hint">Hanya terlihat di dashboard.</span>
+      </div>
+      <div class="admin-field">
+        <label for="alt_text">Alt text (SEO & aksesibilitas)</label>
+        <input type="text" id="alt_text" name="alt_text" value="<%= slide.alt_text %>" placeholder="Siluet wisudawan dengan toga saat golden hour">
+      </div>
+      <div class="admin-field">
+        <label for="desktop_position">Focal point desktop</label>
+        <select id="desktop_position" name="desktop_position">
+          <% ['center','top','bottom','left','right'].forEach(function (p) { %>
+            <option value="<%= p %>" <%= slide.desktop_position === p ? 'selected' : '' %>><%= p %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label for="mobile_position">Focal point mobile</label>
+        <select id="mobile_position" name="mobile_position">
+          <% ['center','top','bottom','left','right'].forEach(function (p) { %>
+            <option value="<%= p %>" <%= slide.mobile_position === p ? 'selected' : '' %>><%= p %></option>
+          <% }); %>
+        </select>
+        <span class="admin-hint">Mobile cenderung memotong sisi kiri/kanan foto landscape.</span>
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= slide.sort_order %>">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= Number(slide.is_active) ? 'checked' : '' %>>
+          <span>Tampilkan slide ini di slideshow</span>
+        </label>
+      </div>
+    </div>
+
+    <% if (slide.image_url) { %>
+      <div class="admin-preview">
+        <span class="admin-hint">Pratinjau rasio hero (16:9)</span>
+        <img src="<%= imageUrl(slide.image_url) %>" alt="" style="max-width:520px;aspect-ratio:16/9;object-fit:cover;object-position:<%= slide.desktop_position %>">
+      </div>
+    <% } %>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan slide</button>
+      <a class="admin-btn" href="<%= base %>/admin/hero">Batal</a>
+    </div>
+  </form>
+</div>

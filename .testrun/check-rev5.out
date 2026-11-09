@@ -1,0 +1,54 @@
+  ok  Manifest PWA memakai ikon turunan logo resmi (/appicon/)
+  ok  Ikon 192 tersedia & PNG 192x192
+  ok  Ukuran file ikon benar (192 & 512 & maskable 512)
+  ok  Nama aplikasi PWA tetap brand DLY
+  ok  Favicon tab browser memakai logo DLY (/favicon/)
+  ok  Service worker mengambil ikon notifikasi dari manifest (bukan path hardcode)
+  ok  Ada event notifikasi pembayaran untuk CLIENT (role client)
+  ok  Judul notifikasi order selesai = "Editan kamu sudah selesai"
+  ok  Pembayaran memicu notifikasi admin DAN client
+  ok  Setiap kiriman memakai event_id (anti-duplikat)
+  ok  Tidak ada dropdown/nav grup Lokasi & Paket (desktop + mobile)
+  ok  Menu wajib tetap ada: Home, Gallery, Pricelist, Cara Order, Ulasan
+  ok  Syarat & Ketentuan tetap tampil di navigasi
+  ok  Halaman lokasi & paket TIDAK dihapus (tetap 200)
+  ok  Filter Gallery = dua dropdown (Kategori & Lokasi), bukan pil kategori
+  ok  Label filter memakai "Kategori" (bukan "Paket")
+  ok  Default = Semua Kategori & Semua Lokasi
+  ok  Pilihan Kategori berasal dari data kategori aktif (dikelola admin)
+  ok  Pilihan Lokasi berasal dari data kota aktif
+  ok  Filter Kategori mempersempit/menyaring hasil
+  ok  Kategori + Lokasi bisa digabung (kombinasi diterapkan bersamaan)
+  ok  Kombinasi tanpa hasil menampilkan empty state
+  ok  Data portfolio tidak berubah saat filter dipakai
+  ok  Login admin berhasil
+  ok  Form portfolio punya pilihan Kategori
+  ok  Kategori pada form berasal dari data (bukan hardcode view)
+  ok  Kategori baru dari admin otomatis muncul di dropdown Gallery
+  ok  Sidebar portal memakai label "Orderanmu Siap"
+  ok  Label lama "Link Google Drive" sudah tidak dipakai
+  ok  Order BELUM selesai: tombol ulasan tidak ditampilkan
+  ok  Timeline berurutan 01..N tanpa nomor melompat
+  ok  Tahap 02 = "DP Terkonfirmasi" (bukan Menunggu Sesi)
+  ok  Tahap "Menunggu Sesi Pemotretan" lama tidak dipakai lagi
+  ok  Tahap 06 menampilkan posisi antrean aktual ("ke-N dari M")
+  ok  Tahap 07 "Proses Editing" aktif karena posisi #1
+  ok  Tahap 08 belum tampil sebelum order selesai
+  ok  Tahap 08 tampil sebagai tahap selesai (centang hijau, bukan "Sedang Berlangsung")
+  ok  Tidak ada tahap yang masih "aktif" setelah order selesai
+  ok  Setelah order selesai (tahap 08), tombol ulasan langsung muncul
+  ok  Order selesai: tombol buka Google Drive tampil
+  ok  Ajakan ulasan tampil saat order selesai & link tersedia
+  ok  Tombol "Isi Ulasan Sekarang" memakai halaman testimoni/ulasan yang sudah ada
+  ok  Halaman ulasan yang ditautkan benar-benar ada (bukan tautan mati)
+  ok  Portal tetap menampilkan timeline order
+  ok  Papan antrean editing hanya 2 kolom
+  ok  Kolom = Antrean Editing & Selesai
+  ok  Kartu antrean punya tombol SELESAI
+  ok  Urutan kartu = posisi antrean (job uji berada di #1)
+  ok  SELESAI ditolak saat link Google Drive belum valid
+  ok  Order tidak berubah saat validasi Drive gagal
+  ok  Kartu tetap berada di kolom Antrean Editing
+  ok  Tidak ada error JavaScript di halaman yang diuji
+
+52 checks passed, 0 failed

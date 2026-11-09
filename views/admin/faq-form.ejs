@@ -1,0 +1,40 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah FAQ' : 'Edit FAQ' %></h2>
+      <p class="admin-muted">Tulis jawaban sesuai kebijakan Anda yang sebenarnya — hindari menjanjikan hal yang belum Anda siapkan.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/faqs">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/faqs/save" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (faq.id) { %><input type="hidden" name="id" value="<%= faq.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field admin-field--full">
+        <label for="question">Pertanyaan <span class="req">*</span></label>
+        <input type="text" id="question" name="question" required value="<%= faq.question %>">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="answer">Jawaban <span class="req">*</span></label>
+        <textarea id="answer" name="answer" rows="5" required><%= faq.answer %></textarea>
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= faq.sort_order || 0 %>">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= Number(faq.is_active) ? 'checked' : '' %>>
+          <span>Tampilkan FAQ ini</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan FAQ</button>
+      <a class="admin-btn" href="<%= base %>/admin/faqs">Batal</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,45 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah anggota tim' : 'Edit anggota tim' %></h2>
+      <p class="admin-muted">Email dipakai Google Calendar untuk mengirim undangan event saat booking berstatus Confirmed.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/team">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/team/save" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (member.id) { %><input type="hidden" name="id" value="<%= member.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="name">Nama <span class="req">*</span></label>
+        <input type="text" id="name" name="name" required maxlength="80" value="<%= member.name %>" placeholder="Fadhli">
+      </div>
+      <div class="admin-field">
+        <label for="email">Email (untuk undangan kalender)</label>
+        <input type="email" id="email" name="email" maxlength="160" value="<%= member.email %>" placeholder="nama@gmail.com">
+        <span class="admin-hint">Kosongkan jika tidak perlu kirim undangan.</span>
+      </div>
+      <div class="admin-field">
+        <label for="role">Peran (opsional)</label>
+        <input type="text" id="role" name="role" maxlength="80" value="<%= member.role %>" placeholder="Fotografer / Asisten / Editor">
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= member.sort_order || 0 %>">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= member.is_active ? 'checked' : '' %>>
+          <span>Tampilkan di pilihan tim pada booking</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan anggota</button>
+      <a class="admin-btn" href="<%= base %>/admin/team">Batal</a>
+    </div>
+  </form>
+</div>

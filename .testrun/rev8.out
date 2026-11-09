@@ -1,0 +1,56 @@
+  ok  Login admin berhasil
+  ok  Google Calendar (mock) terhubung untuk uji
+  ok  Sesi baru dimulai → "Sesi foto dimulai" (BUG lama: langsung "selesai")
+  ok  Sesi berjalan → badge "Sedang berlangsung" + animasi kedap-kedip
+  ok  Sesi berjalan → belum dicentang
+  ok  Hanya SATU tahap yang aktif di halaman
+  ok  Sesi lewat durasi → "Sesimu sudah selesai" + centang hijau
+  ok  Keterangan menunggu upload file mentah tetap ada
+  ok  Belum mulai → "Menunggu sesi foto"
+  ok  Belum mulai → belum ada centang & tidak ada badge berjalan
+  ok  Tombol kirim jadwal ke tim tersedia untuk admin
+  ok  Reschedule mengubah jadwal booking
+  ok  Google Calendar ikut diperbarui (event tersinkron)
+  ok  Event kalender berisi JADWAL BARU
+  ok  Undangan dikirim ke tim (attendee email terpasang)
+  ok  Upgrade memakai kartu GAYA PRICELIST (.pkg-feature)
+  ok  Chip durasi tampil di kartu (gaya pricelist)
+  ok  Paket lebih murah DIKUNCI (downgrade tidak bisa)
+  ok  Ringkasan "Paket kamu sekarang" tampil polos tanpa extra/add-on
+  ok  Add-on bisa diajukan dari halaman upgrade
+  ok  Server menolak downgrade paket
+  ok  Durasi lebih pendek DIKUNCI di paket yang sama
+  ok  Server menolak downgrade durasi
+  ok  Pengajuan add-on tersimpan (pending, harga dari admin)
+  ok  Add-on tampil di halaman admin untuk disetujui
+  ok  Add-on disetujui masuk ke snapshot booking & menambah total
+  ok  Ringkasan paket menampilkan Add-on setelah disetujui
+  ok  Extra Time terbuka saat sesi berjalan
+  ok  Pengajuan Extra Time tersimpan
+  ok  Extra Time yang disetujui muncul di ringkasan paket
+  ok  Paket lebih mahal menampilkan tombol Ajukan Upgrade
+  ok  Setelah upgrade disetujui, ringkasan memakai paket baru
+  ok  Upgrade DIKUNCI saat sudah H-7
+  ok  Server menolak upgrade saat H-7
+  ok  Ada 3 kotak tagihan di bawah identitas
+  ok  Kotak 1 = Total Harga Paket
+  ok  Kotak 2 = Yang Sudah di Bayar + keterangan DP
+  ok  Kotak 3 = Yang Belum di Bayar
+  ok  Angka konsisten: total − dibayar = sisa (format rupiah)
+  ok  Catatan pelunasan H-1 + rekening BCA dari Pengaturan Pembayaran
+  ok  Header Content-Security-Policy aktif
+  ok  Header anti-clickjacking aktif
+  ok  nosniff + Referrer-Policy + Permissions-Policy aktif
+  ok  X-Powered-By disembunyikan
+  ok  Halaman publik tidak diberi noindex (SEO tetap aman)
+  ok  Halaman portal tetap noindex
+  ok  Path sensitif /.env dijawab 404
+  ok  Path sensitif /.git/config dijawab 404
+  ok  Path sensitif /data/app.sqlite dijawab 404
+  ok  Path sensitif /package.json dijawab 404
+  ok  Panel Keamanan tampil di Pengaturan admin
+  ok  Password lemah ditolak (minimal 10 karakter)
+  ok  Rate limit aktif (POST berlebihan → 429)
+  ok  Tidak ada error JavaScript di halaman yang diuji
+
+54 checks passed, 0 failed

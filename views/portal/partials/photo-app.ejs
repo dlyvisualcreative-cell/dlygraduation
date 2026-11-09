@@ -1,0 +1,160 @@
+<%
+  /**
+   * Mesin pemilihan foto (dipakai DUA tempat):
+   *   - /selection/<token>  → link token lama (tetap jalan, kompatibilitas WhatsApp lama)
+   *   - /portal/pilih-foto  → Client Portal baru (di dalam sidebar 4 menu)
+   *
+   * Markup & data-attribute identik supaya SATU file JS (assets/selection.js) mengurus
+   * keduanya: kuota dijaga server, submit menyimpan dulu lalu membuka WhatsApp.
+   *
+   * Variabel yang harus tersedia dari pemanggil: portal, photos, picks, quota, gate,
+   * requireFullQuota, submitWa, selectedNames, highlightCount, photoSrc, portalBrand, base.
+   */
+%>
+  <section class="sel-section" data-selection-app
+           data-token="<%= portal.token %>"
+           data-base="<%= base %>"
+           data-quota="<%= quota %>"
+           data-require-full="<%= requireFullQuota ? '1' : '0' %>"
+           data-locked="<%= gate.locked ? '1' : '0' %>"
+           data-wa="<%= submitWa %>"
+           data-picks-rev="<%= Number(portal.picks_rev) || 0 %>"
+           data-names="<%= JSON.stringify(selectedNames).replace(/"/g, '&quot;') %>">
+    <div class="sel-toolbar">
+      <div class="sel-tabs" role="tablist" aria-label="Filter foto">
+        <button type="button" class="sel-tab is-active" data-filter="all" role="tab" aria-selected="true">
+          Semua <span class="sel-tab__n"><%= photos.length %></span>
+        </button>
+        <% if (highlightCount) { %>
+          <button type="button" class="sel-tab" data-filter="highlight" role="tab" aria-selected="false">
+            Highlight <span class="sel-tab__n"><%= highlightCount %></span>
+          </button>
+        <% } %>
+        <button type="button" class="sel-tab" data-filter="picked" role="tab" aria-selected="false">
+          Terpilih <span class="sel-tab__n" data-picked-count><%= picks.size %></span>
+        </button>
+        <button type="button" class="sel-tab" data-filter="swipe" role="tab" aria-selected="false" data-swipe-tab>
+          Swipe
+        </button>
+      </div>
+      <div class="sel-tools">
+        <label class="sel-search">
+          <span class="visually-hidden">Cari nama foto</span>
+          <input type="search" placeholder="Cari nama foto…" data-sel-search autocomplete="off">
+        </label>
+        <label class="sel-sort">
+          <span class="visually-hidden">Urutkan foto</span>
+          <select data-sel-sort>
+            <option value="default">Urutan folder</option>
+            <option value="name-asc">Nama A → Z</option>
+            <option value="name-desc">Nama Z → A</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="sel-gallery-head">
+      <p class="sel-progress" data-sel-status role="status" aria-live="polite">
+        <strong data-sel-counter-inline><%= picks.size %>/<%= quota %></strong> foto terpilih
+      </p>
+      <%# Revisi: galeri bisa dilipat supaya halaman terasa ringkas. %>
+      <button type="button" class="sel-fold" data-sel-fold aria-expanded="true" aria-controls="sel-gallery">
+        <span data-sel-fold-label>Ciutkan galeri</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+      </button>
+    </div>
+
+    <div class="sel-foldable" id="sel-gallery" data-sel-foldable>
+    <div class="sel-grid" data-sel-grid>
+      <% photos.forEach(function (p, i) { %>
+        <figure class="sel-tile<%= picks.has(p.id) ? ' is-picked' : '' %><%= Number(p.is_highlight) === 1 ? ' is-highlight' : '' %>"
+                data-photo="<%= p.id %>" data-highlight="<%= Number(p.is_highlight) === 1 ? '1' : '0' %>"
+                data-name="<%= String(selectionBaseName(p) || p.file_name || p.code).toLowerCase() %>">
+          <span class="sel-tile__order" data-order><%= picks.has(p.id) ? (positions.get(p.id) || '') : '' %></span>
+          <button type="button" class="sel-tile__view" data-lightbox data-lb-group="selection"
+                  data-src="<%= photoSrc(p.id) %>" data-title="<%= p.file_name || ('#' + p.code) %>"
+                  data-meta="<%= portalBrand %>" aria-label="Perbesar <%= p.file_name || ('foto #' + p.code) %>">
+            <img src="<%= photoSrc(p.id) %>?w=320"
+                 srcset="<%= photoSrc(p.id) %>?w=320 320w, <%= photoSrc(p.id) %>?w=640 640w, <%= photoSrc(p.id) %>?w=1600 1600w"
+                 sizes="(max-width: 560px) 32vw, (max-width: 1000px) 24vw, 16vw"
+                 alt="<%= p.file_name || ('Foto #' + p.code) %>"
+                 loading="<%= i < 4 ? 'eager' : 'lazy' %>" fetchpriority="<%= i < 2 ? 'high' : 'auto' %>"
+                 decoding="async"
+                 onerror="this.closest('.sel-tile').classList.add('is-broken')">
+          </button>
+          <span class="sel-tile__code"><%= p.code %></span>
+          <% if (!gate.locked) { %>
+            <button type="button" class="sel-tile__pick" data-pick="<%= p.id %>"
+                    aria-pressed="<%= picks.has(p.id) ? 'true' : 'false' %>">
+              <span class="sel-tile__check" aria-hidden="true">&#10003;</span>
+              <span data-pick-label><%= picks.has(p.id) ? 'Terpilih' : 'Pilih' %></span>
+            </button>
+          <% } else { %>
+            <span class="sel-tile__locked">Pemilihan ditutup</span>
+          <% } %>
+        </figure>
+      <% }); %>
+    </div>
+
+    <p class="sel-empty-filter" data-sel-empty hidden>Tidak ada foto yang cocok dengan pencarian/filter.</p>
+
+    <%# Mode Swipe: satu foto besar, pilih/lewati. Disembunyikan sampai tab Swipe dipilih. %>
+    <div class="sel-swipe" data-sel-swipe hidden>
+      <div class="sel-swipe__card">
+        <img data-swipe-img src="" alt="" loading="lazy" decoding="async">
+        <span class="sel-swipe__state" data-swipe-state></span>
+      </div>
+      <p class="sel-swipe__name"><span data-swipe-name>—</span> · <span data-swipe-pos>0 / 0</span></p>
+      <div class="sel-swipe__actions">
+        <button type="button" class="sel-btn sel-btn--ghost" data-swipe-prev>&larr; Sebelumnya</button>
+        <button type="button" class="sel-btn sel-btn--primary" data-swipe-pick>Pilih foto ini</button>
+        <button type="button" class="sel-btn sel-btn--ghost" data-swipe-next>Berikutnya &rarr;</button>
+      </div>
+      <p class="sel-swipe__hint">Geser foto ke kiri/kanan untuk berpindah. Kuota tetap dijaga server.</p>
+    </div>
+    </div>
+  </section>
+
+  <% if (!gate.locked) { %>
+    <div class="sel-bar" data-sel-bar>
+      <div class="sel-bar__counter">
+        <span class="sel-bar__label">Foto Terpilih</span>
+        <strong data-sel-counter-bar><%= picks.size %> / <%= quota %></strong>
+        <span class="sel-bar__progress"><i data-sel-progress style="width: <%= quota ? Math.round((picks.size / quota) * 100) : 0 %>%"></i></span>
+      </div>
+      <div class="sel-bar__actions">
+        <button type="button" class="sel-btn sel-btn--ghost" data-sel-view>Lihat Pilihan</button>
+        <button type="button" class="sel-btn sel-btn--primary<%= picks.size ? '' : ' is-disabled' %>"
+                data-sel-send <%= picks.size ? '' : 'disabled' %>>Kirim Pilihan</button>
+      </div>
+    </div>
+    <div class="sel-toast" data-sel-toast role="status" aria-live="polite"></div>
+
+    <%# Confirmation modal — shown by selection.js after the picks are validated. %>
+    <div class="sel-modal" data-sel-modal hidden aria-hidden="true" role="dialog" aria-modal="true"
+         aria-labelledby="sel-modal-title">
+      <div class="sel-modal__backdrop" data-sel-modal-close></div>
+      <div class="sel-modal__panel" role="document">
+        <button type="button" class="sel-modal__x" data-sel-modal-close aria-label="Tutup">&times;</button>
+        <h2 id="sel-modal-title">Kirim Pilihan</h2>
+        <p class="sel-modal__lede">
+          Pilihanmu sudah siap. Salin daftar foto di bawah ini lalu kirim kepada admin
+          <%= portalBrand %> melalui WhatsApp.
+        </p>
+        <p class="sel-modal__count"><strong data-sel-modal-count><%= picks.size %></strong> foto tersimpan.
+          Admin sudah bisa melihat pilihanmu.</p>
+        <div class="sel-modal__listwrap">
+          <span class="sel-modal__listlabel">Daftar foto</span>
+          <pre class="sel-modal__list" data-sel-modal-list><%= selectedNames.join('\n') %></pre>
+        </div>
+        <div class="sel-modal__actions">
+          <button type="button" class="sel-btn" data-sel-copy>Salin Daftar Foto</button>
+          <button type="button" class="sel-btn sel-btn--wa" data-sel-submit>Simpan &amp; Buka WhatsApp</button>
+        </div>
+        <p class="sel-modal__hint">
+          Pilihan tetap tersimpan di dashboard admin walaupun Kakak tidak mengirim WhatsApp.
+        </p>
+      </div>
+    </div>
+  <% } %>

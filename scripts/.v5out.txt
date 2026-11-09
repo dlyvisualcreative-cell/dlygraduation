@@ -1,0 +1,27 @@
+PASS  Team member created
+PASS  Team list shows the member
+PASS  Team list shows the email
+PASS  Member without email is flagged
+PASS  A booking exists to assign
+PASS  Team selector present on the booking card
+PASS  Team options come from the team list — — belum ditentukan — | Fadhli · fadhliganteng042@gmail.com | Fadhli Uji · fadhli.uji@example.com | Fadlan · fadlanalsabil@gmail.com | Tanpa Email
+PASS  Assigned team is shown on the card — Fadhli Ujiundangan: fadhli.uji@example.com
+PASS  Invitation email is shown on the card
+PASS  Scroll reveal classes applied — elements=7
+PASS  Content already in view is visible immediately
+PASS  Elements reveal after scrolling
+PASS  No visible element stays invisible
+PASS  Testimonial link is generated — http://127.0.0.1:4811/testimoni/a1b2c3d4e5f60718293a4b5c6d7e8f90
+PASS  Private link is not exposed on the public site
+/var/lib/vibecoderco/shared-node-modules/node_modules/playwright/index.js:56
+  const err = new Error(
+              ^
+
+Error: [VibeCoder] Playwright dibatasi 1 tab aktif per browser instance. Tutup page yang sudah ada dulu (await page.close()) sebelum membuka page baru. Kalau genuinely butuh 2 halaman terbuka bersamaan (mis. simulasi 2 user berinteraksi), buka browser instance TERPISAH (panggil chromium.launch() lagi), jangan buka tab kedua di instance yang sama.
+    at tooManyPagesError (/var/lib/vibecoderco/shared-node-modules/node_modules/playwright/index.js:56:15)
+    at _BrowserContext.newPage (/var/lib/vibecoderco/shared-node-modules/node_modules/playwright/index.js:69:13)
+    at /home/vibecoderco/workspace/dlyvisualcreative/dlygraduation/scripts/check-v5.js:103:24 {
+  code: 'VIBECODER_PLAYWRIGHT_TAB_LIMIT'
+}
+
+Node.js v20.20.2

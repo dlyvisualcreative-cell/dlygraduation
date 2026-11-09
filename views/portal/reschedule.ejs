@@ -1,0 +1,102 @@
+<%
+  /**
+   * Reschedule (Revisi 4) — klien mengajukan DATE / TIME / LOCATION saja.
+   * Pengajuan tidak langsung mengubah booking: admin harus menyetujui dulu.
+   * Menu ini otomatis terkunci begitu sesi foto tinggal ≤ H-7 (holdDays).
+   */
+  const statusChip = (tone) => (tone === 'ok' ? 'done' : (tone === 'warn' ? 'upcoming' : 'muted'));
+  const pending = access.pending;
+%>
+<section class="cp-page cp-rs">
+  <header class="cp-page__head">
+    <div>
+      <span class="cp-eyebrow">Reschedule</span>
+      <h1>Ajukan perubahan jadwal</h1>
+      <p>Kirim tanggal, jam, dan lokasi baru. Admin akan mengonfirmasi sebelum jadwal berubah.</p>
+    </div>
+    <span class="cp-chip cp-chip--code"><%= booking.code %></span>
+  </header>
+
+  <% if (flash) { %><div class="cp-alert cp-alert--ok" role="status"><%= flash %></div><% } %>
+  <% if (flashError) { %><div class="cp-alert cp-alert--err" role="alert"><%= flashError %></div><% } %>
+
+  <section class="cp-card cp-rs__now">
+    <span class="cp-eyebrow">Jadwal kamu sekarang</span>
+    <strong><%= formatDateID(booking.shooting_date, true) %><%= booking.shooting_time ? ' · ' + booking.shooting_time + ' WIB' : '' %></strong>
+    <small class="cp-muted"><%= booking.location || '—' %></small>
+    <% if (access.daysLeft !== null && access.daysLeft >= 0) { %>
+      <small class="cp-muted">Sesi foto tinggal <b><%= access.daysLeft %></b> hari lagi.</small>
+    <% } %>
+  </section>
+
+  <% if (pending) { %>
+    <section class="cp-card cp-rs__pending">
+      <h2 class="cp-card__title">Pengajuan sedang ditinjau</h2>
+      <p class="cp-muted">
+        Kamu mengajukan jadwal baru:
+        <strong><%= formatDateID(pending.new_date, true) %> · <%= pending.new_time %> WIB</strong>
+        — <%= pending.new_location %>.
+      </p>
+      <p class="cp-muted">Admin akan mengonfirmasi lewat WhatsApp. Selama menunggu, pengajuan baru belum bisa dikirim.</p>
+      <span class="cp-chip cp-chip--upcoming">Menunggu konfirmasi admin</span>
+    </section>
+  <% } else if (!access.ok) { %>
+    <section class="cp-card cp-rs__locked">
+      <h2 class="cp-card__title">Reschedule ditutup</h2>
+      <p class="cp-muted"><%= access.reason %></p>
+      <p class="cp-muted">
+        Pengajuan perubahan jadwal dibuka paling lambat <strong>H-<%= holdDays %></strong> sebelum sesi foto.
+        Untuk perubahan mendadak, silakan konfirmasi langsung ke admin.
+      </p>
+      <a class="cp-btn cp-btn--primary" href="<%= waHref %>" target="_blank" rel="noopener">Konfirmasi ke Admin via WhatsApp</a>
+    </section>
+  <% } else { %>
+    <section class="cp-card">
+      <h2 class="cp-card__title">Form pengajuan reschedule</h2>
+      <form method="post" action="<%= base %>/portal/reschedule" class="cp-rs__form"
+            data-confirm="Kirim pengajuan perubahan jadwal? Admin akan mengonfirmasi lebih dulu.">
+        <input type="hidden" name="_csrf" value="<%= cpCsrf %>">
+        <label class="cp-field">
+          <span>Tanggal baru</span>
+          <input type="date" name="new_date" required min="<%= todayISO %>" value="<%= booking.shooting_date %>">
+        </label>
+        <label class="cp-field">
+          <span>Jam mulai baru</span>
+          <input type="time" name="new_time" required value="<%= booking.shooting_time || '' %>">
+        </label>
+        <label class="cp-field">
+          <span>Lokasi baru</span>
+          <input type="text" name="new_location" required maxlength="200"
+                 placeholder="Contoh: Gedung Rektorat, Universitas Indonesia" value="<%= booking.location || '' %>">
+        </label>
+        <p class="cp-small-note">
+          Pengajuan bisa ditolak bila tanggal sudah Full Booking, kuota harian penuh, atau tim
+          fotografer sudah bertugas di tempat lain pada jam yang sama.
+        </p>
+        <button class="cp-btn cp-btn--primary" type="submit">Kirim Pengajuan</button>
+      </form>
+    </section>
+  <% } %>
+
+  <% if (requests.length) { %>
+    <section class="cp-card">
+      <h2 class="cp-card__title">Riwayat pengajuan</h2>
+      <ul class="cp-rs__list">
+        <% requests.forEach(function (r) { %>
+          <li>
+            <div>
+              <strong><%= formatDateID(r.new_date, true) %> · <%= r.new_time %> WIB</strong>
+              <small class="cp-muted"><%= r.new_location %></small>
+            </div>
+            <span class="cp-chip cp-chip--<%= statusChip(r.meta.tone) %>"><%= r.meta.label %></span>
+          </li>
+        <% }); %>
+      </ul>
+    </section>
+  <% } %>
+
+  <p class="cp-small-note">
+    Perubahan jadwal baru berlaku setelah admin menyetujui. Kode booking, harga, pembayaran,
+    folder Drive, dan pilihan fotomu tidak berubah.
+  </p>
+</section>

@@ -1,0 +1,87 @@
+PASS  Nav hides Artikel — Home|Gallery|Pricelist|Cara Order|Ulasan|Syarat & Ketentuan
+PASS  Nav hides FAQ
+PASS  Nav hides Tentang Kami
+PASS  Nav shows Syarat & Ketentuan
+PASS  Nav keeps core items — Home|Gallery|Pricelist|Cara Order|Ulasan|Syarat & Ketentuan
+PASS  TnC page returns 200
+PASS  TnC page renders the heading
+PASS  TnC lists the terms — items=10
+PASS  Hidden page /artikel still loads (data preserved) — status=200
+PASS  Hidden page /faq still loads (data preserved) — status=200
+PASS  Hidden page /tentang still loads (data preserved) — status=200
+PASS  Duration cards render — cards=3
+PASS  Cards are rounded (not boxy) — 12px
+PASS  Card shows duration + price + photos inline — 60 MenitRp 375.00030 Foto Edit✓
+PASS  Active card is Deep Navy — rgb(11, 35, 64)
+PASS  Active card text is white — rgb(255, 255, 255)
+PASS  Inactive card stays light — rgb(255, 255, 255)
+PASS  Selecting another duration moves the navy state — rgb(11, 35, 64)
+PASS  Location label simplified to "Lokasi" — Lokasi *
+PASS  Location placeholder is "Unpad - Dipatiukur" — Unpad - Dipatiukur
+PASS  Full address field removed from the form
+PASS  Shooting time field exists
+PASS  Shooting time uses a time picker — time
+PASS  Instagram MUA field removed
+PASS  Wardrobe field removed
+PASS  Instagram is required
+PASS  Faculty is optional
+PASS  Major is optional
+PASS  Consent wording matches the brief — Saya telah menyetujui ketentuan booking dan sudah membaca Syarat & Ketentuan yang berlaku.
+PASS  Consent has "Baca TnC di sini" link — Baca TnC di sini
+PASS  Link points to the TnC page — /syarat-ketentuan
+PASS  TnC link is blue — rgb(31, 95, 191)
+PASS  Photo-publication consent removed from the public form
+PASS  Missing shooting time blocks continue
+PASS  Time error message is shown — Jam pemotretan wajib dipilih.
+PASS  A bookable date exists — 2026-11-06
+PASS  Session step passes with location + time
+PASS  Reached review step
+PASS  Instagram validation blocks the identity step — Instagram wajib diisi.
+PASS  Review shows the chosen time — 13:30 WIB
+FAIL  Submit button wording is correct — Lanjut
+PASS  Booking saved — DLY-261106-D020
+PASS  Confirmation shows the shooting time
+PASS  WhatsApp button uses the admin number — https://wa.me/6289629619590?text=Halo%20DL
+PASS  WhatsApp message includes the time — Jam: 13:30 WIB
+FAIL  WhatsApp button text updated — Kirim ke WhatsApp Admin
+PASS  Payment settings saved
+PASS  Preview reflects DP amount — preview ok
+PASS  Preview reflects bank details
+PASS  Booking card exists — DLY-261106-D020
+PASS  Card background is Deep Navy — rgb(11, 35, 64)
+PASS  Card text is white — rgb(255, 255, 255)
+PASS  Card has rounded corners — 18px
+PASS  Card shows "WhatsApp"
+PASS  Card shows "Instagram"
+PASS  Card shows "Kampus"
+PASS  Card shows "Kota"
+PASS  Card shows "Tanggal"
+PASS  Card shows "Jam"
+PASS  Card shows "Lokasi"
+PASS  Card shows "Kategori"
+PASS  Card shows "Paket"
+PASS  Card shows "Durasi"
+PASS  Card shows "Harga paket"
+PASS  Card shows "Add-on"
+PASS  Card shows "Total estimasi"
+PASS  Card shows "Status booking"
+PASS  Card shows the shooting time
+PASS  Card shows Google Calendar status
+PASS  Card shows Google Drive status
+PASS  Chat Klien targets the client number — https://wa.me/6281234567890?text=Halo%20
+PASS  Template greets the client by name — Halo Kak Klien V4!🤩👋🏻
+
+Terima kasih sudah
+PASS  Template includes the formatted date — Tanggal: Jumat, 6 November 2026
+PASS  Template includes the time — Jam: 13:30 WIB
+PASS  Template includes the location — Lokasi: Unpad - Dipatiukur
+PASS  Template includes the package — Paket: Individu Package
+PASS  No damaged characters in the message
+PASS  Template keeps line breaks (WhatsApp friendly) — newlines=15
+PASS  Status update still works
+PASS  Pages screen lists the toggles
+PASS  Page visibility saved
+PASS  Enabling FAQ shows it in the nav — Home|Gallery|Pricelist|Cara Order|Ulasan|FAQ|Syarat & Ketentuan
+PASS  Test booking deleted
+PASS  No JavaScript errors
+2 FAILED

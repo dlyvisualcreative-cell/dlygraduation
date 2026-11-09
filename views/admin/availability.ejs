@@ -1,0 +1,198 @@
+<%
+  const [yy, mm] = month.split('-').map(Number);
+  const firstWeekday = (new Date(Date.UTC(yy, mm - 1, 1)).getUTCDay() + 6) % 7;
+  const daysInMonth = new Date(Date.UTC(yy, mm, 0)).getUTCDate();
+  const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const prevMonth = new Date(Date.UTC(yy, mm - 2, 1));
+  const nextMonth = new Date(Date.UTC(yy, mm, 1));
+  const fmtMonth = (d) => d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+%>
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Aturan ketersediaan</h2>
+      <p class="admin-muted">Kalender booking menghitung ketersediaan dari aturan ini ditambah tanggal yang Anda tutup di bawah.</p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/availability/rules" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="back_month" value="<%= month %>">
+    <div class="admin-field-grid admin-field-grid--3">
+      <div class="admin-field">
+        <label for="lead_days">Minimal H- berapa (hari)</label>
+        <input type="number" id="lead_days" name="lead_days" min="0" max="60" value="<%= rules.leadDays %>">
+        <span class="admin-hint">Booking tidak bisa lebih dekat dari jumlah hari ini.</span>
+      </div>
+      <div class="admin-field">
+        <label for="advance_days">Maksimal maju (hari)</label>
+        <input type="number" id="advance_days" name="advance_days" min="7" max="730" value="<%= rules.advanceDays %>">
+        <span class="admin-hint">Batas tanggal terjauh yang bisa dipilih.</span>
+      </div>
+      <div class="admin-field">
+        <label for="daily_capacity">Kapasitas per hari</label>
+        <input type="number" id="daily_capacity" name="daily_capacity" min="0" max="50" value="<%= rules.dailyCapacity %>">
+        <span class="admin-hint">0 = tanpa batas. Dihitung dari booking pending/confirmed/completed.</span>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label>Hari tutup rutin (mingguan)</label>
+        <div class="scope-grid">
+          <% weekdays.forEach(function (d) { %>
+            <label class="admin-check">
+              <input type="checkbox" name="closed_weekdays" value="<%= d.value %>"
+                     <%= rules.closedWeekdays.indexOf(d.value) !== -1 ? 'checked' : '' %>>
+              <span><%= d.label %></span>
+            </label>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan aturan</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Kalender <%= monthNames[mm - 1] %> <%= yy %></h2>
+      <p class="admin-muted">
+        Klik tanggal untuk mengatur statusnya. Angka kecil = jumlah booking pada tanggal itu.
+        Kapasitas per hari: <strong><%= rules.dailyCapacity > 0 ? rules.dailyCapacity + ' sesi' : 'tanpa batas' %></strong>.
+      </p>
+    </div>
+    <div class="inline-form">
+      <a class="admin-btn admin-btn--sm" href="<%= base %>/admin/availability?bulan=<%= fmtMonth(prevMonth) %>">&lsaquo; Sebelumnya</a>
+      <a class="admin-btn admin-btn--sm" href="<%= base %>/admin/availability?bulan=<%= fmtMonth(nextMonth) %>">Berikutnya &rsaquo;</a>
+    </div>
+  </div>
+
+  <div class="avail-grid-head">
+    <% ['Sen','Sel','Rab','Kam','Jum','Sab','Min'].forEach(function (d) { %><span><%= d %></span><% }); %>
+  </div>
+  <div class="avail-grid">
+    <% for (let i = 0; i < firstWeekday; i++) { %><span class="avail-cell is-empty"></span><% } %>
+    <% for (let d = 1; d <= daysInMonth; d++) {
+         const iso = month + '-' + String(d).padStart(2, '0');
+         const info = map[iso] || { available: false, reason: 'out', booked: 0 };
+         const isPast = iso < today;
+    %>
+      <%
+        const statusKey = isPast ? 'past' : (info.closed ? 'closed' : (info.manual_full ? 'full-manual' : (info.available ? 'open' : (info.reason === 'full' ? 'full' : 'closed'))));
+        const statusLabel = statusKey === 'open' ? 'Tersedia'
+          : statusKey === 'full' ? 'Full Booking'
+          : statusKey === 'full-manual' ? 'Full Booking'
+          : statusKey === 'past' ? 'Lewat' : 'Ditutup';
+      %>
+      <button type="button"
+              class="avail-cell avail-cell--<%= statusKey %> <%= isPast ? 'is-past' : '' %>"
+              data-avail-day="<%= iso %>"
+              data-avail-status="<%= statusKey %>"
+              data-avail-label="<%= formatDateID(iso, true) %>"
+              data-avail-booked="<%= info.booked || 0 %>"
+              data-avail-note="<%= info.note || '' %>"
+              title="<%= formatDateID(iso, true) %> — <%= statusLabel %><%= info.booked ? ' · ' + info.booked + ' booking' : '' %>"
+              <%= isPast ? 'disabled' : '' %>>
+        <span class="avail-cell__num"><%= d %></span>
+        <% if (info.booked) { %><span class="avail-cell__booked"><%= info.booked %> booking</span><% } %>
+        <% if (!isPast) { %><span class="avail-cell__state"><%= statusLabel %></span><% } %>
+      </button>
+    <% } %>
+  </div>
+
+  <div class="avail-legend">
+    <span><i class="sw sw--open"></i> Tersedia</span>
+    <span><i class="sw sw--full"></i> Full Booking</span>
+    <span><i class="sw sw--closed"></i> Ditutup</span>
+    <span><i class="sw sw--past"></i> Sudah lewat</span>
+  </div>
+
+  <%# Panel aksi tanggal — dipakai lewat tombol di kalender (desktop & HP). %>
+  <div class="avail-day" data-avail-panel hidden>
+    <form method="post" action="<%= base %>/admin/availability/mark" class="avail-day__form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="date" data-avail-date>
+      <input type="hidden" name="back_month" value="<%= month %>">
+      <div class="avail-day__head">
+        <strong data-avail-title>Pilih tanggal</strong>
+        <button type="button" class="avail-day__close" data-avail-close aria-label="Tutup">&times;</button>
+      </div>
+      <p class="admin-hint" data-avail-info></p>
+      <div class="admin-field">
+        <label for="avail-note">Catatan internal (opsional)</label>
+        <input type="text" id="avail-note" name="note" maxlength="160" data-avail-note placeholder="Contoh: studio penuh, tim libur">
+      </div>
+      <div class="avail-day__actions">
+        <button class="admin-btn admin-btn--primary" type="submit" name="action" value="full">Tandai Full Booking</button>
+        <button class="admin-btn" type="submit" name="action" value="close">Tutup tanggal</button>
+        <button class="admin-btn" type="submit" name="action" value="reopen">Buka kembali</button>
+      </div>
+      <p class="admin-hint">
+        “Buka kembali” menghapus override, lalu status dihitung ulang dari kapasitas —
+        tanggal yang memang sudah penuh tetap Full Booking.
+      </p>
+    </form>
+  </div>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <h2>Override tersimpan</h2>
+    <span class="admin-badge admin-badge--muted"><%= overrides.length %> tanggal</span>
+  </div>
+  <% if (!overrides.length) { %>
+    <p class="admin-muted">Belum ada override. Ketersediaan mengikuti aturan di atas.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Tanggal</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% overrides.forEach(function (o) { %>
+            <tr>
+              <td><%= formatDateID(o.date, true) %></td>
+              <td>
+                <% if (Number(o.is_available) === 0) { %>
+                  <span class="admin-badge admin-badge--warn">Ditutup</span>
+                <% } else if (Number(o.full_booking) === 1) { %>
+                  <span class="admin-badge admin-badge--danger">Full Booking</span>
+                <% } else { %>
+                  <span class="admin-badge admin-badge--ok">Dibuka paksa</span>
+                <% } %>
+              </td>
+              <td><%= o.note || '—' %></td>
+              <td>
+                <form method="post" action="<%= base %>/admin/availability/clear" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="date" value="<%= o.date %>">
+                  <input type="hidden" name="back_month" value="<%= month %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus override</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <h2>Booking mendatang per tanggal</h2>
+  </div>
+  <% if (!upcoming.length) { %>
+    <p class="admin-muted">Belum ada booking mendatang.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Tanggal</th><th>Jumlah booking</th></tr></thead>
+        <tbody>
+          <% upcoming.forEach(function (u) { %>
+            <tr><td><%= formatDateID(u.shooting_date, true) %></td><td><%= u.n %></td></tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

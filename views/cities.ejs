@@ -1,0 +1,46 @@
+<section class="page-head">
+  <div class="container">
+    <span class="eyebrow">Kota Layanan</span>
+    <h1><%= site['cities.title'] %></h1>
+    <p class="page-head__lede"><%= site['cities.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="city-grid">
+      <% cities.forEach(function (city) { %>
+        <article class="city-card <%= city.is_active ? '' : 'is-inactive' %>">
+          <div class="city-card__media">
+            <% if (city.cover_image) { %>
+              <%- picture(city.cover_image, {
+                    alt: 'Layanan fotografi wisuda ' + city.name,
+                    widths: [480, 800, 1200], sizes: '(max-width: 720px) 92vw, 45vw'
+                  }) %>
+            <% } else { %>
+              <div class="city-card__placeholder"><span><%= city.name %></span></div>
+            <% } %>
+            <span class="city-card__status"><%= city.is_active ? 'Tersedia' : 'Segera hadir' %></span>
+          </div>
+          <div class="city-card__body">
+            <h2><%= city.name %></h2>
+            <p><%= (city.description || ('Layanan fotografi wisuda di ' + city.name + '.')).slice(0, 150) %><%= (city.description || '').length > 150 ? '…' : '' %></p>
+            <ul class="city-card__meta">
+              <li><%= city.package_count %> paket aktif</li>
+              <li><%= city.photo_count %> foto portfolio</li>
+            </ul>
+            <% if (city.is_active) { %>
+              <div class="city-card__actions">
+                <a class="btn btn--primary btn--sm" href="<%= base %>/city/<%= city.slug %>">Lihat paket <%= city.name %></a>
+                <a class="link-arrow" href="<%= base %>/booking?kota=<%= city.slug %>">Booking</a>
+              </div>
+            <% } else { %>
+              <span class="city-card__soon">Kota ini belum dibuka. Hubungi kami untuk informasi jadwal.</span>
+            <% } %>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+    <p class="note-inline">Kota baru dapat ditambahkan oleh admin melalui dashboard tanpa mengubah kode website.</p>
+  </div>
+</section>

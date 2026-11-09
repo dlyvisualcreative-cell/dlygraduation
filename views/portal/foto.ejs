@@ -1,0 +1,92 @@
+<%
+  /**
+   * Pilih Foto Favorit (blueprint §6): header info, galeri, kuota, submit dua jalur.
+   * Mesin pemilihan = partial yang sama dengan /selection/<token> (kuota & kunci dijaga
+   * server). Kalau pilihan sudah dikirim, halaman menampilkan status terkunci.
+   */
+  const quotaLeft = Math.max(0, quota - picks.size);
+%>
+
+<section class="cp-page cp-page--photo">
+  <header class="cp-photo__head">
+    <div class="cp-photo__id">
+      <span class="cp-eyebrow">Pilih Foto Favorit</span>
+      <h1><%= booking.client_name %><%= booking.client_degree ? ', ' + booking.client_degree : '' %></h1>
+      <p class="cp-photo__meta">
+        <span class="cp-chip cp-chip--code"><%= booking.code %></span>
+        <% if (booking.campus) { %><span><%= booking.campus %></span><% } %>
+        <span><%= formatDateID(booking.shooting_date, true) %><%= booking.shooting_time ? ' · ' + booking.shooting_time + ' WIB' : '' %></span>
+      </p>
+    </div>
+
+    <div class="cp-photo__count" aria-live="polite">
+      <strong data-sel-counter-big><%= picks.size %><i>/<%= quota %></i></strong>
+      <span>foto dipilih</span>
+    </div>
+  </header>
+
+  <div class="cp-photo__instr">
+    <p><%= settings.selection_brand_note || 'Pilih foto favoritmu untuk kami edit. Ketuk foto untuk memilih, ketuk lagi untuk membatalkan.' %></p>
+    <div class="cp-photo__facts">
+      <span><b><%= quota %></b> kuota maksimal</span>
+      <span><b data-sel-sisa><%= quotaLeft %></b> sisa kuota</span>
+      <span><b><%= photos.length %></b> foto tersedia</span>
+      <% if (portal.deadline) { %>
+        <span class="cp-photo__deadline">Batas waktu <b><%= formatDateID(portal.deadline, true) %></b></span>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (gate.deadlinePassed) { %>
+    <div class="cp-alert cp-alert--warn">
+      Batas waktu pemilihan sudah lewat pada <%= formatDateID(portal.deadline, true) %>. Hubungi admin untuk
+      memperpanjang waktu seleksi.
+    </div>
+  <% } %>
+  <% if (typeof error !== 'undefined' && error) { %><div class="cp-alert cp-alert--warn"><%= error %></div><% } %>
+  <% if (typeof empty !== 'undefined' && empty) { %><div class="cp-alert cp-alert--warn">Belum ada foto yang dipilih.</div><% } %>
+  <% if (unavailableCount) { %>
+    <div class="cp-alert cp-alert--warn">
+      <%= unavailableCount %> foto tidak lagi tersedia di folder Drive, jadi disembunyikan dari galeri.
+    </div>
+  <% } %>
+
+  <%# v14.6 — tombol foto mentah lengkap: folder "01. FILE MENTAH" milik booking ini.
+      Hanya muncul bila foldernya benar-benar tersimpan pada booking. %>
+  <% if (drive && drive.raw && drive.raw.visible) { %>
+    <section class="cp-card cp-rawdrive">
+      <div class="cp-rawdrive__text">
+        <h2 class="cp-card__title">Foto mentah lengkap</h2>
+        <p class="cp-muted">Seluruh file asli dari sesi foto kamu ada di folder <b>01. FILE MENTAH</b>.</p>
+      </div>
+      <a class="cp-btn cp-btn--primary" href="<%= drive.raw.url %>" target="_blank" rel="noopener noreferrer">
+        Lihat Foto Mentah Lengkap Kamu di Sini
+      </a>
+    </section>
+  <% } %>
+
+  <% if (gate.locked) { %>
+    <section class="cp-card cp-sentbox">
+      <span class="cp-sentbox__icon" aria-hidden="true">&#10003;</span>
+      <h2><%= sent ? 'Pilihan Foto Sudah Dikirim' : 'Pilihan foto sudah dikirim' %></h2>
+      <p>
+        Terima kasih, <strong><%= booking.client_name %></strong>. Kami sudah menerima
+        <strong><%= picks.size %> foto</strong> pilihanmu<% if (portal.submitted_at) { %> pada
+        <%= formatDateTimeWIB ? formatDateTimeWIB(portal.submitted_at) : String(portal.submitted_at).slice(0, 16) %><% } %>.
+        Pilihan akan diteruskan ke proses editing.
+      </p>
+      <p class="cp-muted">Pilihan sudah dikunci. Bila ada yang perlu dikoreksi, hubungi admin melalui WhatsApp.</p>
+      <div class="cp-sentbox__actions">
+        <a class="cp-btn cp-btn--primary" href="<%= base %>/portal/pantau-order">Lihat Pantau Order</a>
+        <a class="cp-btn cp-btn--ghost" target="_blank" rel="noopener" href="<%= submitWa %>">Kirim Daftar ke Admin</a>
+      </div>
+    </section>
+  <% } else if (!photos.length) { %>
+    <section class="cp-card">
+      <h2 class="cp-card__title">Foto belum tersedia</h2>
+      <p class="cp-muted">Admin belum mengunggah foto untuk sesi ini. Silakan cek lagi nanti atau hubungi admin.</p>
+    </section>
+  <% } else { %>
+    <%- include('partials/photo-app') %>
+  <% } %>
+</section>

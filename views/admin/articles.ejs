@@ -1,0 +1,50 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Artikel</h2>
+      <p class="admin-muted">Hanya artikel berstatus <strong>Published</strong> yang tampil di halaman Artikel publik.</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/articles/new">+ Tambah artikel</a>
+  </div>
+
+  <% if (!articles.length) { %>
+    <p class="admin-muted">Belum ada artikel.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Judul</th><th>Slug</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% articles.forEach(function (a) { %>
+            <tr>
+              <td>
+                <strong><%= a.title %></strong>
+                <small class="cell-sub"><%= (a.excerpt || '').slice(0, 90) %></small>
+              </td>
+              <td><code><%= a.slug %></code></td>
+              <td>
+                <span class="admin-badge <%= Number(a.is_published) ? 'admin-badge--ok' : 'admin-badge--muted' %>">
+                  <%= Number(a.is_published) ? 'Published' : 'Draft' %>
+                </span>
+              </td>
+              <td><%= a.published_at ? formatDateID(String(a.published_at).slice(0, 10)) : '—' %></td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/articles/<%= a.id %>/edit">Edit</a>
+                <% if (Number(a.is_published)) { %>
+                  <a class="admin-link" href="<%= base %>/artikel/<%= a.slug %>" target="_blank" rel="noopener">Lihat</a>
+                <% } %>
+                <form method="post" action="<%= base %>/admin/articles/<%= a.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= Number(a.is_published) ? 'Jadikan draft' : 'Publish' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/articles/<%= a.id %>/delete" data-confirm="Hapus artikel ini?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

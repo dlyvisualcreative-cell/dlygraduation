@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= pageTitle ? pageTitle + ' — ' + brand.name : (site['seo.title'] || brand.name) %></title>
+  <meta name="description" content="<%= pageDescription || site['seo.description'] || brand.tagline %>">
+  <meta name="theme-color" content="<%= appearance.primary %>">
+  <meta name="robots" content="<%= (typeof noindex !== 'undefined' && noindex) || preview ? 'noindex, nofollow' : 'index, follow' %>">
+  <link rel="canonical" href="<%= origin %><%= currentPath %>">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="<%= brand.name %>">
+  <meta property="og:title" content="<%= pageTitle ? pageTitle + ' — ' + brand.name : brand.name %>">
+  <meta property="og:description" content="<%= pageDescription || site['seo.description'] || brand.tagline %>">
+  <meta property="og:url" content="<%= origin %><%= currentPath %>">
+  <meta name="twitter:card" content="summary_large_image">
+  <%# V10: no <link rel=preload> for the hero — it downloaded the ORIGINAL file in
+      addition to the responsive WebP the <picture> picks (481KB of duplicated hero).
+      The first slide's <img> carries fetchpriority="high" instead. %>
+  <link rel="icon" href="<%= favicon.src %>" type="image/png">
+  <link rel="alternate icon" href="<%= favicon.fallback %>" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="<%= favicon.src %>">
+  <%# Tahap 4 — PWA: installable, with the public pages available offline (see /sw.js). %>
+  <link rel="manifest" href="<%= base %>/manifest.webmanifest">
+  <meta name="application-name" content="<%= brand.name %>">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="<%= brand.name %>">
+  <%# Fonts: the two default families are self-hosted (/fonts) and preloaded, so there is
+      no third-party round trip and no late font swap on a slow connection. Any other family
+      chosen in Admin → Warna & Font is still fetched from Google Fonts. %>
+  <% (typeof LOCAL_FONT_FILES !== 'undefined' ? LOCAL_FONT_FILES : []).forEach(function (f) { %>
+    <link rel="preload" href="<%= base %>/fonts/<%= f %>" as="font" type="font/woff2" crossorigin>
+  <% }); %>
+  <% if (theme.fontsUrl) { %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="<%= theme.fontsUrl %>" rel="stylesheet">
+  <% } %>
+  <link rel="stylesheet" href="<%= base %>/assets/app.css?v=<%= assetVersion.app %>">
+  <!-- Appearance tokens come last so admin colours/fonts win over the stylesheet defaults. -->
+  <style>
+    :root { <%- theme.vars %>; }
+  </style>
+  <script type="application/ld+json">
+  <%- JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": brand.name,
+    "description": site['seo.description'] || brand.tagline,
+    "slogan": brand.tagline,
+    "url": origin,
+    "telephone": "+" + brand.whatsapp,
+    "sameAs": ["https://instagram.com/" + brand.instagram, "https://wa.me/" + brand.whatsapp],
+    "areaServed": "Bandung, Indonesia",
+    "priceRange": "Rp"
+  }).replace(/</g, '\\u003c') %>
+  </script>
+</head>
+<body class="<%= bodyClass %>" data-base="<%= base %>">
+  <a class="skip-link" href="#main">Lewati ke konten</a>
+  <% if (preview) { %>
+    <div class="preview-bar">
+      <strong>Mode preview</strong> — Anda melihat draft yang belum dipublikasikan.
+      <a href="<%= base %>/admin">Kembali ke dashboard</a>
+    </div>
+  <% } %>
+  <%- include('partials/header') %>
+  <main id="main">
+    <%- body %>
+  </main>
+  <%- include('partials/footer') %>
+
+  <%# Install prompt: shown only when the browser offers it and the visitor hasn't dismissed it. %>
+  <div class="install-app" data-install-app hidden>
+    <button type="button" class="install-app__go" data-install-go>
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v10M8 10l4 4 4-4M5 19h14"/></svg>
+      <span>Pasang aplikasi</span>
+    </button>
+    <button type="button" class="install-app__x" data-install-dismiss aria-label="Tutup">&times;</button>
+  </div>
+
+  <div class="lightbox" data-lightbox-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pratinjau foto">
+    <button class="lightbox__close" type="button" data-lb-close aria-label="Tutup">&times;</button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" data-lb-prev aria-label="Foto sebelumnya">&#8249;</button>
+    <button class="lightbox__nav lightbox__nav--next" type="button" data-lb-next aria-label="Foto berikutnya">&#8250;</button>
+    <span class="lightbox__counter" data-lb-counter hidden></span>
+    <figure class="lightbox__figure">
+      <img data-lb-img alt="">
+      <figcaption>
+        <strong data-lb-title></strong>
+        <span data-lb-meta></span>
+        <p data-lb-desc></p>
+      </figcaption>
+      <div class="lightbox__thumbs" data-lb-thumbs hidden></div>
+    </figure>
+  </div>
+
+  <a class="wa-fab" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai sesi foto wisuda.') %>"
+     target="_blank" rel="noopener" aria-label="Chat WhatsApp">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor">
+      <path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.6-.9-2.2-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 1.8 2.8 4.3 3.9 2.1.9 2.6.8 3.1.7.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.4z"/>
+      <path d="M12 2.2A9.8 9.8 0 0 0 3.5 17l-1.3 4.8 4.9-1.3A9.8 9.8 0 1 0 12 2.2zm0 17.9c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3a8.1 8.1 0 1 1 7 3.8z"/>
+    </svg>
+  </a>
+  <% if (!preview) { %>
+  <script>
+    // Service worker for offline access to the public pages (Tahap 4). Admin and the
+    // client portal are never cached — see the rules at the top of /sw.js.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('<%= base %>/sw.js', { scope: '<%= base %>/' })
+          .catch(function () { /* offline support is optional; never break the page */ });
+      });
+    }
+  </script>
+  <% } %>
+  <script src="<%= base %>/assets/app.js?v=<%= assetVersion.app %>" defer></script>
+  <%# Carousel portfolio hanya dimuat di halaman yang memakainya (home + gallery).
+      Halaman detail karya memuatnya sendiri di dalam view. %>
+  <% if (bodyClass === 'page-home' || bodyClass === 'page-gallery') { %>
+    <script src="<%= base %>/assets/portfolio-carousel.js?v=<%= assetVersion.portfolioCarousel %>" defer></script>
+  <% } %>
+</body>
+</html>

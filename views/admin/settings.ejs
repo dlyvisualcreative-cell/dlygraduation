@@ -1,0 +1,132 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Kontak &amp; identitas bisnis</h2>
+      <p class="admin-muted">Nomor WhatsApp dan Instagram dipakai di seluruh website, termasuk pesan booking otomatis. Perubahan di halaman ini langsung aktif (bukan draft).</p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/settings" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="whatsapp_number">Nomor WhatsApp bisnis</label>
+        <input type="text" id="whatsapp_number" name="whatsapp_number" value="<%= values.whatsapp_number || '' %>" placeholder="6289629619590">
+        <span class="admin-hint">Format internasional tanpa +, contoh 6289629619590.</span>
+      </div>
+      <div class="admin-field">
+        <label for="instagram_handle">Instagram (tanpa @)</label>
+        <input type="text" id="instagram_handle" name="instagram_handle" value="<%= values.instagram_handle || '' %>">
+      </div>
+      <div class="admin-field">
+        <label for="brand_name">Nama brand</label>
+        <input type="text" id="brand_name" name="brand_name" value="<%= values.brand_name || '' %>">
+      </div>
+      <div class="admin-field">
+        <label for="brand_tagline">Tagline</label>
+        <input type="text" id="brand_tagline" name="brand_tagline" value="<%= values.brand_tagline || '' %>">
+      </div>
+      <div class="admin-field">
+        <label for="planned_domain">Domain yang direncanakan</label>
+        <input type="text" id="planned_domain" name="planned_domain" value="<%= values.planned_domain || '' %>" placeholder="dlygraduation.com">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="domain_note">Catatan domain</label>
+        <input type="text" id="domain_note" name="domain_note" value="<%= values.domain_note || '' %>" placeholder="contoh: menunggu verifikasi DNS">
+      </div>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan kontak</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Ganti password admin</h2>
+      <p class="admin-muted">Segera ganti password bawaan dengan password pribadi yang kuat.</p>
+    </div>
+  </div>
+  <form method="post" action="<%= base %>/admin/settings/password" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field-grid admin-field-grid--3">
+      <div class="admin-field">
+        <label for="current_password">Password saat ini</label>
+        <input type="password" id="current_password" name="current_password" required autocomplete="current-password">
+      </div>
+      <div class="admin-field">
+        <label for="new_password">Password baru</label>
+        <input type="password" id="new_password" name="new_password" required minlength="10" autocomplete="new-password">
+        <span class="admin-hint">Minimal 10 karakter, harus ada huruf dan angka.</span>
+      </div>
+      <div class="admin-field">
+        <label for="confirm_password">Ulangi password baru</label>
+        <input type="password" id="confirm_password" name="confirm_password" required minlength="10" autocomplete="new-password">
+      </div>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Ubah password</button>
+    </div>
+  </form>
+</section>
+
+<%# Revisi 5 — panel Keamanan: status nyata dari server, bukan teks promosi. %>
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Keamanan Website</h2>
+      <p class="admin-muted">Lapisan pengaman yang aktif di semua halaman. Tidak perlu diatur manual.</p>
+    </div>
+    <span class="admin-badge admin-badge--ok">Aktif</span>
+  </div>
+
+  <ul class="sec-list">
+    <li><strong>Content-Security-Policy</strong> — hanya skrip/gaya dari situs ini (dan Google Fonts) yang boleh berjalan, jadi kode jahat yang disisipkan lewat form tidak bisa dieksekusi.</li>
+    <li><strong>Anti-clickjacking</strong> — <code>X-Frame-Options: DENY</code> + <code>frame-ancestors 'none'</code>: situs ini tidak bisa dibungkus di halaman lain.</li>
+    <li><strong>HTTPS dikunci</strong> — <code>Strict-Transport-Security</code><%= securityHints.https ? ' aktif (koneksi ini HTTPS).' : ' aktif saat situs dibuka lewat HTTPS.' %></li>
+    <li><strong>Anti-sniffing & referrer</strong> — <code>X-Content-Type-Options: nosniff</code>, <code>Referrer-Policy: strict-origin-when-cross-origin</code>.</li>
+    <li><strong>Rate limit</strong> — login admin maksimal <%= securityHints.loginMaxAttempts %>× per IP dalam <%= securityHints.loginWindowMinutes %> menit; login portal 8× per 15 menit; semua form dibatasi 150 kiriman/menit per IP.</li>
+    <li><strong>Sesi</strong> — cookie <code>HttpOnly</code> + <code>SameSite=Lax</code> (+ <code>Secure</code> di HTTPS), token CSRF di setiap form admin.</li>
+    <li><strong>Password</strong> — minimal 10 karakter, wajib huruf + angka, ditolak bila terlalu mudah ditebak.</li>
+    <li><strong>File sensitif</strong> — permintaan ke <code>.env</code>, <code>.git</code>, <code>*.sqlite</code>, backup, dan <code>node_modules</code> dijawab 404 dan dicatat.</li>
+  </ul>
+
+  <div class="sec-stats">
+    <div><span>Login gagal (7 hari)</span><strong><%= securityStatus.failedLogins7d %></strong></div>
+    <div><span>Akses file sensitif ditolak</span><strong><%= securityStatus.blockedPaths7d %></strong></div>
+    <div><span>Permintaan dibatasi (rate limit)</span><strong><%= securityStatus.rateLimited7d %></strong></div>
+    <div><span>Sesi admin aktif</span><strong><%= securityStatus.activeSessions %></strong></div>
+  </div>
+
+  <% if (securityStatus.recent.length) { %>
+    <h3 class="bd-subhead">Peristiwa terakhir</h3>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Waktu</th><th>Jenis</th><th>IP</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <% securityStatus.recent.forEach(function (e) { %>
+            <tr>
+              <td><%= String(e.created_at || '').slice(0, 16) %></td>
+              <td>
+                <span class="admin-badge admin-badge--<%= e.kind === 'login-failed' ? 'warn' : 'muted' %>">
+                  <%= e.kind === 'login-failed' ? 'Login gagal' : (e.kind === 'rate-limit' ? 'Rate limit' : 'File sensitif') %>
+                </span>
+              </td>
+              <td><code><%= e.ip %></code></td>
+              <td><%= e.detail %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <p class="admin-muted">Belum ada percobaan mencurigakan yang tercatat.</p>
+  <% } %>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head"><h2>Informasi akun</h2></div>
+  <p class="admin-muted">Username admin: <strong><%= adminUser %></strong>. Seluruh aksi admin diverifikasi di server dan dilindungi token CSRF.</p>
+  <p class="admin-muted">Terakhir publish: <strong><%= lastPublishedAt ? new Date(lastPublishedAt).toLocaleString('id-ID') : 'belum pernah' %></strong></p>
+</section>

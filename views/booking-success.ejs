@@ -1,0 +1,69 @@
+<section class="page-head page-head--narrow">
+  <div class="container">
+    <span class="eyebrow">Permintaan Booking Tercatat</span>
+    <h1>Terima kasih, permintaan Anda sudah tersimpan</h1>
+    <p class="page-head__lede">
+      Langkah terakhir: kirim detail ini ke WhatsApp kami agar admin dapat memeriksa ketersediaan jadwal Anda.
+    </p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container container--narrow">
+    <div class="card success-card">
+      <div class="success-card__top">
+        <span class="status-chip status-chip--pending">Status: Pending</span>
+        <span class="success-card__code">Booking ID <strong><%= booking.code %></strong></span>
+      </div>
+
+      <div class="alert alert--info">
+        Booking <strong>belum terkonfirmasi</strong>. Membuka WhatsApp tidak otomatis mengunci jadwal —
+        admin akan menghubungi Anda untuk konfirmasi setelah pesan terkirim.
+      </div>
+
+      <h2 class="success-card__section">Detail sesi</h2>
+      <dl class="detail-list">
+        <div><dt>Kota</dt><dd><%= booking.city_name %></dd></div>
+        <div><dt>Tanggal</dt><dd><%= booking.shooting_date_label %></dd></div>
+        <div><dt>Jam pemotretan</dt><dd><%= booking.shooting_time_label || 'Belum diisi' %></dd></div>
+        <div><dt>Lokasi</dt><dd><%= booking.location %><%= booking.location_address ? ' — ' + booking.location_address : '' %></dd></div>
+        <div><dt>Kategori</dt><dd><%= booking.category_name || '—' %></dd></div>
+        <div><dt>Paket</dt><dd><%= booking.package_name %></dd></div>
+        <div><dt>Durasi</dt><dd><%= booking.duration_minutes %> menit</dd></div>
+        <div><dt>Foto edit</dt><dd><%= booking.edited_photos_snapshot ? booking.edited_photos_snapshot + ' foto' : 'Dikonfirmasi admin' %></dd></div>
+        <div><dt>Harga paket</dt><dd><%= rupieh(booking.package_price_snapshot) || '—' %></dd></div>
+        <div>
+          <dt>Add-on</dt>
+          <dd>
+            <% if (!addons.length) { %>—<% } else { %>
+              <% addons.forEach(function (a, i) { %><%= (i ? ', ' : '') + a.name + ' (' + (rupieh(a.price) || '-') + ')' %><% }); %>
+            <% } %>
+          </dd>
+        </div>
+        <div class="detail-list__total"><dt>Total estimasi</dt><dd><%= rupieh(booking.total_price_snapshot) || '—' %></dd></div>
+      </dl>
+
+      <h2 class="success-card__section">Data diri</h2>
+      <dl class="detail-list">
+        <div><dt>Nama</dt><dd><%= booking.client_name %></dd></div>
+        <div><dt>WhatsApp</dt><dd><%= booking.client_phone %></dd></div>
+        <div><dt>Instagram</dt><dd><%= booking.instagram ? '@' + booking.instagram : '—' %></dd></div>
+        <div><dt>Kampus</dt><dd><%= booking.campus %></dd></div>
+        <div><dt>Fakultas</dt><dd><%= booking.faculty || '—' %></dd></div>
+        <div><dt>Jurusan</dt><dd><%= booking.major || '—' %></dd></div>
+        <div><dt>Catatan</dt><dd><%= booking.notes && booking.notes.trim() ? booking.notes : '—' %></dd></div>
+      </dl>
+
+      <div class="success-card__actions">
+        <a class="btn btn--primary btn--lg" href="<%= waUrl %>" target="_blank" rel="noopener" data-wa-send>
+          Kirim ke WhatsApp Admin
+        </a>
+      </div>
+      <p class="success-card__hint">
+        Tombol ini membuka WhatsApp dengan pesan yang sudah terisi. Anda tetap perlu menekan tombol kirim di WhatsApp.
+      </p>
+
+      <a class="link-arrow success-card__back" href="<%= base %>/gallery">Lihat gallery kami <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </div>
+</section>

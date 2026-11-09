@@ -1,0 +1,15 @@
+<%
+  /**
+   * 5-star rating, always rendered left → right as 1★ 2★ 3★ 4★ 5★.
+   * Filled stars = score, rest are neutral. Never reverse this order.
+   * Expects: rating (1-5), optional onDark.
+   */
+  const starMax = 5;
+  const starValue = Math.max(0, Math.min(starMax, Math.round(Number(rating) || 0)));
+%>
+<span class="rating<%= typeof onDark !== 'undefined' && onDark ? ' rating--on-dark' : '' %>"
+      role="img" aria-label="<%= starValue %> dari 5 bintang"><%
+  for (let i = 1; i <= starMax; i += 1) {
+    %><span class="rating__star<%= i <= starValue ? ' is-on' : '' %>" aria-hidden="true">&#9733;</span><%
+  }
+%></span>

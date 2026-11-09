@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1200" width="2000" height="1200" role="img">
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#071A2E"/>
+      <stop offset="0.45" stop-color="#12324C"/>
+      <stop offset="1" stop-color="#2C5E73"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#F6E6C8" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#E8C99B" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#E8C99B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="scrim" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#04121F" stop-opacity="0.62"/>
+      <stop offset="0.55" stop-color="#04121F" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#04121F" stop-opacity="0.48"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.055"/></feComponentTransfer>
+    </filter>
+    <filter id="blurXL"><feGaussianBlur stdDeviation="60"/></filter>
+    <filter id="blurM"><feGaussianBlur stdDeviation="16"/></filter>
+    <filter id="blurS"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+
+
+  <rect width="2000" height="1200" fill="#0A1B2C"/>
+  <circle cx="1150" cy="520" r="620" fill="url(#sun)" filter="url(#blurXL)"/>
+  <rect x="0" y="0" width="2000" height="1200" fill="url(#sky)" opacity="0.55"/>
+  <circle cx="487" cy="527" r="59" fill="#F3DFBB" opacity="0.17" filter="url(#blurM)"/><circle cx="463" cy="569" r="151" fill="#F3DFBB" opacity="0.11" filter="url(#blurM)"/><circle cx="1936" cy="722" r="106" fill="#F3DFBB" opacity="0.14" filter="url(#blurM)"/><circle cx="1172" cy="406" r="160" fill="#F3DFBB" opacity="0.11" filter="url(#blurM)"/><circle cx="1968" cy="825" r="43" fill="#F3DFBB" opacity="0.09" filter="url(#blurM)"/><circle cx="956" cy="792" r="61" fill="#F3DFBB" opacity="0.14" filter="url(#blurM)"/><circle cx="734" cy="768" r="151" fill="#F3DFBB" opacity="0.16" filter="url(#blurM)"/><circle cx="387" cy="746" r="93" fill="#F3DFBB" opacity="0.18" filter="url(#blurM)"/><circle cx="940" cy="871" r="158" fill="#F3DFBB" opacity="0.17" filter="url(#blurM)"/><circle cx="1652" cy="796" r="111" fill="#F3DFBB" opacity="0.08" filter="url(#blurM)"/><circle cx="1972" cy="495" r="42" fill="#F3DFBB" opacity="0.12" filter="url(#blurM)"/><circle cx="830" cy="271" r="155" fill="#F3DFBB" opacity="0.07" filter="url(#blurM)"/><circle cx="1808" cy="567" r="61" fill="#F3DFBB" opacity="0.10" filter="url(#blurM)"/><circle cx="901" cy="200" r="132" fill="#F3DFBB" opacity="0.15" filter="url(#blurM)"/><circle cx="1965" cy="805" r="134" fill="#F3DFBB" opacity="0.20" filter="url(#blurM)"/><circle cx="1864" cy="647" r="105" fill="#F3DFBB" opacity="0.13" filter="url(#blurM)"/><circle cx="1628" cy="887" r="140" fill="#F3DFBB" opacity="0.18" filter="url(#blurM)"/><circle cx="55" cy="458" r="50" fill="#F3DFBB" opacity="0.14" filter="url(#blurM)"/><circle cx="1160" cy="577" r="143" fill="#F3DFBB" opacity="0.08" filter="url(#blurM)"/><circle cx="1458" cy="598" r="66" fill="#F3DFBB" opacity="0.20" filter="url(#blurM)"/>
+  <ellipse cx="1150" cy="1180" rx="760" ry="260" fill="#040D18" opacity="0.55" filter="url(#blurM)"/>
+  
+  <g transform="translate(1150,1215) scale(1.95)" fill="#04121F" opacity="0.96">
+    <circle cx="0" cy="-566" r="45"/>
+    <path d="M-60,-552 C-108,-518 -132,-420 -156,-140 L-172,0 L172,0 L156,-140 C132,-420 108,-518 60,-552 Z"/>
+    
+    <path d="M-108,-640 L0,-686 L108,-640 L0,-594 Z" fill="#04121F"/>
+    <path d="M-104,-640 L104,-640" stroke="#04121F" stroke-width="15" stroke-linecap="round"/>
+    <path d="M108,-640 q16,-2 18,30" stroke="#04121F" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <circle cx="126" cy="-606" r="9" fill="#04121F"/>
+  </g>
+  <rect width="2000" height="1200" fill="url(#scrim)"/>
+  <rect width="2000" height="1200" filter="url(#grain)"/>
+
+</svg>

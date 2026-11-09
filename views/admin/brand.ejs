@@ -1,0 +1,145 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Identitas studio</h2>
+      <p class="admin-muted">Nama, deskripsi, dan kontak yang tampil di header, footer, dan metadata website.</p>
+    </div>
+  </div>
+
+  <% if (brokenLogos && brokenLogos.length) { %>
+    <div class="gcal-error" style="margin-bottom:16px">
+      <span class="gcal-badge gcal-badge--error">Logo bermasalah</span>
+      <div>
+        <% brokenLogos.forEach(function (b) { %>
+          <p><strong><%= b.label %></strong> — <%= b.problem %></p>
+        <% }); %>
+        <p style="margin-top:6px;font-size:0.76rem">
+          Selama file tidak ditemukan, logo tersebut tidak muncul di website (gambar rusak).
+        </p>
+      </div>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/admin/brand" enctype="multipart/form-data" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="brand_name">Nama studio</label>
+        <input type="text" id="brand_name" name="brand_name" maxlength="80" value="<%= values.brand_name %>">
+      </div>
+      <div class="admin-field">
+        <label for="brand_tagline">Tagline</label>
+        <input type="text" id="brand_tagline" name="brand_tagline" maxlength="160" value="<%= values.brand_tagline %>">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="brand_description">Deskripsi singkat (di bawah nama studio pada header)</label>
+        <input type="text" id="brand_description" name="brand_description" maxlength="160" value="<%= values.brand_description %>"
+               placeholder="Professional Graduation Photography">
+      </div>
+      <div class="admin-field">
+        <label for="instagram_handle">Instagram (tanpa @)</label>
+        <input type="text" id="instagram_handle" name="instagram_handle" value="<%= values.instagram_handle %>">
+      </div>
+      <div class="admin-field">
+        <label for="whatsapp_number">WhatsApp bisnis</label>
+        <input type="text" id="whatsapp_number" name="whatsapp_number" value="<%= values.whatsapp_number %>" placeholder="6289629619590">
+      </div>
+      <div class="admin-field">
+        <label for="brand_email">Email</label>
+        <input type="email" id="brand_email" name="brand_email" maxlength="160" value="<%= values.brand_email %>">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="header_show_identity" value="1" <%= showIdentity ? 'checked' : '' %>>
+          <span>Tampilkan nama studio di header — hanya berlaku bila belum ada file logo</span>
+        </label>
+        <span class="admin-hint">Saat file logo sudah diunggah, header hanya menampilkan logo
+          (nama studio tetap dipakai untuk SEO &amp; pembaca layar).</span>
+        <label class="admin-check">
+          <input type="checkbox" name="header_sticky" value="1" <%= sticky ? 'checked' : '' %>>
+          <span>Header menempel saat scroll (sticky)</span>
+        </label>
+      </div>
+    </div>
+
+    <fieldset class="admin-fieldset">
+      <legend>Varian logo</legend>
+      <p class="admin-hint">
+        Header transparan di atas foto memakai <strong>versi terang</strong>; header solid memakai
+        <strong>versi gelap</strong>. Footer navy memakai versi terang. Jika sebuah varian kosong,
+        sistem memakai logo lain sebagai cadangan.
+      </p>
+
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="logo_field">Pilih varian yang akan diunggah</label>
+          <select id="logo_field" name="logo_field">
+            <% logoFields.forEach(function (f) { %>
+              <option value="<%= f.key %>"><%= f.label %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="admin-field">
+          <label for="logo_file">Upload file logo</label>
+          <input type="file" id="logo_file" name="logo_file" accept="image/png,image/svg+xml,image/webp,image/jpeg">
+          <span class="admin-hint">PNG transparan atau SVG, tinggi disarankan ≥ 120px.</span>
+        </div>
+      </div>
+
+      <div class="logo-grid">
+        <% logoFields.forEach(function (f) { %>
+          <div class="logo-card">
+            <span class="logo-card__label"><%= f.label %></span>
+            <div class="logo-card__preview <%= f.key.indexOf('light') !== -1 ? 'is-dark-bg' : 'is-light-bg' %>">
+              <% if (logos[f.key]) { %>
+                <img src="<%= imageUrl(logos[f.key]) %>" alt="<%= f.label %>">
+              <% } else { %>
+                <span class="logo-card__empty">belum ada</span>
+              <% } %>
+            </div>
+            <p class="admin-hint"><%= f.hint %></p>
+            <label class="admin-hint" style="display:block;margin-top:6px">atau isi URL/path:</label>
+            <input type="text" name="<%= f.key %>_url" value="" placeholder="<%= logos[f.key] || '/uploads/logo.png' %>">
+            <% if (logos[f.key]) { %>
+              <label class="admin-check" style="margin-top:8px">
+                <input type="checkbox" name="<%= f.key %>_clear" value="1">
+                <span>Hapus logo ini</span>
+              </label>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-fieldset">
+      <legend>Ikon tab browser (favicon)</legend>
+      <p class="admin-hint">
+        Ikon kecil yang tampil di tab Chrome/Safari. Gunakan PNG/SVG persegi, minimal 64×64px.
+        Logo resmi di atas juga dipakai otomatis untuk <strong>ikon aplikasi (PWA / home screen)</strong>
+        dan <strong>ikon notifikasi HP</strong> — tidak perlu upload terpisah. Pada sebagian perangkat,
+        ikon baru muncul setelah cache diperbarui atau aplikasi dipasang ulang.
+      </p>
+      <div class="logo-card" style="max-width:280px">
+        <span class="logo-card__label">Pratinjau ikon</span>
+        <div class="logo-card__preview is-light-bg">
+          <img src="<%= imageUrl(favicon) || (base + '/assets/favicon.svg') %>" alt="Favicon" style="max-height:48px">
+        </div>
+        <label class="admin-hint" style="display:block;margin-top:6px">Upload ikon baru:</label>
+        <input type="file" name="favicon_file" accept="image/png,image/svg+xml,image/x-icon,image/webp">
+        <input type="hidden" name="favicon_intent" value="1">
+        <% if (favicon) { %>
+          <label class="admin-check" style="margin-top:8px">
+            <input type="checkbox" name="favicon_clear" value="1">
+            <span>Kembalikan ke ikon bawaan</span>
+          </label>
+        <% } %>
+      </div>
+    </fieldset>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan identitas brand</button>
+      <a class="admin-btn" href="<%= base %>/" target="_blank" rel="noopener">Lihat website &nearr;</a>
+    </div>
+  </form>
+</section>

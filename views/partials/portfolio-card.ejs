@@ -1,0 +1,56 @@
+<%
+  /**
+   * Kartu portfolio editorial (homepage Featured + halaman Gallery).
+   *
+   * Tahap 6: kartu sekarang menjadi PINTU MASUK ke halaman klien (/portfolio/<slug>),
+   * bukan lightbox. Lightbox dipakai di halaman klien itu sendiri, di mana seluruh foto
+   * sesi tersedia.
+   *
+   * Cover hanya menampilkan: Nama Klien + gelar (utama) / kampus (pendukung) / tanggal
+   * (pendukung). Kota hanya muncul bila admin menyalakannya.
+   *
+   * Expects: item, showCity (bool), natural (bool), variant, eager
+   */
+  const pCoverName = String(item.client_name || item.title || '').trim();
+  const pDegree = String(item.client_degree || '').trim();
+  const pTitle = pDegree ? pCoverName + ', ' + pDegree : pCoverName;
+  const pCampus = String(item.campus || '').trim();
+  const pDate = item.taken_at ? formatDateID(item.taken_at) : '';
+  const pCity = (showCity || Number(item.show_city) === 1) ? (item.city_name || '') : '';
+  const extra = (item.extra_photos || []).map(function (p) { return p.image; }).filter(Boolean);
+  const coverSrc = item.image_src || extra[0] || '';
+  const photoCount = [coverSrc].concat(extra).filter(Boolean).length;
+  const catLabel = (PORTFOLIO_CATEGORIES.find(function (c) { return c.value === item.category; }) || {}).label || item.category;
+  const variantClass = typeof variant !== 'undefined' && variant ? ' portfolio-card--' + variant : '';
+  const naturalRatio = typeof natural !== 'undefined' && natural ? imageAspect(coverSrc) : 0;
+  const ratioStyle = naturalRatio ? ' style="--ar: ' + naturalRatio + '"' : '';
+  const href = (base || '') + '/portfolio/' + encodeURIComponent(item.slug || item.id);
+  // Revisi: dua baris saja — Nama (utama) lalu "Kampus • Tanggal".
+  const metaLine = [pCampus, pDate].filter(Boolean).join(' • ');
+  const cityLine = pCity;
+%>
+<figure class="portfolio-card<%= variantClass %><%= naturalRatio ? ' portfolio-card--natural' : '' %>">
+  <a class="portfolio-card__btn" href="<%= href %>"
+     aria-label="Lihat halaman portfolio <%= pTitle %><%= pCampus ? ' — ' + pCampus : '' %>">
+    <%- picture(coverSrc, {
+          alt: item.alt_text || (pTitle + (pCampus ? ' — ' + pCampus : '')),
+          className: 'portfolio-card__img',
+          widths: [320, 480, 800, 1200],
+          sizes: '(max-width: 899px) 46vw, (max-width: 1199px) 31vw, 24vw',
+          eager: typeof eager !== 'undefined' && eager
+        }) %>
+    <span class="portfolio-card__shade" aria-hidden="true"></span>
+    <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+    <% if (photoCount > 1) { %>
+      <span class="portfolio-card__count">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="6" width="14" height="14" rx="2.5"/><path d="M17 3H5.5A2.5 2.5 0 0 0 3 5.5V17"/></svg>
+        <%= photoCount %>
+      </span>
+    <% } %>
+    <span class="portfolio-card__caption">
+      <span class="portfolio-card__name"><%= pTitle %></span>
+      <% if (metaLine) { %><span class="portfolio-card__sub"><%= metaLine %></span><% } %>
+      <% if (cityLine) { %><span class="portfolio-card__sub portfolio-card__sub--city"><%= cityLine %></span><% } %>
+    </span>
+  </a>
+</figure>

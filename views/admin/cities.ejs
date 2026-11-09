@@ -1,0 +1,48 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Kota layanan</h2>
+      <p class="admin-muted">Kota nonaktif tetap tersimpan, tetapi tidak muncul di halaman publik dan form booking.</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/cities/new">+ Tambah kota</a>
+  </div>
+
+  <% if (!cities.length) { %>
+    <p class="admin-muted">Belum ada kota.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Kota</th><th>Slug</th><th>Paket</th><th>Foto</th><th>Booking</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% cities.forEach(function (c) { %>
+            <tr>
+              <td>
+                <div class="cell-media">
+                  <% if (c.cover_image) { %><img src="<%= imageUrl(c.cover_image) %>" alt=""><% } %>
+                  <div><strong><%= c.name %></strong><small><%= (c.description || '').slice(0, 60) %></small></div>
+                </div>
+              </td>
+              <td><code>/city/<%= c.slug %></code></td>
+              <td><%= c.package_count %></td>
+              <td><%= c.photo_count %></td>
+              <td><%= c.booking_count %></td>
+              <td><span class="admin-badge <%= c.is_active ? 'admin-badge--ok' : 'admin-badge--muted' %>"><%= c.is_active ? 'Aktif' : 'Nonaktif' %></span></td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/cities/<%= c.id %>/edit">Edit</a>
+                <a class="admin-link" href="<%= base %>/admin/packages/new?city_id=<%= c.id %>">+ Paket</a>
+                <form method="post" action="<%= base %>/admin/cities/<%= c.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= c.is_active ? 'Nonaktifkan' : 'Aktifkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/cities/<%= c.id %>/delete" data-confirm="Hapus kota <%= c.name %>? Paket pada kota ini juga akan terhapus.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

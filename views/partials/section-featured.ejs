@@ -1,0 +1,63 @@
+<%
+  /**
+   * Featured Portfolio — CAROUSEL HORIZONTAL AUTOPLAY (revisi v12/v13).
+   *
+   * Aturan yang dijaga:
+   *  - Sumber karya HANYA yang ditandai unggulan oleh admin (`portfolio.is_featured = 1`
+   *    + urutan `sort_order` dari drag-and-drop dashboard). Tidak ada fallback ke semua
+   *    karya dan tidak ada data dummy: kalau belum ada unggulan, section disembunyikan.
+   *  - Satu jalur horizontal yang bergerak sendiri (ritme seperti carousel Ulasan),
+   *    berhenti sementara saat pengguna menyentuh/hover, hormat prefers-reduced-motion.
+   *  - Tampilannya SENGAJA berbeda dari halaman Gallery: kartu lebih ringkas (2–3 per
+   *    layar), tanpa dots, dengan panah + tombol EXPLORE MORE WORKS.
+   *  - Keterangan menempel pada foto (overlay gradient) — nama (Montserrat 700) lalu
+   *    "Kampus • Tanggal" (Montserrat 500).
+   */
+  const heading = (s && (s.title || '').trim()) || site['featured.title'] || 'Portfolio Highlights.';
+  const sub = (s && (s.description || '').trim()) || site['featured.description'] || '';
+  const featuredItems = (typeof featured === 'undefined' ? [] : (featured || [])).slice(0, 9);
+%>
+<% if (featuredItems.length) { %>
+<section class="<%= sectionClass(s, 'section section--featured section--pfcarousel layout-carousel') %>"
+         style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head section-head--split pf-carousel__head">
+      <div>
+        <span class="eyebrow">Featured Portfolio</span>
+        <h2 class="pf-carousel__title"><%= heading %></h2>
+        <% if (sub) { %><p class="section-sub"><%= sub %></p><% } %>
+      </div>
+      <div class="pf-carousel__head-actions">
+        <div class="pf-carousel__nav">
+          <button type="button" class="pf-carousel__arrow" data-pf-prev aria-label="Karya unggulan sebelumnya">&#8249;</button>
+          <button type="button" class="pf-carousel__arrow" data-pf-next aria-label="Karya unggulan berikutnya">&#8250;</button>
+        </div>
+        <a class="btn btn--outline pf-carousel__more" href="<%= base %>/gallery">EXPLORE MORE WORKS</a>
+      </div>
+    </div>
+
+    <% if (featuredItems.some(function (f) { return f.is_placeholder; })) { %>
+      <p class="note-inline">Sebagian foto bertanda
+        <span class="badge-sample badge-sample--inline">Contoh</span> masih berupa gambar sementara
+        dari admin dan dapat diganti dengan foto asli melalui dashboard.</p>
+    <% } %>
+  </div>
+
+  <div class="pf-carousel pf-carousel--featured" data-pf-carousel data-interval="6000">
+    <div class="pf-carousel__viewport" data-pf-viewport tabindex="0"
+         aria-label="Karya unggulan, geser untuk melihat karya lain">
+      <div class="pf-carousel__track" data-pf-track>
+        <% featuredItems.forEach(function (item, i) { %>
+          <div class="pf-carousel__slide">
+            <%- include('portfolio-card', {
+                  item: item,
+                  showCity: showPortfolioCity,
+                  eager: i < 3
+                }) %>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</section>
+<% } %>

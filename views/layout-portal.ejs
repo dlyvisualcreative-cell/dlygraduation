@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= pageTitle ? pageTitle + ' — ' + brand.name : brand.name %></title>
+  <meta name="description" content="<%= pageDescription || 'Portal seleksi foto DLY Graduation.' %>">
+  <meta name="theme-color" content="<%= appearance.primary %>">
+  <%# Portal klien berisi foto pribadi: never indexable, never cacheable by proxies. %>
+  <meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="<%= favicon.src %>" type="image/png">
+  <link rel="alternate icon" href="<%= favicon.fallback %>" type="image/svg+xml">
+  <% if (theme.fontsUrl) { %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="<%= theme.fontsUrl %>" rel="stylesheet">
+  <% } %>
+  <link rel="stylesheet" href="<%= base %>/assets/app.css?v=<%= assetVersion.app %>">
+  <link rel="stylesheet" href="<%= base %>/assets/selection.css?v=<%= assetVersion.selection %>">
+  <%# Halaman tertentu (mis. login Client Portal) memakai stylesheet tambahan. %>
+  <% if (typeof extraCss !== 'undefined' && extraCss) { %>
+    <link rel="stylesheet" href="<%= base %>/assets/<%= extraCss %>">
+  <% } %>
+  <style>:root { <%- theme.vars %>; }</style>
+</head>
+<body class="portal-body" data-base="<%= base %>">
+  <header class="portal-header">
+    <div class="portal-header__inner">
+      <a class="portal-brand" href="<%= base %>/" aria-label="<%= typeof portalBrandName !== 'undefined' ? portalBrandName : brand.name %>">
+        <% const portalLogo = logoFor(settings.selection_portal_logo, 'dark'); %>
+        <% if (portalLogo) { %>
+          <%- picture(portalLogo, {
+                alt: typeof portalBrandName !== 'undefined' ? portalBrandName : brand.name,
+                className: 'portal-brand__logo', widths: [96, 192, 320], sizes: '200px', eager: true
+              }) %>
+        <% } else { %>
+          <span class="portal-brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="30" height="30" fill="none">
+              <rect x="1" y="1" width="30" height="30" rx="4" stroke="currentColor" stroke-width="1.1"/>
+              <path d="M16 9l7 3.2-7 3.2-7-3.2L16 9z" fill="currentColor"/>
+              <path d="M11.5 14.6v3.6c0 1.9 2 3.4 4.5 3.4s4.5-1.5 4.5-3.4v-3.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              <path d="M23 12.4v5.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="portal-brand__text">
+            <strong><%= typeof portalBrandName !== 'undefined' ? portalBrandName : brand.name %></strong>
+            <% if (brand.description) { %><em><%= brand.description %></em><% } %>
+          </span>
+        <% } %>
+      </a>
+      <span class="portal-badge">Portal Seleksi Foto</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <%- body %>
+  </main>
+
+  <footer class="portal-footer">
+    <p>
+      <%= brand.name %> · <a href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai portal seleksi foto.') %>"
+        target="_blank" rel="noopener">WhatsApp</a>
+      · <a href="https://instagram.com/<%= brand.instagram %>" target="_blank" rel="noopener">@<%= brand.instagram %></a>
+    </p>
+    <p class="portal-footer__note">
+      Halaman ini bersifat pribadi. Mohon tidak membagikan link seleksi kepada orang lain.
+    </p>
+  </footer>
+
+  <div class="lightbox" data-lightbox-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pratinjau foto">
+    <button class="lightbox__close" type="button" data-lb-close aria-label="Tutup">&times;</button>
+    <button class="lightbox__nav lightbox__nav--prev" type="button" data-lb-prev aria-label="Foto sebelumnya">&#8249;</button>
+    <button class="lightbox__nav lightbox__nav--next" type="button" data-lb-next aria-label="Foto berikutnya">&#8250;</button>
+    <span class="lightbox__counter" data-lb-counter hidden></span>
+    <figure class="lightbox__figure">
+      <img data-lb-img alt="">
+      <figcaption>
+        <strong data-lb-title></strong>
+        <span data-lb-meta></span>
+        <p data-lb-desc></p>
+      </figcaption>
+      <div class="lightbox__thumbs" data-lb-thumbs hidden></div>
+    </figure>
+  </div>
+
+  <script src="<%= base %>/assets/app.js?v=<%= assetVersion.app %>" defer></script>
+  <script src="<%= base %>/assets/selection.js?v=<%= assetVersion.selection %>" defer></script>
+</body>
+</html>

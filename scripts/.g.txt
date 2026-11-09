@@ -1,0 +1,77 @@
+PASS  Google page renders a clear connection state — Google Calendar Aktif — event dibuat otomatis Akun: dlyvisualcreative@
+PASS  Redirect URI is displayed for Google Console — http://127.0.0.1:5037/admin/google/callback
+PASS  Warn banners are limited to real problems — warn banners=0
+PASS  Credentials saved
+PASS  Connect button appears after saving credentials
+PASS  Connect form posts to the connect route — http://127.0.0.1:5037/admin/google/connect
+PASS  Connect redirects to Google with offline access — https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client.apps.googleusercontent.
+PASS  OAuth callback connects the calendar account — berhasil terhubung
+PASS  Drive credentials saved
+PASS  Drive client shown as separate —  Google Drive Belum terhubung OAuth client: terpisah (khusus Drive) 
+PASS  Calendar stays connected after saving Drive credentials
+PASS  Drive section offers its own connect button
+PASS  Drive connect requests only the Drive scope — https://accounts.google.com/o/oauth2/v2/auth?client_id=drive-client.apps.googleusercontent.com&redirect_uri=http%3A%2F%2
+PASS  Drive connect uses the Drive client id — client_id=drive-client.apps.googleusercontent.com
+PASS  Drive account connects separately
+PASS  Drive token refresh used the Drive client — [{"grant":"refresh_token","client_id":"670150405110-ei0ai61tkb57l4a2dksi4nk57rb0mn7m.apps.googleusercontent.com"},{"grant":"authorization_code","client_id":"drive-client.apps.googleusercontent.com"},{"grant":"refresh_token","client_id":"drive-client.apps.googleusercontent.com"}]
+PASS  Calendar token refresh still uses the Calendar client — [{"grant":"authorization_code","client_id":"test-client.apps.googleusercontent.com"},{"grant":"refresh_token","client_id":"test-client.apps.googleusercontent.com"},{"grant":"refresh_token","client_id":"670150405110-ei0ai61tkb57l4a2dksi4nk57rb0mn7m.apps.googleusercontent.com"}]
+PASS  Drive shows as a separate account — Google Drive Terhubung — akun Drive terpisah Akun: drive-account@examp
+PASS  Rotating the Calendar client drops the Calendar token —  Google Calendar Token dihapus — perlu dihubungkan ulang 
+PASS  Rotating the Calendar client KEEPS the Drive token (own client) —  Google Drive Terhubung — akun Drive terpisah Akun: drive-account@exam
+PASS  Integration reports active
+PASS  A booking exists to test with — DLY-261106-7528
+PASS  No event for this booking while pending — events=0
+PASS  Confirming a booking creates a calendar event — events=1
+PASS  Booking card shows the shooting time — 08:27
+PASS  Event starts at the client-chosen shooting time — 2026-11-29T08:27:00 (booking 08:27)
+PASS  Event end = start + booking duration — 2026-11-29T08:27:00 → 2026-11-29T09:27:00
+PASS  Event carries the booking code in the title — Sesi Foto Wisuda — Jokowi
+PASS  Event carries the booking code in extended properties — {"dlyBookingCode":"DLY-261106-7528","dlyBookingId":"5","dlyDriveFolder":"https://drive.google.com/drive/folders/fld14"}
+PASS  Event carries the Drive folder in extended properties — https://drive.google.com/drive/folders/fld14
+PASS  Event has the location — UGM
+PASS  Booking card shows the calendar badge
+PASS  Description uses the DETAIL BOOKING header
+PASS  Description contains "Nama:"
+PASS  Description contains "Acara:"
+PASS  Description contains "WhatsApp:"
+PASS  Description contains "Kampus:"
+PASS  Description contains "Lokasi:"
+PASS  Description contains "Paket:"
+PASS  Description contains "Durasi:"
+PASS  Description contains "Addon:"
+PASS  Description contains "Tim yang bertugas:"
+PASS  Description contains "Status:"
+PASS  Description contains "Catatan:"
+PASS  Description does NOT show the price
+PASS  Description does NOT show the photo-edit count
+PASS  Status line is human readable — Status: SUDAH TERKONFIRMASI
+PASS  Description has the Google Drive section
+PASS  Description has the H-1 chat template
+PASS  Drive folder was created on confirm — folders=2
+PASS  Drive requests used its own authorization (separate refresh token) — token refreshes=2
+PASS  Month folder named "<Bulan> <Tahun>" — November 2026
+PASS  Client folder named "Graduation <klien> - <kampus>" — Graduation Jokowi - UGM
+PASS  Client folder sits inside the month folder — ["fld13"]
+PASS  Drive link written into the event description — https://drive.google.com/drive/folders/fld14
+PASS  Booking card shows the Drive badge
+PASS  Drive button exists per booking
+PASS  Pressing the Drive button again does not duplicate folders — 2 → 2
+PASS  Re-saving Confirmed updates instead of duplicating — events=1
+PASS  Cancelling removes the calendar event — events=0
+PASS  Re-confirming recreates the event — events=1
+PASS  Disabled integration warns instead of failing silently — Status tersimpan, tetapi event Google Calendar TIDAK dibuat. Integrasi Google Calendar sedang dimatikan (centang "Aktifkan" di halaman G
+PASS  Status still saved when Google fails — page rendered
+PASS  Failure is surfaced to the admin — sinkron kalender gagal: Simulated Google outage
+    
+    
+
+    
+      
+PASS  Manual resync after a failure succeeds
+PASS  Bulk sync runs
+PASS  Booking time wins over the changed dashboard default — 2026-11-29T08:27:00
+PASS  Status endpoint reachable for the fallback check — status=200
+PASS  Client secret never rendered
+PASS  Refresh token never rendered
+PASS  Forged OAuth callback rejected — status=302
+ALL PASSED

@@ -1,0 +1,54 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Tim yang bertugas</h2>
+      <p class="admin-muted">
+        Anggota tim di sini bisa dipilih pada setiap booking. Jika email diisi, Google Calendar akan
+        <strong>mengirim undangan event ke email tersebut</strong> saat booking berstatus Confirmed.
+      </p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/team/new">+ Tambah anggota</a>
+  </div>
+
+  <% if (!members.length) { %>
+    <div class="empty-box">
+      <p>Belum ada anggota tim. Tambahkan nama dan email agar bisa ditugaskan ke booking.</p>
+      <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/team/new">+ Tambah anggota</a>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Nama</th><th>Email (undangan kalender)</th><th>Peran</th><th>Booking</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% members.forEach(function (m) { %>
+            <tr>
+              <td><strong><%= m.name %></strong></td>
+              <td>
+                <% if (m.email) { %><%= m.email %><% } else { %><span class="admin-badge admin-badge--warn">email kosong</span><% } %>
+              </td>
+              <td><%= m.role || '—' %></td>
+              <td><%= m.booking_count %></td>
+              <td><span class="admin-badge <%= m.is_active ? 'admin-badge--ok' : 'admin-badge--muted' %>"><%= m.is_active ? 'Aktif' : 'Nonaktif' %></span></td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/team/<%= m.id %>/edit">Edit</a>
+                <form method="post" action="<%= base %>/admin/team/<%= m.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= m.is_active ? 'Nonaktifkan' : 'Aktifkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/team/<%= m.id %>/delete" data-confirm="Hapus <%= m.name %>? Booking yang memakai anggota ini akan menjadi tanpa tim.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+  <p class="admin-hint" style="margin-top:14px">
+    Email hanya dipakai untuk undangan Google Calendar. Kalau email kosong, anggota tetap bisa dipilih
+    dan namanya muncul di deskripsi event, tetapi tidak ada undangan yang dikirim.
+  </p>
+</section>

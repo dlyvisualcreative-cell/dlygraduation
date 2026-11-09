@@ -1,0 +1,60 @@
+<article class="article-page">
+  <div class="container container--narrow">
+    <nav class="breadcrumb breadcrumb--dark" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <a href="<%= base %>/artikel">Artikel</a><span aria-hidden="true">/</span>
+      <span><%= article.title %></span>
+    </nav>
+
+    <header class="article-head">
+      <span class="article-card__date"><%= formatDateID(String(article.published_at || article.created_at).slice(0, 10)) %></span>
+      <h1><%= article.title %></h1>
+      <% if (article.excerpt) { %><p class="article-head__lede"><%= article.excerpt %></p><% } %>
+    </header>
+
+    <% if (article.cover_image) { %>
+      <figure class="article-cover">
+        <%- picture(article.cover_image, {
+              alt: article.title, widths: [480, 800, 1200, 1600], sizes: '100vw', priority: true
+            }) %>
+      </figure>
+    <% } %>
+
+    <div class="article-body">
+      <% paragraphs.forEach(function (p) { %><p><%= p %></p><% }); %>
+    </div>
+
+    <div class="article-footer">
+      <a class="btn btn--primary" href="<%= base %>/booking">Book Your Session</a>
+      <a class="link-arrow" href="<%= base %>/artikel">&larr; Semua artikel</a>
+    </div>
+  </div>
+
+  <% if (others.length) { %>
+    <section class="section section--alt">
+      <div class="container">
+        <div class="section-head"><span class="eyebrow">Baca juga</span><h2>Artikel lainnya</h2></div>
+        <div class="article-grid">
+          <% others.forEach(function (a) { %>
+            <article class="article-card">
+              <a class="article-card__media" href="<%= base %>/artikel/<%= a.slug %>">
+                <% if (a.cover_image) { %>
+                  <%- picture(a.cover_image, {
+                        alt: a.title, widths: [320, 480, 800],
+                        sizes: '(max-width: 720px) 92vw, 30vw'
+                      }) %>
+                <% } else { %>
+                  <span class="article-card__placeholder" aria-hidden="true"></span>
+                <% } %>
+              </a>
+              <div class="article-card__body">
+                <h2><a href="<%= base %>/artikel/<%= a.slug %>"><%= a.title %></a></h2>
+                <% if (a.excerpt) { %><p><%= a.excerpt %></p><% } %>
+              </div>
+            </article>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+</article>

@@ -1,0 +1,147 @@
+<%
+  /**
+   * Antrean Editing (Revisi 2 — dua kolom).
+   *
+   *   Antrean Editing : semua pekerjaan yang belum selesai (urutan = posisi antrean asli)
+   *   Selesai         : order yang sudah diselesaikan admin
+   *
+   * Tombol SELESAI memvalidasi link Google Drive di server (lewat src/ordercompletion.js)
+   * sebelum order ditandai selesai; kartu lalu pindah ke kolom Selesai, timeline client
+   * diperbarui, dan notifikasi "Editan kamu sudah selesai" terkirim.
+   *
+   * Catatan pada formulir tiap kartu bersifat INTERNAL — tidak pernah tampil ke klien.
+   */
+  const overdueOf = (job) => job.due_at && String(job.due_at).slice(0, 10) < todayISO && job.status !== 'done';
+%>
+
+<section class="ed-head">
+  <div class="ed-stats">
+    <div class="ed-stat ed-stat--queued">
+      <span class="ed-stat__label">Antrean editing</span>
+      <strong><%= stats.active %></strong>
+    </div>
+    <div class="ed-stat ed-stat--done">
+      <span class="ed-stat__label">Selesai</span>
+      <strong><%= stats.done %></strong>
+    </div>
+    <div class="ed-stat <%= stats.overdue ? 'ed-stat--late' : '' %>">
+      <span class="ed-stat__label">Lewat tenggat</span>
+      <strong><%= stats.overdue %></strong>
+    </div>
+  </div>
+</section>
+
+<% if (!stats.active && !stats.done) { %>
+  <div class="admin-panel">
+    <h2 class="ed-empty__title">Antrean editing masih kosong</h2>
+    <p class="admin-muted">
+      Job masuk ke antrean ini otomatis saat klien mengirim pilihan foto di portal seleksi.
+      Anda juga dapat memasukkannya manual dari halaman detail booking
+      (<strong>Workflow → Masuk Antrean Editing</strong>).
+    </p>
+    <div class="cell-actions" style="margin-top:14px">
+      <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/bookings">Buka Kelola Booking</a>
+      <a class="admin-btn" href="<%= base %>/admin/selection">Portal Seleksi Foto</a>
+    </div>
+  </div>
+<% } else { %>
+  <div class="ed-board ed-board--duo" data-editing-board data-csrf="<%= csrf %>" data-base="<%= base %>">
+    <% columns.forEach(function (col) { %>
+      <section class="ed-col ed-col--<%= col.value %>" data-col="<%= col.value %>">
+        <header class="ed-col__head">
+          <span class="ed-col__dot ed-col__dot--<%= col.tone %>"></span>
+          <h2><%= col.label %></h2>
+          <span class="ed-col__n" data-col-count><%= col.items.length %></span>
+        </header>
+
+        <div class="ed-col__body" data-col-body>
+          <% col.items.forEach(function (job) { %>
+            <article class="ed-card <%= overdueOf(job) ? 'is-late' : '' %>"
+                     data-job-id="<%= job.id %>" data-status="<%= job.status %>">
+              <div class="ed-card__top">
+                <a class="ed-card__name" href="<%= base %>/admin/bookings/<%= job.booking_id %>?tab=workflow"><%= job.client_name %></a>
+                <code class="sel-code"><%= job.code %></code>
+              </div>
+
+              <% if (col.value === 'active' && job.queue_no) { %>
+                <div class="ed-card__queue">
+                  <span class="ed-card__queue-no">#<%= job.queue_no %></span>
+                  <span>
+                    <% if (job.status === 'editing') { %>Sedang diedit — Proses Editing aktif di portal client<% } else { %>Menunggu giliran diedit<% } %>
+                  </span>
+                  <small>dari <%= job.queue_total %> antrean</small>
+                </div>
+              <% } %>
+
+              <dl class="ed-card__meta">
+                <div><dt>Sesi</dt><dd><%= formatDateID(job.shooting_date) %><%= job.shooting_time ? ' · ' + job.shooting_time : '' %></dd></div>
+                <div><dt>Paket</dt><dd><%= job.package_name || '—' %><%= job.city_name ? ' · ' + job.city_name : '' %></dd></div>
+                <div><dt>Foto</dt><dd><%= job.photo_count || 0 %> foto<%= job.picks_now ? ' · ' + job.picks_now + ' dipilih' : '' %></dd></div>
+              </dl>
+
+              <div class="ed-card__tags">
+                <% if (job.final_url) { %>
+                  <span class="admin-badge admin-badge--ok">Link Drive tersedia</span>
+                <% } else if (job.drive_folder_id) { %>
+                  <span class="admin-badge admin-badge--warn">Folder Drive tercatat — belum divalidasi</span>
+                <% } else { %>
+                  <span class="admin-badge admin-badge--danger">Folder Drive belum ada</span>
+                <% } %>
+                <% if (job.due_at) { %>
+                  <span class="admin-badge <%= overdueOf(job) ? 'admin-badge--danger' : '' %>">
+                    Tenggat <%= formatDateID(job.due_at) %><%= overdueOf(job) ? ' · lewat' : '' %>
+                  </span>
+                <% } %>
+              </div>
+
+              <% if (col.value === 'active') { %>
+                <form method="post" action="<%= base %>/admin/editing/<%= job.id %>/finish"
+                      class="ed-card__finish"
+                      data-confirm="Tandai order <%= job.code %> SELESAI? Sistem akan memeriksa link Google Drive lebih dulu. Link Drive & tombol ulasan langsung aktif di portal client.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="admin-btn admin-btn--primary admin-btn--finish" type="submit">SELESAI</button>
+                </form>
+              <% } else { %>
+                <span class="ed-card__stamp">Selesai <%= String(job.finished_at || '').slice(0, 10) %></span>
+              <% } %>
+
+              <details class="ed-card__more">
+                <summary>Atur job</summary>
+                <form method="post" action="<%= base %>/admin/editing/<%= job.id %>" class="ed-card__form">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <label>
+                    <span>Target selesai (otomatis 10 hari kerja)</span>
+                    <input type="date" name="due_at" value="<%= job.due_at ? String(job.due_at).slice(0, 10) : '' %>">
+                  </label>
+                  <label class="ed-card__note">
+                    <span>Catatan internal (tidak tampil ke klien)</span>
+                    <textarea name="note" rows="2" placeholder="Contoh: retouch warna, minta tambahan 3 foto."><%= job.note %></textarea>
+                  </label>
+                  <div class="ed-card__actions">
+                    <button class="admin-btn admin-btn--primary admin-btn--sm" type="submit">Simpan</button>
+                    <a class="admin-link" href="<%= base %>/admin/bookings/<%= job.booking_id %>?tab=workflow">Detail booking</a>
+                  </div>
+                </form>
+                <form method="post" action="<%= base %>/admin/editing/<%= job.id %>/delete"
+                      data-confirm="Hapus job editing <%= job.code %> dari antrean? Pilihan foto klien tidak terhapus.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="admin-link-btn admin-link-btn--danger" type="submit">Hapus dari antrean</button>
+                </form>
+              </details>
+            </article>
+          <% }); %>
+          <p class="ed-col__empty"><%= col.value === 'active' ? 'Tidak ada job di antrean' : 'Belum ada order yang diselesaikan' %></p>
+        </div>
+      </section>
+    <% }); %>
+  </div>
+
+  <p class="admin-hint ed-hint">
+    Tombol <strong>SELESAI</strong> memeriksa link Google Drive lebih dulu — order tidak bisa
+    diselesaikan bila folder booking belum ada atau tidak valid. Setelah selesai, timeline client
+    mencapai tahap 08 dan notifikasi “Editan kamu sudah selesai” dikirim.
+    <% if (doneTotal > columns[1].items.length) { %>
+      Menampilkan <%= columns[1].items.length %> dari <%= doneTotal %> order selesai terakhir.
+    <% } %>
+  </p>
+<% } %>

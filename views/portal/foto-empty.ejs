@@ -1,0 +1,17 @@
+<section class="cp-page">
+  <header class="cp-page__head">
+    <div>
+      <span class="cp-eyebrow">Pilih Foto Favorit</span>
+      <h1>Foto belum siap dipilih</h1>
+      <p>Admin belum menyiapkan galeri untuk sesi ini. Kami akan mengabari lewat WhatsApp begitu foto siap.</p>
+    </div>
+  </header>
+  <section class="cp-card">
+    <p class="cp-muted">
+      Sambil menunggu, kamu bisa melihat <a href="<%= base %>/portal/pantau-order">Pantau Order</a>
+      untuk memantau progres pesanan.
+    </p>
+    <a class="cp-btn cp-btn--ghost" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya klien ' + booking.code + '. Kapan foto untuk sesi saya siap dipilih?') %>"
+       target="_blank" rel="noopener">Tanya admin via WhatsApp</a>
+  </section>
+</section>

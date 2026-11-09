@@ -1,0 +1,53 @@
+<%# Drive folder link untuk portal klien. Tampilan saja: tidak memakai izin Google,
+    dan URL berasal dari field admin atau folder Drive booking itu sendiri.
+
+    v14.6 — tombol "Lihat Foto Mentah Lengkap Kamu di Sini" menuju subfolder
+    "01. FILE MENTAH" milik booking ini (drive_raw_id). Hanya dirender kalau folder
+    mentah benar-benar tersimpan untuk booking tersebut. %>
+<% if (typeof drive !== 'undefined' && drive && drive.visible) { %>
+  <section class="sel-section sel-drive">
+    <div class="sel-drive__card">
+      <span class="sel-drive__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2.5h8.5A1.5 1.5 0 0 1 21 10v7.5A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/>
+        </svg>
+      </span>
+      <div class="sel-drive__text">
+        <h2>Folder foto resolusi penuh</h2>
+        <p>
+          Semua foto hasil sesi Kakak juga tersimpan di Google Drive.
+          <% if (typeof gate !== 'undefined' && gate && gate.submitted) { %>
+            Folder ini bisa dibuka kapan saja untuk melihat koleksi lengkapnya.
+          <% } else { %>
+            Buka folder bila ingin melihat foto dalam ukuran penuh sebelum memilih.
+          <% } %>
+        </p>
+      </div>
+      <a class="sel-btn sel-btn--drive" href="<%= drive.url %>" target="_blank" rel="noopener noreferrer">
+        Buka Folder Foto &#8599;
+      </a>
+    </div>
+  </section>
+<% } %>
+
+<% if (typeof drive !== 'undefined' && drive && drive.raw && drive.raw.visible) { %>
+  <section class="sel-section sel-raw">
+    <div class="sel-drive__card sel-drive__card--raw">
+      <span class="sel-drive__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 5h16v14H4zM4 15l4.5-4.5L13 15l3-3 4 4"/>
+          <path d="M9 9.5h.01"/>
+        </svg>
+      </span>
+      <div class="sel-drive__text">
+        <h2>Foto mentah lengkap</h2>
+        <p>Seluruh file asli dari sesi Kakak ada di folder <strong>01. FILE MENTAH</strong>.</p>
+      </div>
+      <a class="sel-btn sel-btn--drive" href="<%= drive.raw.url %>" target="_blank" rel="noopener noreferrer">
+        Lihat Foto Mentah Lengkap Kamu di Sini &#8599;
+      </a>
+    </div>
+  </section>
+<% } %>

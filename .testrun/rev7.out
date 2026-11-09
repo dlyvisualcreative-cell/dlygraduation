@@ -1,0 +1,54 @@
+  ok  Login admin berhasil
+  ok  Kartu booking punya tombol "Foto Siap"
+  ok  Tombol membuat portal seleksi otomatis
+  ok  Foto dibaca dari folder 01. FILE MENTAH (mock)
+  ok  Sumber portal diarahkan ke folder 01. FILE MENTAH
+  ok  Link Drive portal otomatis = folder mentah
+  ok  Tombol folder Drive di portal klien dinyalakan
+  ok  Tahap 04 "Foto Siap Dipilih" tercatat (aktor admin)
+  ok  Notifikasi "foto siap dipilih" dikirim ke klien
+  ok  Menekan tombol dua kali tidak menggandakan foto
+  ok  Tahap 04 tidak pernah dobel
+  ok  Halaman detail booking menampilkan tombol Foto Siap Dipilih
+  ok  Sidebar portal punya menu "Reschedule"
+  ok  Menu "Pilih Foto Favorit" aktif setelah foto siap
+  ok  Galeri pilih foto berisi 5 foto
+  ok  Halaman Reschedule hanya meminta Tanggal, Jam, Lokasi
+  ok  Pengajuan klien tersimpan sebagai pending
+  ok  Booking TIDAK berubah sebelum disetujui admin
+  ok  Halaman menampilkan status menunggu konfirmasi
+  ok  Tab "Pengajuan Reschedule" menampilkan booking terkait
+  ok  Panel pengajuan reschedule ada di Workflow
+  ok  Persetujuan admin menerapkan jadwal baru
+  ok  Pengajuan ditandai approved
+  ok  Riwayat reschedule tercatat
+  ok  Klien menerima notifikasi "Jadwal sesi berubah"
+  ok  Booking H-7 menampilkan status terkunci
+  ok  Klien H-7 melihat penjelasan "Reschedule ditutup" + tombol WhatsApp
+  ok  Server menolak pengajuan saat terkunci H-7
+  ok  Admin bisa membuka akses Reschedule manual
+  ok  Setelah dibuka admin, form pengajuan muncul untuk klien
+  ok  Pengajuan dari booking yang dibuka manual tersimpan
+  ok  Admin bisa MENOLAK pengajuan (jadwal tidak berubah)
+  ok  Tanggal lampau ditolak server
+  ok  Link folder Drive tampil otomatis & read-only
+  ok  Fieldset menjelaskan sumber 01. FILE MENTAH
+  ok  "Perbarui dari 01. File Mentah" menambahkan file baru
+  ok  Wizard membuat portal: link 01. FILE MENTAH otomatis read-only
+  ok  Sesi yang sedang berjalan: judul "Sesi foto dimulai"
+  ok  Hanya tahap sesi yang memakai badge "Sedang Berlangsung"
+  ok  Sesi 60 menit yang mulai 65 menit lalu = "Sesimu sudah selesai" (tanpa +60 menit)
+  ok  Tahap sesi tampil sebagai centang hijau
+  ok  Keterangan menunggu upload file mentah ditampilkan
+  ok  Upgrade durasi tampil sebagai chip di kartu paket (90 & 120 menit bisa diajukan)
+  ok  Durasi sekarang ditandai & tidak menawarkan tombol
+  ok  Kartu paket upgrade (bila ada) menampilkan selisih harga
+  ok  Server menolak downgrade durasi (30 menit)
+  ok  Pengajuan upgrade durasi tersimpan pending
+  ok  Persetujuan admin mengubah durasi booking menjadi 90 menit
+  ok  Extra Time TERKUNCI sebelum sesi foto dimulai
+  ok  Extra Time TERBUKA saat sesi foto dimulai (bukan setelah selesai)
+  ok  Server menolak Extra Time sebelum sesi dimulai
+  ok  Tidak ada error JavaScript di halaman yang diuji
+
+52 checks passed, 0 failed

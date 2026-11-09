@@ -1,0 +1,24 @@
+<%
+  const orderedSections = sections.filter(function (s) { return Number(s.is_active) === 1; });
+%>
+<%# Statistik tampil tepat setelah hero (slideshow "Your Graduation, Your Story"). %>
+<% orderedSections.forEach(function (s) { %>
+  <%- include('partials/section-' + s.key, { s: s }) %>
+
+  <% if (s.key === 'hero' && homeStats && homeStats.length) { %>
+    <section class="section section--stats" id="statistik">
+      <div class="container">
+        <div class="stat-band" data-countup-group>
+          <% homeStats.forEach(function (st) { %>
+            <div class="stat-band__item">
+              <strong class="stat-band__value">
+                <span data-countup="<%= st.value_num %>" data-suffix="<%= st.suffix %>">0</span>
+              </strong>
+              <span class="stat-band__label"><%= st.label %></span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+<% }); %>

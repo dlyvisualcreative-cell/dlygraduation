@@ -1,0 +1,226 @@
+<%
+  /**
+   * Editorial package browser: category tabs → package card → duration chips.
+   *
+   * Tahap 3B: the card is photo-led. The media column is wider than the text column
+   * (desktop) so the photo reads as the hero of the row, the body keeps a strict
+   * hierarchy (category → title → description → duration → benefits → price/CTA), and
+   * on phones the photo keeps its own block above the text instead of squeezing beside it.
+   *
+   * All interactive attributes are unchanged (data-duration, data-price-display,
+   * data-photos-display, data-book-link) — app.js drives them, no new JS contract.
+   */
+  const cats = catalogCity.categories;
+%>
+<div class="pkg-browser <%= typeof alternating !== 'undefined' && alternating ? 'pkg-browser--editorial' : '' %>"
+     data-pkg-browser data-city="<%= catalogCity.slug %>">
+
+  <div class="pkg-browser__cats" role="tablist" aria-label="Kategori layanan">
+    <% cats.forEach(function (cat, i) { %>
+      <%
+        // Tahap 7: ikon per kategori (nama kategori TIDAK diubah — hanya tampilan).
+        const CAT_ICONS = {
+          individual: 'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 21c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6',
+          couple: 'M9 10.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm7.5 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM1.5 20c0-3.2 3-5.5 7.5-5.5s7.5 2.3 7.5 5.5M16 14.8c3.4.2 6.5 2.1 6.5 5.2',
+          group: 'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5M14 20c0-3 3-5 6-5'
+        };
+        const catIcon = CAT_ICONS[cat.slug] || 'M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5';
+      %>
+      <button type="button" class="cat-pill <%= i === 0 ? 'is-active' : '' %>" data-cat-tab="<%= cat.slug %>"
+              role="tab" aria-selected="<%= i === 0 ? 'true' : 'false' %>" aria-controls="panel-<%= cat.slug %>"
+              id="kategori-<%= cat.slug %>">
+        <span class="cat-pill__top">
+          <span class="cat-pill__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="<%= catIcon %>"/></svg>
+          </span>
+          <span class="cat-pill__name"><%= cat.name %></span>
+        </span>
+        <span class="cat-pill__rule" aria-hidden="true"></span>
+        <span class="cat-pill__count">
+          <% if (cat.packages[0] && cat.packages[0].starting_price) { %>
+            mulai <%= rupieh(cat.packages[0].starting_price) %>
+          <% } else { %>
+            <%= cat.packages.length %> sesi
+          <% } %>
+        </span>
+      </button>
+    <% }); %>
+  </div>
+
+  <% cats.forEach(function (cat, ci) { %>
+    <div class="pkg-panel <%= ci === 0 ? 'is-active' : '' %>" data-cat-panel="<%= cat.slug %>"
+         role="tabpanel" id="panel-<%= cat.slug %>" aria-labelledby="kategori-<%= cat.slug %>">
+      <% if (cat.description) { %><p class="pkg-panel__desc"><%= cat.description %></p><% } %>
+
+      <% cat.packages.forEach(function (pkg, pi) { %>
+        <%
+          const durations = pkg.durations || [];
+          const preferred = durations.find(function (d) { return d.price; }) || durations[0] || null;
+          const hasPrice = Boolean(preferred && preferred.price);
+          const flip = pi % 2 === 1;
+
+          // Photo set: cover first, then the package gallery (never duplicated, never invented).
+          const galleryStills = (pkg.gallery || [])
+            .map(function (g) { return g.image; })
+            .filter(function (src) { return Boolean(src) && src !== pkg.image; });
+          const cover = pkg.image || galleryStills[0] || '';
+          const photos = cover ? [cover].concat(galleryStills) : [];
+          const morePhotos = photos.slice(1).map(function (src) { return lightboxUrl(src); }).join('|');
+          const shotMeta = [cat.name, photos.length > 1 ? photos.length + ' foto' : ''].filter(Boolean).join(' · ');
+        %>
+        <article class="pkg-feature <%= flip ? 'pkg-feature--flip' : '' %>" data-pkg-card
+                 data-package-id="<%= pkg.id %>" data-package-name="<%= pkg.name %>" data-slug="<%= pkg.slug %>">
+          <div class="pkg-feature__media">
+            <% if (cover) { %>
+              <%
+                // Carousel hanya dibuat bila paket memang punya lebih dari satu foto.
+                const autoPlay = photos.length > 1;
+              %>
+              <div class="pkg-carousel" data-pkg-carousel data-interval="5500"
+                   data-count="<%= photos.length %>">
+                <div class="pkg-carousel__track" data-carousel-track tabindex="<%= autoPlay ? '0' : '-1' %>"
+                     aria-label="Foto paket <%= pkg.name %>">
+                  <% photos.forEach(function (src, idx) { %>
+                    <div class="pkg-carousel__slide">
+                      <button type="button" class="pkg-feature__shot" data-lightbox
+                              data-src="<%= lightboxUrl(src) %>"
+                              data-more="<%= photos.filter(function (s2) { return s2 !== src; }).map(function (s2) { return lightboxUrl(s2); }).join('|') %>"
+                              data-title="<%= pkg.name %>"
+                              data-meta="<%= shotMeta %>"
+                              aria-label="Foto <%= idx + 1 %> dari <%= photos.length %> — <%= pkg.name %>">
+                        <%- picture(src, {
+                              alt: pkg.name + ' — sesi fotografi wisuda' + (photos.length > 1 ? ' (foto ' + (idx + 1) + ')' : ''),
+                              className: 'pkg-feature__img',
+                              widths: [480, 800, 1200],
+                              sizes: '(max-width: 899px) 92vw, 50vw',
+                              eager: idx === 0 && pi === 0 && ci === 0
+                            }) %>
+                      </button>
+                    </div>
+                  <% }); %>
+                </div>
+
+                <% if (autoPlay) { %>
+                  <button type="button" class="pkg-carousel__nav pkg-carousel__nav--prev" data-carousel-prev
+                          aria-label="Foto sebelumnya">&lsaquo;</button>
+                  <button type="button" class="pkg-carousel__nav pkg-carousel__nav--next" data-carousel-next
+                          aria-label="Foto berikutnya">&rsaquo;</button>
+                  <div class="pkg-carousel__dots" data-carousel-dots role="tablist" aria-label="Pilih foto <%= pkg.name %>">
+                    <% photos.forEach(function (src, idx) { %>
+                      <button type="button" class="pkg-carousel__dot <%= idx === 0 ? 'is-active' : '' %>"
+                              data-carousel-dot="<%= idx %>" role="tab"
+                              aria-selected="<%= idx === 0 ? 'true' : 'false' %>"
+                              aria-label="Foto <%= idx + 1 %>"></button>
+                    <% }); %>
+                  </div>
+                  <span class="pkg-carousel__counter" data-carousel-counter>1 / <%= photos.length %></span>
+                <% } %>
+
+                <span class="pkg-carousel__zoom" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21M11 8v6M8 11h6"/></svg>
+                </span>
+              </div>
+            <% } else { %>
+              <div class="pkg-feature__placeholder">
+                <span class="pkg-feature__monogram" aria-hidden="true">DLY</span>
+                <span><%= cat.name %></span>
+                <small>Foto sesi belum diunggah admin</small>
+              </div>
+            <% } %>
+
+            <% if (pkg.is_best_seller) { %>
+              <span class="pkg-best pkg-best--on-media">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 2-2c1.1 0 2 .9 2 2v4h4.2a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17.8 20H7"/></svg>
+                Best Seller
+              </span>
+            <% } %>
+            <% if (pkg.is_recommended) { %>
+              <%# Label "Recommended" dengan ikon bintang vector (bukan emoji). %>
+              <span class="pkg-best pkg-best--recommended pkg-best--on-media">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.6 9.7l5.8-.8z"/></svg>
+                Recommended
+              </span>
+            <% } %>
+          </div>
+
+          <div class="pkg-feature__body">
+            <header class="pkg-feature__head">
+              <span class="pkg-feature__cat"><%= cat.name %></span>
+              <% if (!pkg.is_best_seller && pkg.label) { %>
+                <span class="pkg-feature__label"><%= pkg.label %></span>
+              <% } %>
+            </header>
+
+            <%# Revisi: indikator jumlah sesi pindah ke SAMPING judul paket.
+                Angka hanya tampil bila berasal dari data (sold_count), tidak dikarang. %>
+            <div class="pkg-feature__titlerow">
+              <h3 class="pkg-feature__title">
+                <a href="<%= base %>/paket/<%= pkg.slug %>"><%= pkg.name %></a>
+              </h3>
+              <% if (pkg.sold_visible && pkg.sold_count) { %>
+                <span class="pkg-sold pkg-sold--inline" title="Jumlah sesi yang sudah dipesan">
+                  <span class="pkg-sold__dot" aria-hidden="true"></span>
+                  <%= pkg.sold_count %> <%= pkg.sold_label || 'Sesi Telah Dipesan' %>
+                </span>
+              <% } %>
+            </div>
+            <% if (pkg.description) { %><p class="pkg-feature__desc"><%= pkg.description %></p><% } %>
+
+            <p class="pkg-feature__meta">
+              <span class="pkg-feature__meta-item">
+                <strong data-photos-display><%= preferred && preferred.edited_photos ? preferred.edited_photos + ' foto edit' : 'Foto edit belum diatur' %></strong>
+                <span class="spec-hint" data-photos-hint><%= preferred ? 'untuk durasi ' + preferred.minutes + ' menit' : '' %></span>
+              </span>
+              <span class="pkg-feature__meta-sep" aria-hidden="true"></span>
+              <span class="pkg-feature__meta-item"><%= durations.length ? durations.length + ' pilihan durasi' : 'Durasi belum diatur' %></span>
+            </p>
+
+            <div class="pkg-feature__durations" data-duration-group role="group" aria-label="Durasi <%= pkg.name %>">
+              <% if (!durations.length) { %>
+                <span class="pkg-feature__nodur">Admin belum mengatur pilihan durasi untuk sesi ini.</span>
+              <% } %>
+              <% durations.forEach(function (d) { %>
+                <button type="button"
+                        class="dur-card <%= preferred && d.minutes === preferred.minutes ? 'is-active' : '' %>"
+                        data-duration="<%= d.minutes %>" data-price="<%= d.price || '' %>"
+                        data-photos="<%= d.edited_photos || '' %>"
+                        aria-pressed="<%= preferred && d.minutes === preferred.minutes ? 'true' : 'false' %>">
+                  <span class="dur-card__time"><%= d.minutes %> menit</span>
+                  <span class="dur-card__price"><%= d.price ? rupieh(d.price) : 'Harga belum tersedia' %></span>
+                  <span class="dur-card__photos"><%= d.edited_photos ? d.edited_photos + ' foto edit' : 'Foto edit belum diatur' %></span>
+                </button>
+              <% }); %>
+            </div>
+
+            <% if (pkg.benefits && pkg.benefits.length) { %>
+              <ul class="benefit-list benefit-list--compact pkg-feature__benefits">
+                <% pkg.benefits.forEach(function (b) { %>
+                  <li><span class="benefit-list__icon"><%- icon(b.icon) %></span><span><%= b.text %></span></li>
+                <% }); %>
+              </ul>
+            <% } %>
+
+            <div class="pkg-feature__footer">
+              <div class="pkg-feature__price">
+                <span class="spec-label">Harga</span>
+                <strong data-price-display class="<%= hasPrice ? '' : 'is-empty' %>"><%= hasPrice ? rupieh(preferred.price) : 'Harga belum tersedia' %></strong>
+                <span data-price-note>
+                  <%= hasPrice
+                      ? 'untuk ' + preferred.minutes + ' menit' + (preferred.edited_photos ? ' · ' + preferred.edited_photos + ' foto edit' : '')
+                      : (durations.length ? 'Admin belum mengisi harga' : 'Hubungi kami untuk informasi') %>
+                </span>
+              </div>
+
+              <a class="btn btn--primary pkg-feature__cta"
+                 data-book-link data-detail-link="1"
+                 href="<%= base %>/paket/<%= pkg.slug %>?kota=<%= catalogCity.slug %><%= preferred ? '&durasi=' + preferred.minutes : '' %>">
+                Pesan Sesimu Sekarang
+              </a>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  <% }); %>
+</div>

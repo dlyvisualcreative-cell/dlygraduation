@@ -1,0 +1,47 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span><%= site['artikel.title'] %></span>
+    </nav>
+    <span class="eyebrow">Journal</span>
+    <h1><%= site['artikel.title'] %></h1>
+    <p class="page-head__lede"><%= site['artikel.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <% if (!articles.length) { %>
+      <div class="empty-state">
+        <h2>Belum ada artikel</h2>
+        <p>Artikel dan panduan akan tampil di sini setelah admin menerbitkannya melalui dashboard.</p>
+        <a class="btn btn--primary" href="<%= base %>/gallery">Lihat Gallery</a>
+      </div>
+    <% } else { %>
+      <div class="article-grid">
+        <% articles.forEach(function (a, i) { %>
+          <article class="article-card <%= i === 0 ? 'article-card--lead' : '' %>">
+            <a class="article-card__media" href="<%= base %>/artikel/<%= a.slug %>">
+              <% if (a.cover_image) { %>
+                <%- picture(a.cover_image, {
+                      alt: a.title, widths: [320, 480, 800, 1200],
+                      sizes: '(max-width: 720px) 92vw, (max-width: 1100px) 46vw, 31vw',
+                      eager: i === 0
+                    }) %>
+              <% } else { %>
+                <span class="article-card__placeholder" aria-hidden="true"></span>
+              <% } %>
+            </a>
+            <div class="article-card__body">
+              <span class="article-card__date"><%= formatDateID(String(a.published_at || a.created_at).slice(0, 10)) %></span>
+              <h2><a href="<%= base %>/artikel/<%= a.slug %>"><%= a.title %></a></h2>
+              <% if (a.excerpt) { %><p><%= a.excerpt %></p><% } %>
+              <a class="link-arrow" href="<%= base %>/artikel/<%= a.slug %>">Baca artikel <span aria-hidden="true">&rarr;</span></a>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</section>

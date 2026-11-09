@@ -1,0 +1,48 @@
+PASS  Stats section sits right after the hero — hero > section--stats > section--carousel > section--services > section--advantages > section--packages > section--process > section--testimonials > cta-band
+PASS  Stats section is no longer the first block — hero
+PASS  Carousel thumbnails are square (tiny radius) — 2px
+PASS  Carousel thumbnails have an outline — 1px
+PASS  Font list includes Montserrat variants — ,Cormorant Garamond,Playfair Display,Manrope,Inter,Montserrat,Montserrat Light,Montserrat Bold,Poppins
+PASS  Editor exposes per-row colour + font controls
+PASS  Services rows are editable
+PASS  Advantages rows are editable
+PASS  Process rows are editable
+PASS  Can add a service row — 4 → 5
+PASS  Can remove a service row — 5 → 4
+PASS  Section draft saved
+PASS  Sections published
+PASS  Published background colour applied to the row — rgb(11, 35, 64)
+PASS  Published font applied to the row — Montserrat
+PASS  Edited service item title appears publicly
+PASS  TnC editor lists points as rows — rows=10
+PASS  Can add a TnC point
+PASS  Can remove a TnC point
+PASS  Brand page has a favicon upload control
+PASS  Brand page previews the favicon
+PASS  Page declares a favicon — /assets/favicon.svg
+PASS  Review button reads "Lanjut" — Lanjut
+PASS  Photo-publication consent still absent
+PASS  Thank-you page no longer mentions photo consent
+PASS  WhatsApp button lives in its own action row — success-card__actions
+PASS  Cara Order cards use a thicker blue outline — 2px
+PASS  Cara Order outline is navy — rgb(11, 35, 64)
+PASS  Cara Order cards keep a white background — rgb(255, 255, 255)
+PASS  Cara Order text is navy — rgb(11, 35, 64)
+PASS  No JavaScript errors
+PASS  [laptop] booking page has no horizontal overflow — overflow=0
+PASS  [laptop] calendar fits inside the viewport — w=460 right=657/1280
+PASS  [laptop] calendar cells are legible/tappable — 60x60
+PASS  [laptop] calendar keeps 7 columns — cols=7
+PASS  [tablet] booking page has no horizontal overflow — overflow=0
+PASS  [tablet] calendar fits inside the viewport — w=670 right=719/768
+PASS  [tablet] calendar cells are legible/tappable — 90x90
+PASS  [tablet] calendar keeps 7 columns — cols=7
+PASS  [mobile] booking page has no horizontal overflow — overflow=0
+PASS  [mobile] calendar fits inside the viewport — w=304 right=347/390
+PASS  [mobile] calendar cells are legible/tappable — 39x39
+PASS  [mobile] calendar keeps 7 columns — cols=7
+PASS  [small] booking page has no horizontal overflow — overflow=0
+PASS  [small] calendar fits inside the viewport — w=274 right=317/360
+PASS  [small] calendar cells are legible/tappable — 36x36
+PASS  [small] calendar keeps 7 columns — cols=7
+ALL PASSED

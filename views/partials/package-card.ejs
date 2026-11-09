@@ -1,0 +1,42 @@
+<%
+  const p60 = pkg.prices[60], p90 = pkg.prices[90], p120 = pkg.prices[120];
+  const initial = 60;
+  const initialPrice = pkg.prices[initial];
+%>
+<article class="pkg-card" data-package data-id="<%= pkg.id %>" data-city="<%= citySlug || '' %>"
+         data-price-60="<%= p60 || '' %>" data-price-90="<%= p90 || '' %>" data-price-120="<%= p120 || '' %>"
+         data-name="<%= pkg.name %>">
+  <div class="pkg-card__head">
+    <span class="pkg-card__badge"><%= pkg.name %></span>
+    <% if (pkg.edited_photos) { %><span class="pkg-card__photos"><strong><%= pkg.edited_photos %></strong> foto edit</span><% } %>
+  </div>
+
+  <h3 class="pkg-card__title"><%= pkg.name %></h3>
+  <% if (pkg.description) { %><p class="pkg-card__desc"><%= pkg.description %></p><% } %>
+
+  <div class="pkg-card__price" data-price-box>
+    <span class="pkg-card__amount" data-price-display>
+      <%= initialPrice ? rupieh(initialPrice) : 'Harga belum tersedia' %>
+    </span>
+    <span class="pkg-card__unit" data-price-note>
+      <%= initialPrice ? 'untuk ' + initial + ' menit' : 'Admin belum mengatur harga' %>
+    </span>
+  </div>
+
+  <% if (pkg.benefits && pkg.benefits.length) { %>
+    <ul class="pkg-card__facilities">
+      <% pkg.benefits.forEach(function (b) { %>
+        <li>
+          <%- icon(b.icon) %>
+          <span><%= b.text %></span>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+
+  <a class="btn btn--primary btn--block pkg-card__cta" data-book-link
+     href="<%= base %>/booking?kota=<%= encodeURIComponent(citySlug || '') %>&paket=<%= pkg.id %>&durasi=<%= initial %>">
+    Booking paket ini
+  </a>
+  <p class="pkg-card__foot">Jadwal dikonfirmasi manual oleh admin setelah Anda mengirim detail booking.</p>
+</article>

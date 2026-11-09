@@ -1,0 +1,61 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Add-ons</h2>
+      <p class="admin-muted">
+        Add-on hanya muncul di form booking jika <strong>aktif</strong> dan sudah memiliki <strong>harga resmi</strong>.
+        Add-on tanpa harga tidak dapat dipilih pengunjung.
+      </p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/addons/new">+ Tambah add-on</a>
+  </div>
+
+  <% if (!addons.length) { %>
+    <p class="admin-muted">Belum ada add-on.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Nama</th><th>Harga</th><th>Berlaku untuk</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% addons.forEach(function (a) { %>
+            <%
+              let scopeLabel = 'Semua kategori';
+              if ((a.applies_to || 'all') !== 'all') {
+                const slugs = String(a.applies_to).split(',').map(function (s) { return s.trim(); });
+                scopeLabel = categories.filter(function (c) { return slugs.indexOf(c.slug) !== -1; })
+                  .map(function (c) { return c.name; }).join(', ') || 'Kategori tidak ditemukan';
+              }
+            %>
+            <tr>
+              <td>
+                <strong><%= a.name %></strong>
+                <small class="cell-sub"><%= (a.description || '').slice(0, 90) %></small>
+              </td>
+              <td>
+                <% if (a.price) { %><%= rupiah(a.price) %><% } else { %><span class="admin-badge admin-badge--warn">Harga belum diatur</span><% } %>
+              </td>
+              <td><%= scopeLabel %></td>
+              <td><%= a.sort_order %></td>
+              <td>
+                <span class="admin-badge <%= Number(a.is_active) ? 'admin-badge--ok' : 'admin-badge--muted' %>">
+                  <%= Number(a.is_active) ? 'Aktif' : 'Nonaktif' %>
+                </span>
+              </td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/addons/<%= a.id %>/edit">Edit</a>
+                <form method="post" action="<%= base %>/admin/addons/<%= a.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= Number(a.is_active) ? 'Nonaktifkan' : 'Aktifkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/addons/<%= a.id %>/delete" data-confirm="Hapus add-on <%= a.name %>?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

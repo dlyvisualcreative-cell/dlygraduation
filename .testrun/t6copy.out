@@ -1,0 +1,34 @@
+  ok  portfolio.slug + session_time columns were added
+  ok  Every published portfolio got a slug
+  ok  Push tables exist
+  ok  A VAPID public key was generated
+  ok  Typography settings point at fonts that exist in FONT_OPTIONS
+  ok  Existing data is intact (booking / photos / picks / prices)
+  ok  / → 200 without horizontal overflow
+  ok  /pricelist → 200 without horizontal overflow
+  ok  /gallery → 200 without horizontal overflow
+  ok  /portfolio/nabila-puspita → 200 without horizontal overflow
+  ok  /booking → 200 without horizontal overflow
+  ok  /sitemap.xml → 200 without horizontal overflow
+  ok  /manifest.webmanifest → 200 without horizontal overflow
+  ok  /sw.js → 200 without horizontal overflow
+  ok  /offline → 200 without horizontal overflow
+  ok  /admin/login → 200 without horizontal overflow
+  ok  Font pilihan pemilik termuat di browser
+  ok  The push settings page loads
+  ok  It explains the iPhone Home Screen requirement
+  ok  The page exposes the VAPID key to the client
+  ok  Permission is NOT requested on load
+    [info] perangkat sudah terhubung di salinan DB: 0
+  ok  A subscription can be stored from the page
+  ok  Re-subscribing is idempotent
+  ok  The device appears in the list
+  ok  The device list offers a delete control
+  ok  A test send is attempted and reported honestly
+  ok  A failed delivery is recorded on the device (not silently dropped)
+  ok  Notification settings save
+  ok  A device can be deleted
+  ok  The device row is gone
+  ok  No JavaScript errors on the checked pages
+
+31 checks passed, 0 failed

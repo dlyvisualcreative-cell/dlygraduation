@@ -1,0 +1,79 @@
+<section class="page-head page-head--narrow">
+  <div class="container container--narrow">
+    <span class="eyebrow">Testimoni</span>
+    <h1>Bagikan pengalaman sesi foto Anda</h1>
+    <p class="page-head__lede"><%= intro %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container container--narrow">
+    <% if (done) { %>
+      <div class="card tst-done">
+        <span class="tst-done__icon" aria-hidden="true">✓</span>
+        <h2>Terima kasih!</h2>
+        <p><%= notice || 'Testimoni Anda sudah kami terima.' %></p>
+        <a class="btn btn--primary" href="<%= base %>/ulasan">Lihat halaman ulasan</a>
+      </div>
+    <% } else { %>
+      <% if (errors.length) { %>
+        <div class="alert alert--error" role="alert">
+          <strong>Periksa kembali isian Anda:</strong>
+          <ul><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul>
+        </div>
+      <% } %>
+
+      <form class="card tst-form" method="post" action="<%= base %>/testimoni/<%= token %>"
+            enctype="multipart/form-data" data-testimonial-form>
+        <div class="field-grid">
+          <div class="field">
+            <label for="name">Nama lengkap &amp; gelar <span class="req">*</span></label>
+            <input type="text" id="name" name="name" required maxlength="120"
+                   value="<%= values.name || '' %>" placeholder="Contoh: Ajeng R. Kurniasari, S.Keb">
+          </div>
+          <div class="field">
+            <label for="campus">Nama kampus <span class="req">*</span></label>
+            <input type="text" id="campus" name="campus" required maxlength="120"
+                   value="<%= values.campus || '' %>" placeholder="Contoh: Universitas Jenderal Achmad Yani">
+          </div>
+
+          <div class="field field--full">
+            <label for="quote">Testimoni <span class="req">*</span></label>
+            <textarea id="quote" name="quote" rows="5" required maxlength="1000"
+                      placeholder="Ceritakan pengalaman Anda selama sesi foto bersama DLY Graduation."><%= values.quote || '' %></textarea>
+            <span class="field__hint">Minimal 20 karakter.</span>
+          </div>
+
+          <div class="field field--full">
+            <label>Rating bintang <span class="req">*</span></label>
+            <%# Visual order 1 → 5 from the left. The row is reverse-ordered in CSS so
+                `~` rules can fill every star up to the hovered/selected one. %>
+            <div class="tst-stars" data-star-picker role="radiogroup" aria-label="Rating bintang, 1 sampai 5">
+              <% [5,4,3,2,1].forEach(function (n) { %>
+                <label class="tst-star">
+                  <input type="radio" name="rating" value="<%= n %>" <%= Number(values.rating) === n ? 'checked' : '' %> required>
+                  <span aria-hidden="true">★</span>
+                  <span class="visually-hidden"><%= n %> bintang</span>
+                </label>
+              <% }); %>
+            </div>
+            <span class="field__hint tst-stars__hint" data-star-readout>Pilih 1 sampai 5 bintang — urut dari kiri ke kanan.</span>
+          </div>
+
+          <div class="field field--full">
+            <label for="photo">Foto (1 file, opsional)</label>
+            <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
+            <span class="field__hint">JPG/PNG/WEBP maksimal 10MB. Foto ini tampil bersama testimoni Anda.</span>
+          </div>
+        </div>
+
+        <div class="tst-form__actions">
+          <button class="btn btn--primary btn--lg" type="submit">Kirim Testimoni</button>
+        </div>
+        <p class="tst-form__note">
+          Dengan mengirim, Anda mengizinkan DLY Graduation menampilkan nama, kampus, foto, dan testimoni ini di website.
+        </p>
+      </form>
+    <% } %>
+  </div>
+</section>

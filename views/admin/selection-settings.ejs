@@ -1,0 +1,199 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Akses Google Drive</h2>
+      <p class="admin-muted">
+        Portal seleksi membaca foto langsung dari folder Drive yang Anda tempel.
+        <% if (driveMode === 'oauth') { %>
+          Mode aktif: <strong>akun Google Drive terhubung (izin baca)</strong> — bisa membaca folder privat
+          maupun yang dibagikan.
+        <% } else if (driveMode === 'apikey') { %>
+          Mode aktif: <strong>API key</strong> — hanya folder yang dibagikan “Siapa saja yang memiliki link”.
+        <% } else { %>
+          <strong>Belum aktif.</strong> Isi API key atau hubungkan akun Drive di bawah.
+        <% } %>
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/selection">Ke daftar portal &rarr;</a>
+  </div>
+
+  <div class="admin-note">
+    <strong>Kenapa perlu pengaturan terpisah?</strong>
+    Koneksi Drive yang dipakai untuk membuat folder booking memakai izin <code>drive.file</code>, yang hanya
+    melihat file buatan aplikasi ini. Foto yang Anda unggah sendiri dari HP/Drive tidak terlihat oleh izin itu.
+    Karena itu portal memakai jalur baca tersendiri. <em>Koneksi Google Calendar &amp; folder Drive yang sudah
+    berjalan tidak diubah.</em>
+  </div>
+
+  <div class="sel-drive-status">
+    <div>
+      <span class="admin-badge <%= driveCfg.refreshToken ? 'admin-badge--ok' : 'admin-badge--muted' %>">
+        <%= driveCfg.refreshToken ? 'Akun Drive terhubung' : 'Akun Drive belum terhubung' %>
+      </span>
+      <% if (driveCfg.account) { %><small class="admin-muted"><%= driveCfg.account %></small><% } %>
+    </div>
+    <div class="cell-actions">
+      <% if (driveCfg.refreshToken) { %>
+        <form method="post" action="<%= base %>/admin/selection/drive/disconnect"
+              data-confirm="Putuskan akses baca Drive? Portal tidak bisa memperbarui foto sampai dihubungkan lagi.">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="admin-btn admin-btn--sm" type="submit">Putuskan akun</button>
+        </form>
+      <% } else { %>
+        <a class="admin-btn admin-btn--primary admin-btn--sm" href="<%= base %>/admin/selection/drive/connect">
+          Hubungkan akun Drive (izin baca)
+        </a>
+      <% } %>
+      <form method="post" action="<%= base %>/admin/selection/settings/test">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn admin-btn--sm" type="submit">Tes akses</button>
+      </form>
+    </div>
+  </div>
+
+  <% if (driveCfg.lastError) { %>
+    <div class="admin-flash admin-flash--err"><%= driveCfg.lastError %></div>
+  <% } %>
+
+  <p class="admin-hint">
+    Redirect URI yang harus terdaftar di Google Cloud (sama seperti Google Calendar):
+    <code><%= origin %>/admin/google/callback</code>.
+    Izin yang diminta: <code>drive.readonly</code> (hanya baca).
+  </p>
+</section>
+
+<form method="post" action="<%= base %>/admin/selection/settings" enctype="multipart/form-data" class="admin-form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Kredensial Google Drive</h2>
+        <p class="admin-muted">Kosongkan Client ID/Secret bila ingin memakai client Drive/Calendar yang sudah ada.</p>
+      </div>
+    </div>
+    <div class="admin-field">
+      <label for="api_key">API key (untuk folder yang dibagikan publik)</label>
+      <input type="text" id="api_key" name="api_key" value="<%= driveCfg.apiKey %>" autocomplete="off"
+             placeholder="AIza…">
+      <span class="admin-hint">
+        Buat di Google Cloud Console → APIs &amp; Services → Credentials → API key, lalu batasi ke
+        “Google Drive API”. Cara ini tidak perlu login akun.
+      </span>
+    </div>
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="reader_client_id">Client ID (khusus baca Drive)</label>
+        <input type="text" id="reader_client_id" name="reader_client_id" value="<%= driveCfg.clientId %>" autocomplete="off">
+      </div>
+      <div class="admin-field">
+        <label for="reader_client_secret">Client Secret</label>
+        <input type="password" id="reader_client_secret" name="reader_client_secret"
+               value="<%= driveCfg.clientSecret %>" autocomplete="off">
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Default portal</h2>
+        <p class="admin-muted">Dipakai otomatis saat membuat portal baru; tetap bisa diubah per portal.</p>
+      </div>
+    </div>
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="default_quota">Batas maksimal foto default</label>
+        <input type="number" id="default_quota" name="default_quota" min="1" max="500"
+               value="<%= selection.defaultQuota %>">
+        <span class="admin-hint">Dipakai bila paket booking tidak punya jumlah foto edit.</span>
+      </div>
+      <div class="admin-field">
+        <label for="default_days">Deadline default (hari dari hari ini)</label>
+        <input type="number" id="default_days" name="default_days" min="0" max="365"
+               value="<%= selection.defaultDays %>">
+        <span class="admin-hint">0 = tanpa deadline default.</span>
+      </div>
+      <div class="admin-field">
+        <label for="ttl_days">Masa aktif portal (hari)</label>
+        <input type="number" id="ttl_days" name="ttl_days" min="0" max="365" value="<%= selection.ttlDays %>">
+        <span class="admin-hint">0 = portal aktif sampai dinonaktifkan manual.</span>
+      </div>
+    </div>
+    <div class="admin-field">
+      <label class="admin-check">
+        <input type="checkbox" name="allow_download" value="1" <%= selection.allowDownload ? 'checked' : '' %>>
+        <span>Izinkan klien mengunduh foto yang dipilih (default)</span>
+      </label>
+      <label class="admin-check">
+        <input type="checkbox" name="require_full_quota" value="1" <%= selection.requireFullQuota ? 'checked' : '' %>>
+        <span>Wajib memenuhi kuota sebelum klien bisa mengirim pilihan</span>
+      </label>
+      <label class="admin-check">
+        <input type="checkbox" name="watermark" value="1" <%= selection.watermark ? 'checked' : '' %>>
+        <span>Tambahkan watermark pada pratinjau foto di portal</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Tampilan portal klien</h2>
+        <p class="admin-muted">Nama brand dan logo yang tampil di halaman pemilihan foto.</p>
+      </div>
+    </div>
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="brand_name">Nama brand di portal</label>
+        <input type="text" id="brand_name" name="brand_name" maxlength="60"
+               value="<%= selection.brandName %>" placeholder="<%= brandNameFallback %>">
+        <span class="admin-hint">Kosong = memakai nama brand website.</span>
+      </div>
+      <div class="admin-field">
+        <label for="brand_note">Keterangan singkat</label>
+        <input type="text" id="brand_note" name="brand_note" maxlength="160" value="<%= selection.brandNote %>">
+      </div>
+    </div>
+    <div class="admin-field">
+      <label for="instructions">Instruksi default untuk klien</label>
+      <textarea id="instructions" name="instructions" rows="4"><%= selection.instructions %></textarea>
+    </div>
+    <div class="admin-field">
+      <label for="logo_file">Logo portal</label>
+      <% if (selection.logo) { %>
+        <div class="logo-card__preview" style="margin-bottom:8px">
+          <img src="<%= imageUrl(selection.logo) %>" alt="Logo portal" style="max-height:54px;width:auto">
+        </div>
+        <label class="admin-check">
+          <input type="checkbox" name="remove_logo" value="1"><span>Hapus logo portal (pakai logo header website)</span>
+        </label>
+      <% } %>
+      <input type="file" id="logo_file" name="logo_file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+      <span class="admin-hint">PNG/SVG transparan paling baik. Maksimal 10MB.</span>
+    </div>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>WhatsApp &amp; pembayaran</h2>
+        <p class="admin-muted">Dipakai oleh dua tombol WhatsApp di halaman Booking.</p>
+      </div>
+      <div class="cell-actions">
+        <a class="admin-link" href="<%= base %>/admin/wa-template">Edit template pesan</a>
+        <a class="admin-link" href="<%= base %>/admin/payment">Edit rekening &amp; DP</a>
+      </div>
+    </div>
+    <div class="sel-setting-summary">
+      <div><span>Nomor WhatsApp admin</span><strong><%= waNumber || '—' %></strong></div>
+      <div><span>Nominal DP</span><strong><%= rupiah(dpAmount) %></strong></div>
+      <div><span>Bank</span><strong><%= bankName || '—' %></strong></div>
+      <div><span>Nomor rekening</span><strong><%= accountNumber || '—' %></strong></div>
+    </div>
+  </section>
+
+  <div class="admin-sticky-actions">
+    <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan</button>
+  </div>
+</form>

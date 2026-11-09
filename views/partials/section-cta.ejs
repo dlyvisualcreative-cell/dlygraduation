@@ -1,0 +1,13 @@
+<section class="<%= sectionClass(s, 'cta-band layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container cta-band__inner">
+    <div>
+      <% if (site['cta.note']) { %><span class="eyebrow eyebrow--light"><%= site['cta.note'] %></span><% } %>
+      <h2><%= s.title || site['cta.title'] %></h2>
+      <p><%= s.description || site['cta.description'] %></p>
+    </div>
+    <div class="cta-band__actions">
+      <a class="btn btn--light" href="<%= base %>/booking"><%= site['cta.button'] %></a>
+      <a class="btn btn--outline-light" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai sesi foto wisuda.') %>" target="_blank" rel="noopener">Tanya via WhatsApp</a>
+    </div>
+  </div>
+</section>

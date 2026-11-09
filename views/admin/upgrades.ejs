@@ -1,0 +1,89 @@
+<%
+  /**
+   * Upgrade Paket & Extra Time (revisi pemilik).
+   *
+   * Klien mengajukan dari Client Portal → Upgrade Paket. Di sini admin menyetujui/menolak.
+   * Menyetujui akan memperbarui paket/durasi + total harga booking (satu transaksi) dan
+   * mencatatnya di riwayat booking. Tidak ada pembayaran otomatis.
+   */
+  const money = (n) => rupiah(n) || '—';
+%>
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Pengajuan upgrade</h2>
+      <p class="admin-muted">
+        <strong><%= pending %></strong> pengajuan menunggu keputusan.
+        Menyetujui akan mengubah paket/durasi dan total harga pada booking klien.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/extra-time">Atur harga Extra Time &rarr;</a>
+  </div>
+
+  <nav class="kb-tabs" aria-label="Filter status pengajuan">
+    <% [['', 'Semua'], ['pending', 'Menunggu'], ['approved', 'Disetujui'], ['rejected', 'Ditolak']].forEach(function (t) { %>
+      <a class="kb-tab <%= statusFilter === t[0] ? 'is-active' : '' %>"
+         href="<%= base %>/admin/upgrades<%= t[0] ? '?status=' + t[0] : '' %>"><%= t[1] %></a>
+    <% }); %>
+  </nav>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Klien / Booking</th>
+          <th>Jenis</th>
+          <th>Nilai</th>
+          <th>Diajukan</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(function (u) { %>
+          <tr>
+            <td>
+              <a class="admin-link" href="<%= base %>/admin/bookings/<%= u.booking_id %>?tab=pembayaran"><%= u.client_name %></a>
+              <small class="cell-sub"><%= u.code %></small>
+            </td>
+            <td>
+              <% if (u.kind === 'package') { %>Upgrade paket
+              <% } else if (u.kind === 'duration') { %>Upgrade durasi
+              <% } else if (u.kind === 'addon') { %>Add-on
+              <% } else { %>Extra Time<% } %>
+              <small class="cell-sub"><%= u.kind === 'package' || u.kind === 'addon' ? u.package_name : u.minutes + ' menit' %></small>
+            </td>
+            <td><%= money(u.price) %></td>
+            <td><%= String(u.created_at || '').slice(0, 10) %></td>
+            <td>
+              <span class="admin-badge admin-badge--<%= statusMeta(u.status).tone === 'ok' ? 'ok' : (statusMeta(u.status).tone === 'warn' ? 'warn' : 'muted') %>"><%= statusMeta(u.status).label %></span>
+              <% if (u.decided_by) { %><small class="cell-sub">oleh <%= u.decided_by %></small><% } %>
+            </td>
+            <td class="cell-actions">
+              <% if (u.status === 'pending') { %>
+                <form method="post" action="<%= base %>/admin/upgrades/<%= u.id %>/approve"
+                      data-confirm="Setujui <%= u.kind === 'package' ? 'upgrade ke paket ' + u.package_name
+                        : u.kind === 'addon' ? 'add-on ' + u.package_name
+                        : u.kind === 'duration' ? 'upgrade durasi ' + u.minutes + ' menit'
+                        : 'Extra Time ' + u.minutes + ' menit' %> (<%= money(u.price) %>)? Total harga booking akan diperbarui.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="admin-btn admin-btn--primary admin-btn--sm" type="submit">Setujui</button>
+                </form>
+                <form method="post" action="<%= base %>/admin/upgrades/<%= u.id %>/reject">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="reason" value="">
+                  <button class="admin-link-btn admin-link-btn--danger" type="submit">Tolak</button>
+                </form>
+              <% } else { %>
+                <span class="admin-muted"><%= String(u.decided_at || '').slice(0, 10) %></span>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+        <% if (!items.length) { %>
+          <tr><td colspan="6" class="admin-muted">Belum ada pengajuan upgrade.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>

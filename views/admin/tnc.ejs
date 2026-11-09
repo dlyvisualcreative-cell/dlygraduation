@@ -1,0 +1,106 @@
+<div class="admin-note">
+  Tulis satu poin per baris. Gunakan <strong>+ Tambah poin</strong> untuk menambah baris dan tombol
+  <strong>Hapus</strong> untuk membuangnya. Simpan sebagai draft, lalu publikasikan.
+</div>
+
+<form method="post" action="<%= base %>/admin/tnc" class="admin-form" data-tnc-form>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Judul halaman</h2>
+        <p class="admin-muted">Tampil sebagai heading di halaman <code>/syarat-ketentuan</code>.</p>
+      </div>
+      <a class="admin-link" href="<%= base %>/syarat-ketentuan" target="_blank" rel="noopener">Lihat halaman &nearr;</a>
+    </div>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="tnc_title">Judul</label>
+        <input type="text" id="tnc_title" name="tnc_title" maxlength="120" value="<%= titleValue %>">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="tnc_description">Deskripsi singkat</label>
+        <textarea id="tnc_description" name="tnc_description" rows="2" maxlength="400"><%= descValue %></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Poin ketentuan (<%= points.length %>)</h2>
+        <p class="admin-muted">
+          <% if (hasDraft) { %>
+            Ada perubahan draft yang belum dipublikasikan (versi live: <%= livePoints %> baris).
+          <% } else { %>
+            Versi draft sama dengan yang tampil di website.
+          <% } %>
+        </p>
+        <p class="admin-hint">
+          Format bertingkat (satu baris = satu item):<br>
+          <code>A. PEMESANAN DAN PEMBAYARAN</code> → judul bagian (huruf/angka + titik)<br>
+          <code>- Klien wajib membayar DP…</code> → poin<br>
+          <code>-- Transfer manual ke rekening BCA…</code> → sub-poin (poin di dalam poin)<br>
+          Tanpa awalan = tetap dibaca sebagai poin biasa.
+        </p>
+      </div>
+    </div>
+
+    <div class="tnc-editor" data-tnc-rows>
+      <% points.forEach(function (p, i) { %>
+        <div class="tnc-row" data-tnc-row>
+          <span class="tnc-row__num"><%= i + 1 %></span>
+          <textarea name="point" rows="2" placeholder="Poin, mis. - Klien wajib…  (sub-poin: -- …)"><%= p %></textarea>
+          <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-tnc-remove>Hapus</button>
+        </div>
+      <% }); %>
+    </div>
+
+    <button type="button" class="admin-btn admin-btn--sm" data-tnc-add>+ Tambah poin</button>
+  </section>
+
+  <div class="admin-sticky-actions">
+    <button class="admin-btn admin-btn--primary" type="submit">Simpan Draft</button>
+    <button class="admin-btn" type="submit" name="publish_now" value="1">Simpan &amp; Publikasikan</button>
+  </div>
+</form>
+
+<template id="tnc-row-template">
+  <div class="tnc-row" data-tnc-row>
+    <span class="tnc-row__num">•</span>
+    <textarea name="point" rows="2" placeholder="Poin, mis. - Klien wajib…  (sub-poin: -- …)"></textarea>
+    <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-tnc-remove>Hapus</button>
+  </div>
+</template>
+
+<script>
+(function () {
+  var rows = document.querySelector('[data-tnc-rows]');
+  var tpl = document.getElementById('tnc-row-template');
+  var add = document.querySelector('[data-tnc-add]');
+  function renumber() {
+    rows.querySelectorAll('[data-tnc-row]').forEach(function (row, i) {
+      var n = row.querySelector('.tnc-row__num');
+      if (n) n.textContent = String(i + 1);
+    });
+  }
+  if (add && rows && tpl) {
+    add.addEventListener('click', function () {
+      var wrap = document.createElement('div');
+      wrap.innerHTML = tpl.innerHTML.trim();
+      rows.appendChild(wrap.firstElementChild);
+      renumber();
+      var ta = rows.querySelector('[data-tnc-row]:last-child textarea');
+      if (ta) ta.focus();
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var rm = e.target.closest('[data-tnc-remove]');
+    if (!rm) return;
+    var row = rm.closest('[data-tnc-row]');
+    if (row) { row.remove(); renumber(); }
+  });
+})();
+</script>

@@ -1,0 +1,50 @@
+  ok  Every package category shows an icon
+  ok  Individual / couple / group use different icons
+  ok  Category names were not changed by the icon work
+  ok  Icons are proportional (26–34px)
+  ok  The package carousel still renders with the gallery photos
+  ok  Gallery thumbnail shows the client name + degree
+  ok  Gallery thumbnail shows campus and date below the name
+  ok  Name is the most prominent line on the thumbnail
+  ok  Thumbnail links to the client page
+  ok  Featured portfolio on the homepage shows the same identity block
+  ok  Client portfolio page loads
+  ok  Client page header shows name, campus, date and time
+  ok  Client page gallery shows only that client's extra photos
+  ok  Lightbox works from the client page
+  ok  Lightbox knows the full photo set
+  ok  Closing a group really shrinks the sidebar (groups below move UP)
+  ok  Group directly below moves up by the collapsed height (no empty gap left behind)
+  ok  Opening it again pushes the groups below back DOWN
+  ok  The collapse animates smoothly (no jump, values only decrease)
+  ok  The group containing the active page is open on load
+  ok  The availability calendar renders its day cells
+  ok  Legend explains Tersedia / Full Booking / Ditutup
+  ok  Availability page has no horizontal overflow (desktop)
+  ok  Portfolio form is split into Information / Display / Gallery sections
+  ok  The gallery lists the existing photos with numbers
+  ok  Multi-file upload input exists
+  ok  A separate URL upload path is offered
+  ok  Images are lazy-loaded in the gallery grid
+  ok  Preview shows every selected file before uploading
+  ok  Preview shows the file name and size
+  ok  The upload button becomes enabled with files selected
+  ok  A selected file can be removed before uploading
+  ok  Uploading the remaining photo adds it to the gallery
+  ok  Arrow buttons reorder the gallery
+  ok  The new order is persisted in the database
+  ok  The public page follows the admin order
+  ok  Mobile /admin/bookings/9?tab=workflow has no horizontal overflow
+  ok  Mobile /admin/availability has no horizontal overflow
+  ok  Mobile /admin/portfolio/13/edit has no horizontal overflow
+  ok  Mobile /admin/bookings/9?tab=pembayaran has no horizontal overflow
+  ok  Ada booking untuk diuji di halaman detail
+  ok  Team dropdown is large enough to tap
+  ok  Buttons are large enough to tap
+  ok  Full Booking panel opens on mobile
+  ok  The panel fits the mobile viewport
+  ok  Category cards stay usable on mobile (icon + readable size)
+  ok  Client portfolio page has no horizontal overflow on mobile
+  ok  No JavaScript errors across the tested pages
+
+48 checks passed, 0 failed

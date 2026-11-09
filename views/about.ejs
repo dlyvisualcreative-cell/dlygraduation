@@ -1,0 +1,84 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span>Tentang Kami</span>
+    </nav>
+    <span class="eyebrow">About the Studio</span>
+    <h1><%= site['tentang.title'] %></h1>
+    <p class="page-head__lede"><%= site['tentang.description'] %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-media">
+        <% if (site['tentang.image']) { %>
+          <%- picture(site['tentang.image'], {
+                alt: site['tentang.title'] || 'DLY Graduation',
+                widths: [480, 800, 1200], sizes: '(max-width: 900px) 92vw, 46vw'
+              }) %>
+        <% } %>
+      </div>
+      <div class="about-body">
+        <% paragraphs.forEach(function (p) { %><p><%= p %></p><% }); %>
+        <% if (values.length) { %>
+          <ul class="about-values">
+            <% values.forEach(function (v) { %>
+              <li><strong><%= v.title %></strong><% if (v.description) { %><span><%= v.description %></span><% } %></li>
+            <% }); %>
+          </ul>
+        <% } %>
+        <div class="about-actions">
+          <a class="btn btn--primary" href="<%= base %>/booking">Book Your Session</a>
+          <a class="link-arrow" href="<%= base %>/gallery">Lihat Gallery <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (portfolio.length) { %>
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head section-head--split">
+        <div><span class="eyebrow">Karya kami</span><h2>Sebagian hasil sesi</h2></div>
+        <a class="link-arrow" href="<%= base %>/gallery">Semua foto <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <div class="editorial-grid layout-grid-3">
+        <% portfolio.forEach(function (item) { %>
+          <figure class="editorial-item">
+            <button class="editorial-item__btn" type="button"
+                    data-lightbox data-src="<%= lightboxUrl(item.image_src) %>"
+                    data-title="<%= item.title %>" data-meta="<%= item.city_name || '' %>"
+                    data-desc="<%= item.description || '' %>">
+              <%- picture(item.image_src, {
+                    alt: item.alt_text || item.title, widths: [320, 480, 800],
+                    sizes: '(max-width: 720px) 45vw, 22vw'
+                  }) %>
+              <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+            </button>
+          </figure>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="about-locations">
+      <div>
+        <span class="eyebrow">Kota layanan</span>
+        <h2>Di mana kami bekerja</h2>
+        <p>Setiap kota memiliki paket, jadwal, dan tim fotografernya sendiri. Pilih kota untuk melihat sesi yang tersedia.</p>
+      </div>
+      <div class="chip-row">
+        <% cities.forEach(function (c) { %>
+          <a class="chip" href="<%= base %>/city/<%= c.slug %>"><%= c.name %></a>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</section>

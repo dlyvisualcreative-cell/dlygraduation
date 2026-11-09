@@ -1,0 +1,58 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span><%= site['caraorder.title'] %></span>
+    </nav>
+    <span class="eyebrow">How to Order</span>
+    <h1><%= site['caraorder.title'] %></h1>
+    <p class="page-head__lede"><%= site['caraorder.description'] %></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <ol class="order-steps">
+      <% steps.forEach(function (step, i) { %>
+        <li class="order-step">
+          <span class="order-step__num"><%= String(i + 1).padStart(2, '0') %></span>
+          <div>
+            <h2><%= step.title %></h2>
+            <% if (step.description) { %><p><%= step.description %></p><% } %>
+          </div>
+        </li>
+      <% }); %>
+    </ol>
+
+    <div class="order-cta">
+      <div>
+        <h2>Mulai dari memilih sesi</h2>
+        <p>Lihat kategori dan durasi yang tersedia di <%= mainCity ? mainCity.name : 'kota layanan Anda' %>, lalu lanjutkan ke form booking.</p>
+      </div>
+      <div class="order-cta__actions">
+        <a class="btn btn--primary" href="<%= base %>/pricelist">Lihat Pricelist</a>
+        <a class="btn btn--outline" href="<%= base %>/booking">Book Your Session</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (faqs.length) { %>
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">FAQ singkat</span>
+      <h2>Pertanyaan yang sering muncul</h2>
+    </div>
+    <div class="faq-list">
+      <% faqs.forEach(function (f) { %>
+        <details class="faq-item">
+          <summary><span><%= f.question %></span><span class="faq-item__icon" aria-hidden="true">+</span></summary>
+          <div class="faq-item__body"><%= f.answer %></div>
+        </details>
+      <% }); %>
+    </div>
+    <a class="link-arrow" href="<%= base %>/faq">Lihat semua FAQ <span aria-hidden="true">&rarr;</span></a>
+  </div>
+</section>
+<% } %>

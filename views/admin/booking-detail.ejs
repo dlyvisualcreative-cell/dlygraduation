@@ -1,0 +1,899 @@
+<%
+  // v14: "Detail Pekerjaan" digabung ke "Identitas Client" → satu tab "Detail Booking".
+  // Tab yang tersisa: Detail Booking · Pembayaran · Workflow (berdampingan, satu baris).
+  const tabList = [
+    { value: 'detail', label: 'Detail Booking' },
+    { value: 'pembayaran', label: 'Pembayaran' },
+    { value: 'workflow', label: 'Workflow' }
+  ];
+  const sel = selectionStatusLabel(selectionStatus);
+%>
+
+<section class="admin-panel bd-head">
+  <div class="admin-panel__head">
+    <div>
+      <a class="admin-link bd-back" href="<%= base %>/admin/bookings">&larr; Kelola Booking</a>
+      <h2><%= booking.client_name %></h2>
+      <p class="admin-muted">
+        <code class="sel-code"><%= booking.code %></code>
+        &nbsp;·&nbsp; <%= formatDateID(booking.shooting_date, true) %>
+        <%= booking.shooting_time ? '· ' + booking.shooting_time + ' WIB' : '' %>
+        &nbsp;·&nbsp; <%= booking.package_name %>
+      </p>
+    </div>
+    <div class="cell-actions bd-head__actions">
+      <span class="bk-status bk-status--<%= booking.status %>"><%= booking.status %></span>
+      <span class="pay-chip pay-chip--<%= pay.tone %>"><%= pay.label %></span>
+    </div>
+  </div>
+
+  <div class="bd-wa">
+    <a class="bk-btn bk-btn--wa bk-btn--icon"
+       href="https://wa.me/<%= normalizePhone(booking.client_phone) %>?text=<%= encodeURIComponent(booking.wa_confirm_text) %>"
+       target="_blank" rel="noopener" data-chat-client
+       title="Kirim pesan konfirmasi jadwal & pembayaran DP">
+      <svg class="bk-btn__icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+        <path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.6-.9-2.2-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 1.8 2.8 4.3 3.9 2.1.9 2.6.8 3.1.7.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.4z"/>
+        <path d="M12 2.2A9.8 9.8 0 0 0 3.5 17l-1.3 4.8 4.9-1.3A9.8 9.8 0 1 0 12 2.2zm0 17.9c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3a8.1 8.1 0 1 1 7 3.8z"/>
+      </svg>
+      <span>Konfirmasi Booking &amp; DP</span>
+    </a>
+
+    <%# Revisi 4 — tombol utama: folder 01. FILE MENTAH → portal → tahap 04 → notifikasi klien %>
+    <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/photos-ready" class="inline-form"
+          data-confirm="Tandai foto siap dipilih? Sistem membaca folder 01. FILE MENTAH, menyiapkan portal, mencatat tahap 04, dan mengirim notifikasi ke klien.">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="bk-btn bk-btn--ready bk-btn--icon" type="submit"
+              title="Baca folder 01. FILE MENTAH lalu beri tahu klien bahwa foto siap dipilih">
+        <span>Foto Siap Dipilih</span>
+      </button>
+    </form>
+
+    <% if (booking.selection_portal_id && booking.portal_ready) { %>
+      <a class="bk-btn bk-btn--portal bk-btn--icon"
+         href="https://wa.me/<%= normalizePhone(booking.client_phone) %>?text=<%= encodeURIComponent(booking.wa_portal_text) %>"
+         target="_blank" rel="noopener" title="Kirim link portal seleksi foto">
+        <span>Kirim Link Portal Seleksi Foto</span>
+      </a>
+    <% } else { %>
+      <a class="bk-btn bk-btn--portal is-disabled bk-btn--icon" href="<%= base %>/admin/bookings/<%= booking.id %>/portal"
+         title="Belum ada portal / foto belum diunggah — buat portal dulu">
+        <span>Kirim Link Portal Seleksi Foto</span>
+      </a>
+    <% } %>
+  </div>
+</section>
+
+<nav class="bd-tabs" role="tablist" aria-label="Bagian detail booking">
+  <% tabList.forEach(function (t) { %>
+    <a role="tab" class="bd-tab <%= tab === t.value ? 'is-active' : '' %>"
+       aria-selected="<%= tab === t.value ? 'true' : 'false' %>"
+       href="<%= base %>/admin/bookings/<%= booking.id %>?tab=<%= t.value %>#<%= t.value %>"><%= t.label %></a>
+  <% }); %>
+</nav>
+
+<% if (tab === 'detail') { %>
+  <section class="admin-panel" id="detail">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Detail Booking</h2>
+        <p class="admin-muted">Identitas client dan detail pekerjaan dalam satu tab.</p>
+      </div>
+    </div>
+
+    <h3 class="bd-subhead bd-subhead--tight">Identitas Client</h3>
+    <dl class="bd-rows">
+      <div><dt>Nama lengkap</dt><dd><%= booking.client_name %></dd></div>
+      <div><dt>WhatsApp</dt><dd><a class="admin-link" href="https://wa.me/<%= normalizePhone(booking.client_phone) %>" target="_blank" rel="noopener"><%= booking.client_phone %></a></dd></div>
+      <div><dt>Instagram</dt><dd><%= booking.instagram ? '@' + booking.instagram : '—' %></dd></div>
+      <div><dt>Kampus</dt><dd><%= booking.campus %></dd></div>
+      <div><dt>Fakultas</dt><dd><%= booking.faculty || '—' %></dd></div>
+      <div><dt>Jurusan</dt><dd><%= booking.major || '—' %></dd></div>
+      <div><dt>Dibuat</dt><dd><%= String(booking.created_at || '').slice(0, 16) %></dd></div>
+      <div><dt>Persetujuan TnC</dt>
+        <dd><%= booking.terms_consent ? 'Disetujui' + (booking.terms_consent_at ? ' · ' + formatDateID(String(booking.terms_consent_at).slice(0, 10)) : '') : 'Belum' %></dd>
+      </div>
+    </dl>
+
+    <h3 class="bd-subhead">Detail Pekerjaan</h3>
+    <dl class="bd-rows">
+      <div><dt>Tanggal</dt><dd><%= formatDateID(booking.shooting_date, true) %></dd></div>
+      <div><dt>Jam</dt><dd><%= booking.shooting_time ? booking.shooting_time + ' WIB' : 'Belum diisi (booking lama)' %></dd></div>
+      <div><dt>Lokasi</dt><dd><%= booking.location %><%= booking.location_address ? ' — ' + booking.location_address : '' %></dd></div>
+      <div><dt>Kota</dt><dd><%= booking.city_name %></dd></div>
+      <div><dt>Kategori</dt><dd><%= booking.category_name || '—' %></dd></div>
+      <div><dt>Paket</dt><dd><%= booking.package_name %></dd></div>
+      <div><dt>Durasi</dt><dd><%= booking.duration_minutes || booking.duration %> menit</dd></div>
+      <div><dt>Jumlah foto edit</dt><dd><%= booking.edited_photos_snapshot ? booking.edited_photos_snapshot + ' foto' : 'Belum tercatat' %></dd></div>
+      <div><dt>Add-on</dt><dd><%= addons.length ? addons.map(function (a) { return a.name; }).join(', ') : '—' %></dd></div>
+      <div><dt>Tim yang bertugas</dt>
+        <dd><%= booking.team_name_snapshot || '—' %><%= booking.team_email_snapshot ? ' · ' + booking.team_email_snapshot : '' %></dd>
+      </div>
+      <div class="bd-rows__wide"><dt>Catatan client</dt><dd><%= booking.notes && booking.notes.trim() ? booking.notes : '—' %></dd></div>
+    </dl>
+  </section>
+
+<% } else if (tab === 'pembayaran') { %>
+  <section class="admin-panel" id="pembayaran">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Pembayaran</h2>
+        <p class="admin-muted">
+          Total tagihan berasal dari snapshot harga booking (tidak pernah diubah di sini).
+          Nominal diterima dihitung dari catatan pembayaran di bawah.
+        </p>
+      </div>
+      <span class="pay-chip pay-chip--<%= pay.tone %>"><%= pay.label %></span>
+    </div>
+
+    <div class="bd-pay">
+      <div><span>Total tagihan</span><strong><%= pay.total ? rupiah(pay.total) : 'Belum tercatat' %></strong></div>
+      <div><span>Sudah dibayar</span><strong><%= rupiah(pay.paid) %></strong></div>
+      <div><span>Sisa pembayaran</span><strong><%= pay.due == null ? '—' : rupiah(pay.due) %></strong></div>
+      <div><span>DP disarankan</span><strong><%= rupiah(dpDefault) %></strong></div>
+    </div>
+
+    <% if (!pay.count) { %>
+      <div class="admin-note">
+        Belum ada pembayaran tercatat untuk booking ini.
+        <% if (!pay.total) { %>Harga paket juga belum diisi, jadi total tagihan belum bisa dihitung.<% } %>
+      </div>
+    <% } %>
+
+    <%# Tombol cepat: hanya muncul sesuai kondisi pembayaran (Tahap 7). %>
+    <% if (pay.status !== 'paid') { %>
+      <div class="bd-pay-quick">
+        <% if (pay.paid === 0) { %>
+          <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/payments/quick"
+                data-confirm="Catat DP <%= rupiah(Math.min(dpDefault, pay.due == null ? dpDefault : pay.due)) %> sebagai pembayaran diterima?">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="kind" value="dp">
+            <button class="admin-btn admin-btn--primary bd-pay-quick__btn" type="submit">
+              Sudah DP — <%= rupiah(Math.min(dpDefault, pay.due == null ? dpDefault : pay.due)) %>
+            </button>
+          </form>
+        <% } %>
+        <% if (pay.paid > 0 && pay.due > 0) { %>
+          <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/payments/quick"
+                data-confirm="Catat pelunasan <%= rupiah(pay.due) %>? Status akan menjadi Lunas.">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="kind" value="settlement">
+            <button class="admin-btn admin-btn--primary bd-pay-quick__btn" type="submit">
+              Pelunasan — <%= rupiah(pay.due) %>
+            </button>
+          </form>
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="admin-note admin-note--ok">
+        <p>Pembayaran sudah <strong>Lunas</strong>. Tidak ada tagihan tersisa.</p>
+      </div>
+    <% } %>
+
+    <%# Form manual tetap terlihat untuk pembayaran parsial; disembunyikan hanya saat lunas. %>
+    <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/payments" class="admin-form bd-pay-form"
+          data-manual-pay <%= pay.status === 'paid' ? 'hidden' : '' %>>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="amount">Nominal diterima (Rp)</label>
+          <input type="number" id="amount" name="amount" min="1000" step="1000" required
+                 placeholder="<%= dpDefault %>">
+        </div>
+        <div class="admin-field">
+          <label for="paid_at">Tanggal pembayaran</label>
+          <input type="date" id="paid_at" name="paid_at" value="<%= todayISO %>" required>
+        </div>
+        <div class="admin-field">
+          <label for="method">Metode (opsional)</label>
+          <input type="text" id="method" name="method" maxlength="40" placeholder="Transfer BCA / Tunai">
+        </div>
+        <div class="admin-field admin-field--grow">
+          <label for="note">Catatan (opsional)</label>
+          <input type="text" id="note" name="note" maxlength="200" placeholder="DP sesi foto">
+        </div>
+      </div>
+      <div class="admin-form__actions">
+        <button class="admin-btn admin-btn--primary" type="submit">Catat pembayaran</button>
+      </div>
+    </form>
+
+    <% if (paymentsList.length) { %>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Tanggal</th><th>Nominal</th><th>Jenis</th><th>Metode</th><th>Catatan</th><th></th></tr></thead>
+          <tbody>
+            <% paymentsList.forEach(function (p) { %>
+              <tr>
+                <td><%= formatDateID(p.paid_at) %></td>
+                <td><strong><%= rupiah(p.amount) %></strong></td>
+                <td>
+                  <span class="pay-chip pay-chip--<%= p.kind === 'dp' ? 'info' : p.kind === 'settlement' ? 'ok' : 'muted' %>">
+                    <%= p.kind === 'dp' ? 'DP' : p.kind === 'settlement' ? 'Pelunasan' : 'Manual' %>
+                  </span>
+                </td>
+                <td><%= p.method || '—' %></td>
+                <td><%= p.note || '—' %></td>
+                <td class="cell-actions">
+                  <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/payments/<%= p.id %>/delete"
+                        data-confirm="Hapus catatan pembayaran <%= rupiah(p.amount) %> tanggal <%= formatDateID(p.paid_at) %>?">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="admin-link-btn admin-link-btn--danger" type="submit">Hapus</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+<% } else { %>
+  <%
+    // Tahap 7 — Workflow dikelompokkan per fungsi supaya tidak menumpuk tombol.
+    const isConfirmed = booking.status === 'confirmed' || booking.status === 'completed';
+    const teamEmails = (bookingTeam || []).map(function (m) { return m.email; }).filter(function (e) { return /\S+@\S+\.\S+/.test(e || ''); });
+    // NOTE: `gcalReady`/`driveReady` are res.locals; declaring a const with the same name
+    // shadows them and throws a TDZ ReferenceError. Use different local names.
+    const gcalOk = typeof gcalReady !== 'undefined' && gcalReady;
+    const driveOk = typeof driveReady !== 'undefined' && driveReady;
+    const lastSync = booking.gcal_synced_at ? String(booking.gcal_synced_at).slice(0, 16) : '';
+  %>
+
+  <%# Semua bagian Workflow dibungkus #workflow: kode lama & pengujian mencari
+      `#workflow .bd-update-form`, jadi id ini harus tetap membungkus form status. %>
+  <div id="workflow">
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div><h2>Workflow</h2><p class="admin-muted">Ringkasan status pekerjaan booking ini.</p></div>
+      <% if (isConfirmed) { %>
+        <span class="admin-badge admin-badge--ok">Booking Telah Dikonfirmasi</span>
+      <% } else { %>
+        <span class="admin-badge admin-badge--warn">Menunggu Konfirmasi</span>
+      <% } %>
+    </div>
+
+    <%# v14: panel "Status & catatan internal" dihapus. Kemampuan mengubah status
+        booking TETAP ada di sini (bagian dari Workflow), dalam bentuk ringkas.
+        `internal_notes` dikirim apa adanya lewat hidden input supaya data lama
+        tidak terhapus oleh route /update (yang menulis ulang kolom tersebut). %>
+    <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/update"
+          class="bd-statusform bd-update-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="back_tab" value="workflow">
+      <input type="hidden" name="internal_notes" value="<%= booking.internal_notes || '' %>">
+      <label for="status-<%= booking.id %>">Status booking</label>
+      <select id="status-<%= booking.id %>" name="status">
+        <% statuses.forEach(function (s) { %>
+          <option value="<%= s.value %>" <%= booking.status === s.value ? 'selected' : '' %>><%= s.label %></option>
+        <% }); %>
+      </select>
+      <button class="admin-btn admin-btn--sm" type="submit">Simpan status</button>
+    </form>
+
+    <div class="bd-flow">
+      <div><span>Status booking</span><strong><%= booking.status %></strong></div>
+      <div><span>Status seleksi foto</span><strong><%= booking.selection_portal_id ? sel : 'Belum ada portal' %></strong></div>
+      <div>
+        <span>Status editing</span>
+        <strong>
+          <% if (editingJob) { %>
+            <%# Panel "Status & catatan internal" sudah dihapus (v14), jadi tautan
+                "Buka antrean" dipindah ke baris ini agar tetap tersedia. %>
+            <a class="admin-link" href="<%= base %>/admin/editing">Buka antrean</a>
+            <span class="cell-sub"> · <%= editingStageLabel(editingJob.status) %> · <%= editingJob.photo_count || 0 %> foto</span>
+            <% if (editingJob.editor_name) { %><span class="cell-sub"> · <%= editingJob.editor_name %></span><% } %>
+          <% } else if (booking.selection_portal_id && sel === 'Pilihan Terkirim') { %>
+            Belum masuk antrean
+          <% } else { %>
+            Belum ada job editing
+          <% } %>
+          <% if (!editingJob || editingJob.status === 'done') { %>
+            <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/editing" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="admin-link-btn" type="submit">
+                <%= editingJob ? 'Masukkan lagi ke antrean' : 'Masuk Antrean Editing' %>
+              </button>
+            </form>
+          <% } %>
+        </strong>
+      </div>
+      <div>
+        <span>Status Google Calendar</span>
+        <strong>
+          <% if (booking.gcal_event_id) { %>
+            <span class="admin-badge admin-badge--ok">Terhubung</span>
+          <% } else if (needsEvent) { %>
+            <span class="admin-badge admin-badge--warn">Belum ada event</span>
+          <% } else { %>
+            <span class="admin-badge admin-badge--muted">Belum dikonfirmasi</span>
+          <% } %>
+          <% if (lastSync) { %><span class="cell-sub"> · sinkron <%= lastSync %></span><% } %>
+        </strong>
+      </div>
+      <div>
+        <span>Status Google Drive</span>
+        <strong>
+          <% if (booking.drive_folder_url) { %>
+            <span class="admin-badge admin-badge--ok">Folder siap</span>
+          <% } else { %>
+            <span class="admin-badge admin-badge--muted">Belum ada folder</span>
+          <% } %>
+        </strong>
+      </div>
+    </div>
+
+    <% if (booking.gcal_error || booking.drive_error) { %>
+      <div class="admin-note admin-note--err bd-sync-err">
+        <% if (booking.gcal_error) { %><p>Calendar: <%= booking.gcal_error %></p><% } %>
+        <% if (booking.drive_error) { %><p>Drive: <%= booking.drive_error %></p><% } %>
+      </div>
+    <% } %>
+  </section>
+
+  <%# ---------------- 1. TIM + KONFIRMASI (satu blok, satu tombol) ---------------- %>
+  <section class="admin-panel" id="tim">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Tim &amp; Konfirmasi</h2>
+        <p class="admin-muted">
+          <% if (!isConfirmed) { %>
+            Pilih satu anggota tim, lalu tekan <strong>Confirm Booking</strong> — status, Google Calendar
+            (beserta undangan tim), dan folder Google Drive dibuat sekaligus.
+          <% } else { %>
+            Booking sudah dikonfirmasi. Ganti anggota tim di bawah bila berhalangan — event kalender
+            yang sama ikut diperbarui otomatis.
+          <% } %>
+        </p>
+      </div>
+      <a class="admin-link" href="<%= base %>/admin/team">Kelola anggota tim</a>
+    </div>
+
+    <% if (teamMissingEmail.length) { %>
+      <div class="admin-note admin-note--warn">
+        <p><strong>Email belum ada:</strong> <%= teamMissingEmail.map(function (m) { return m.name; }).join(', ') %>
+          belum punya email valid, jadi Google Calendar tidak bisa mengirim undangan ke mereka.</p>
+      </div>
+    <% } %>
+
+    <% if (!isConfirmed) { %>
+      <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/confirm" class="bd-simple-form"
+            data-confirm-summary
+            data-summary='<%= JSON.stringify({
+              client: booking.client_name,
+              jadwal: formatDateID(booking.shooting_date, true) + (booking.shooting_time ? " · " + booking.shooting_time + " WIB" : ""),
+              lokasi: booking.location || "-",
+              paket: booking.package_name || "-"
+            }) %>'>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div class="bd-simple-form__row">
+          <label class="bd-simple-form__field">
+            <span>Tim yang bertugas</span>
+            <select name="member_id" required data-team-select>
+              <option value="">— pilih anggota tim —</option>
+              <% teamOptions.filter(function (m) { return Number(m.is_active); }).forEach(function (m) { %>
+                <option value="<%= m.id %>" <%= bookingTeam.some(function (x) { return Number(x.member_id) === Number(m.id); }) ? 'selected' : '' %>>
+                  <%= m.name %><%= m.role ? ' · ' + m.role : '' %><%= m.email ? ' — ' + m.email : ' (tanpa email)' %>
+                </option>
+              <% }); %>
+            </select>
+          </label>
+          <button class="admin-btn admin-btn--primary admin-btn--lg" type="submit" data-confirm-btn>
+            Confirm Booking
+          </button>
+        </div>
+        <p class="admin-hint">
+          Satu klik: status <strong>Confirmed</strong>, event “Dly Visual | <%= (booking.client_name || '').split(' ').slice(0, 2).join(' ') %> | Graduation”,
+          undangan ke tim, dan folder Drive <strong><%= booking.client_name %> - <%= booking.campus %> - <%= booking.code %></strong>.
+        </p>
+      </form>
+    <% } else { %>
+      <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/team" class="bd-simple-form"
+            data-auto-submit-team>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div class="bd-simple-form__row">
+          <label class="bd-simple-form__field">
+            <span>Tim yang bertugas</span>
+            <select name="member_ids" data-team-select>
+              <option value="">— belum ditentukan —</option>
+              <% teamOptions.filter(function (m) { return Number(m.is_active); }).forEach(function (m) { %>
+                <option value="<%= m.id %>" <%= bookingTeam.some(function (x) { return Number(x.member_id) === Number(m.id); }) ? 'selected' : '' %>>
+                  <%= m.name %><%= m.role ? ' · ' + m.role : '' %><%= m.email ? ' — ' + m.email : ' (tanpa email)' %>
+                </option>
+              <% }); %>
+            </select>
+          </label>
+          <span class="bd-simple-form__save" data-team-save-hint>Perubahan tim tersimpan otomatis.</span>
+        </div>
+        <p class="admin-hint">Mengganti tim tidak membuat booking/event baru — attendees event kalender yang sama diperbarui.</p>
+      </form>
+    <% } %>
+
+    <div class="bd-confirm-status">
+      <span class="bd-confirm-status__label">Status</span>
+      <% if (isConfirmed) { %>
+        <span class="admin-badge admin-badge--ok">Booking Telah Dikonfirmasi</span>
+      <% } else { %>
+        <span class="admin-badge admin-badge--warn">Menunggu Konfirmasi</span>
+      <% } %>
+      <% if (booking.gcal_event_id) { %>
+        <span class="admin-badge admin-badge--ok">Google Calendar terhubung</span>
+      <% } else if (isConfirmed) { %>
+        <span class="admin-badge admin-badge--warn">Event kalender belum ada</span>
+      <% } %>
+      <% if (booking.drive_folder_url) { %>
+        <span class="admin-badge admin-badge--ok">Folder Drive siap</span>
+      <% } else if (isConfirmed) { %>
+        <span class="admin-badge admin-badge--warn">Folder Drive belum ada</span>
+      <% } %>
+      <% if (lastSync) { %><span class="bd-confirm-status__sync">Sinkron terakhir <%= lastSync %></span><% } %>
+    </div>
+
+    <% if (isConfirmed) { %>
+      <div class="bd-actions bd-actions--group">
+        <% if (booking.gcal_event_url) { %>
+          <a class="admin-btn" href="<%= booking.gcal_event_url %>" target="_blank" rel="noopener">Buka Google Calendar</a>
+        <% } %>
+        <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/sync-calendar">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <input type="hidden" name="back_detail" value="<%= booking.id %>">
+          <button class="admin-btn" type="submit">Sinkronisasi Ulang Google Calendar</button>
+        </form>
+        <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/resend-invites"
+              data-confirm="Kirim ulang undangan ke <%= teamEmails.join(', ') || 'tim (belum ada email)' %>?">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="admin-btn" type="submit" <%= teamEmails.length ? '' : 'disabled' %>>Kirim Ulang Undangan ke Tim</button>
+        </form>
+        <% if (booking.drive_folder_url) { %>
+          <a class="admin-btn" href="<%= booking.drive_folder_url %>" target="_blank" rel="noopener">Buka Folder Google Drive</a>
+          <% if (!booking.drive_raw_id || !booking.drive_sortir_id || !booking.drive_edit_id) { %>
+            <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/drive-subfolders">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="admin-btn" type="submit">Siapkan Subfolder 01/02/03</button>
+            </form>
+          <% } else { %>
+            <span class="admin-badge admin-badge--ok" title="01. FILE MENTAH · 02. FILE SORTIR · 03. FILE EDIT">Subfolder 01/02/03 siap</span>
+          <% } %>
+        <% } else if (driveOk) { %>
+          <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/drive">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="back_detail" value="<%= booking.id %>">
+            <button class="admin-btn" type="submit">Buat Folder Google Drive</button>
+          </form>
+        <% } %>
+      </div>
+
+      <% if (needsEvent) { %>
+        <div class="admin-note admin-note--warn">
+          <p>Event Google Calendar belum ada. Tekan <strong>Sinkronisasi Ulang Google Calendar</strong> —
+            folder Drive yang sudah ada akan dipakai kembali, tidak dibuat ulang.</p>
+        </div>
+      <% } %>
+      <% if (!gcalOk) { %>
+        <div class="admin-note">
+          <p>Google Calendar belum terhubung. <a class="admin-link" href="<%= base %>/admin/google">Hubungkan di sini</a>.</p>
+        </div>
+      <% } %>
+    <% } %>
+  </section>
+
+  <%# ---------------- 2a. UPGRADE PAKET / EXTRA TIME ---------------- %>
+  <% if (typeof upgradeRequests !== 'undefined' && upgradeRequests.length) { %>
+    <section class="admin-panel" id="upgrade-requests">
+      <div class="admin-panel__head">
+        <div>
+          <h2>Upgrade paket &amp; Extra Time</h2>
+          <p class="admin-muted">Pengajuan dari klien lewat Client Portal. Nominal booking baru berubah setelah disetujui.</p>
+        </div>
+        <a class="admin-link" href="<%= base %>/admin/upgrades">Semua pengajuan &rarr;</a>
+      </div>
+      <ul class="cp-up__reqs">
+        <% upgradeRequests.forEach(function (u) { %>
+          <li>
+            <span class="cp-up__reqname">
+              <% if (u.kind === 'package') { %>Upgrade ke <%= u.package_name %>
+              <% } else if (u.kind === 'duration') { %>Upgrade durasi <%= u.minutes %> menit
+              <% } else if (u.kind === 'addon') { %>Add-on <%= u.package_name %>
+              <% } else { %>Extra Time <%= u.minutes %> menit<% } %>
+            </span>
+            <span class="cp-up__reqprice"><%= rupiah(u.price) || '—' %></span>
+            <span class="admin-badge admin-badge--<%= upgradeStatus(u.status).tone === 'ok' ? 'ok' : (upgradeStatus(u.status).tone === 'warn' ? 'warn' : 'muted') %>"><%= upgradeStatus(u.status).label %></span>
+            <% if (u.status === 'pending') { %>
+              <form method="post" action="<%= base %>/admin/upgrades/<%= u.id %>/approve" style="display:inline">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="admin-btn admin-btn--sm admin-btn--primary" type="submit">Setujui</button>
+              </form>
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    </section>
+  <% } %>
+
+  <%# ---------------- 2b. CLIENT PORTAL (akses klien) ---------------- %>
+  <section class="admin-panel" id="client-portal">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Client Portal</h2>
+        <p class="admin-muted">Klien masuk dengan <strong>Kode Booking + PIN</strong> (tanpa akun). Kirim keduanya lewat WhatsApp.</p>
+        <%# Masa akses: booking yang belum dikonfirmasi hanya punya 24 jam. %>
+        <% if (clientPortal.access && clientPortal.access.expiresAt) { %>
+          <p class="admin-hint" style="margin:6px 0 0">
+            <% if (clientPortal.access.expired) { %>
+              <span class="admin-badge admin-badge--danger">Akses portal kedaluwarsa</span>
+              Kode &amp; PIN hanya berlaku <%= clientPortal.accessHours %> jam selama booking belum dikonfirmasi.
+            <% } else { %>
+              <span class="admin-badge admin-badge--warn">Akses portal sementara</span>
+              Berlaku sampai <%= formatDateTime(clientPortal.access.expiresAt) %> (<%= clientPortal.accessHours %> jam sejak booking dikirim).
+              Konfirmasi booking untuk membuka akses tanpa batas.
+            <% } %>
+          </p>
+        <% } else { %>
+          <p class="admin-hint" style="margin:6px 0 0">
+            <span class="admin-badge admin-badge--ok">Akses portal permanen</span>
+            Booking sudah dikonfirmasi — kode &amp; PIN berlaku tanpa batas waktu.
+          </p>
+        <% } %>
+      </div>
+      <a class="admin-link" href="<%= base %>/portal" target="_blank" rel="noopener">Buka halaman portal &nearr;</a>
+    </div>
+
+    <div class="cp-admin-grid">
+      <div class="cp-admin-box">
+        <span class="spec-label">Kode Booking</span>
+        <strong class="cp-admin-code" data-cp-code><%= clientPortal.code %></strong>
+        <% if (clientPortal.legacyCode) { %>
+          <small class="cell-sub">Kode lama <code><%= clientPortal.legacyCode %></code> tetap bisa dipakai masuk</small>
+        <% } %>
+        <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/new-code"
+              data-confirm="Buat kode booking baru? Kode lama tetap berlaku sebagai alias.">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="admin-link-btn" type="submit">Buat kode baru</button>
+        </form>
+      </div>
+
+      <div class="cp-admin-box">
+        <span class="spec-label">PIN Portal</span>
+        <%# PIN ditampilkan terbaca di dashboard (permintaan pemilik): admin bisa
+            membaca & mengirim ulang kapan saja tanpa membuat PIN baru. %>
+        <% if (clientPortal.hasPin && clientPortal.pin) { %>
+          <strong class="cp-admin-pin" data-cp-pin><%= clientPortal.pin %></strong>
+          <small class="cell-sub">Hanya terlihat di halaman admin ini</small>
+        <% } else { %>
+          <strong class="cp-admin-pin is-empty">— belum dibuat —</strong>
+          <small class="cell-sub">Buat PIN agar klien bisa masuk</small>
+        <% } %>
+        <div class="cell-actions">
+          <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/portal-pin">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="admin-link-btn" type="submit"><%= clientPortal.hasPin ? 'Tampilkan / pastikan PIN' : 'Buat PIN' %></button>
+          </form>
+          <% if (clientPortal.hasPin) { %>
+            <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/portal-pin"
+                  data-confirm="Reset PIN? PIN lama tidak berlaku dan sesi portal yang aktif diputus.">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="reset" value="1">
+              <button class="admin-link-btn admin-link-btn--danger" type="submit">Reset PIN</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="cp-admin-box cp-admin-box--wide">
+        <span class="spec-label">Kirim akses ke klien</span>
+        <% const waAccess = 'Halo Kak ' + booking.client_name + ', berikut akses Client Portal DLY Graduation untuk melihat progres & memilih foto:\n\n'
+          + 'Kode Booking: ' + clientPortal.code + '\n'
+          + 'PIN: ' + (clientPortal.pin || '(menyusul)') + '\n\n'
+          + 'Buka: ' + origin + '/portal\n\n'
+          + 'Mohon simpan pesan ini ya, Kak. Terima kasih!'; %>
+        <a class="bk-btn bk-btn--wa bk-btn--icon"
+           href="https://wa.me/<%= normalizePhone(booking.client_phone) %>?text=<%= encodeURIComponent(waAccess) %>"
+           target="_blank" rel="noopener">
+          <span>Kirim Kode &amp; PIN via WhatsApp</span>
+        </a>
+        <div class="cp-admin-links">
+          <code><%= clientPortal.url %></code>
+          <% if (clientPortal.directLink) { %>
+            <a class="admin-link" href="<%= clientPortal.directLink %>" target="_blank" rel="noopener">Link foto langsung (tanpa PIN)</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <%# Selesaikan Order + link Google Drive final (tahap 08) %>
+    <div class="cp-admin-final">
+      <div>
+        <span class="spec-label">Foto Final (tahap 08)</span>
+        <% if (clientPortal.finalUrl) { %>
+          <p class="cp-admin-final__ok">
+            <span class="admin-badge admin-badge--ok">Selesai</span>
+            <a class="admin-link" href="<%= clientPortal.finalUrl %>" target="_blank" rel="noopener">Buka link final &nearr;</a>
+          </p>
+          <small class="cell-sub">Ditandai selesai <%= String(clientPortal.finalAt || '').slice(0, 16) %></small>
+        <% } else { %>
+          <p class="admin-muted">Belum selesai — halaman Link Google Drive klien masih menampilkan “sedang dipersiapkan”.</p>
+        <% } %>
+      </div>
+      <%# TIDAK ada kolom URL. Admin cukup menekan Selesaikan Order; sistem memakai folder
+          UTAMA booking ini (berisi 01. FILE MENTAH s/d 03. FILE EDIT) dan memvalidasinya
+          ke Google Drive sebelum menandai order selesai. %>
+      <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/complete-order" class="cp-admin-final__form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <% if (booking.drive_folder_id) { %>
+          <small class="cell-sub cp-admin-final__src">
+            Link final: <b>seluruh folder booking</b>
+            <% if (booking.drive_folder_path) { %><br><span class="cp-admin-final__path"><%= booking.drive_folder_path %></span><% } %>
+            <br><span class="cp-admin-final__subs">Berisi 01. FILE MENTAH · 02. FILE SORTIR · 03. FILE EDIT</span>
+          </small>
+        <% } else { %>
+          <small class="cell-sub cp-admin-final__src cp-admin-final__src--warn">Folder Drive booking belum ada — sistem akan mencoba membuatnya saat Anda menekan Selesaikan Order.</small>
+        <% } %>
+        <button class="admin-btn admin-btn--primary" type="submit">Selesaikan Order</button>
+        <% if (clientPortal.finalUrl) { %>
+          <button class="admin-btn admin-btn--sm" type="submit" name="clear" value="1"
+                  data-confirm="Batalkan status selesai dan kosongkan link final?">Batalkan selesai</button>
+        <% } %>
+      </form>
+    </div>
+
+    <div class="cp-admin-tl">
+      <span class="spec-label">Timeline klien (<%= clientPortal.timeline.items.length %>/<%= clientPortal.timeline.total %> tahap)</span>
+      <ol>
+        <% clientPortal.timeline.items.forEach(function (s) { %>
+          <li><span class="cp-admin-tl__no"><%= s.no %></span> <%= s.title %>
+            <small class="cell-sub"><%= s.atLabel %> · <%= s.actor %></small></li>
+        <% }); %>
+        <% if (!clientPortal.timeline.items.length) { %><li class="admin-muted">Belum ada tahap tercapai.</li><% } %>
+      </ol>
+    </div>
+  </section>
+
+  <%# ---------------- 3. RESCHEDULE ---------------- %>
+  <section class="admin-panel" id="reschedule">
+    <div class="admin-panel__head">
+      <div><h2>Reschedule Booking</h2>
+        <p class="admin-muted">Mengubah booking yang sama — kode, harga, pembayaran, folder Drive, dan portal seleksi tidak berubah.</p></div>
+      <button type="button" class="admin-btn admin-btn--primary" data-toggle-reschedule>Reschedule Booking</button>
+    </div>
+
+    <div class="bd-reschedule" data-reschedule-panel hidden>
+      <div class="bd-reschedule__now">
+        <span class="spec-label">Jadwal saat ini</span>
+        <strong><%= formatDateID(booking.shooting_date, true) %><%= booking.shooting_time ? ' · ' + booking.shooting_time + ' WIB' : '' %></strong>
+        <span class="cell-sub"><%= booking.location %></span>
+      </div>
+
+      <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/reschedule" class="admin-form"
+            data-reschedule-form
+            data-old='<%= JSON.stringify({
+              tanggal: formatDateID(booking.shooting_date, true),
+              jam: booking.shooting_time || "-",
+              lokasi: booking.location || "-"
+            }) %>'>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div class="admin-field-grid">
+          <div class="admin-field">
+            <label for="rs-date">Tanggal baru</label>
+            <input type="date" id="rs-date" name="shooting_date" required value="<%= booking.shooting_date %>">
+          </div>
+          <div class="admin-field">
+            <label for="rs-time">Jam mulai baru</label>
+            <input type="time" id="rs-time" name="shooting_time" required value="<%= booking.shooting_time || '' %>">
+          </div>
+          <div class="admin-field admin-field--grow">
+            <label for="rs-loc">Lokasi baru</label>
+            <input type="text" id="rs-loc" name="location" required maxlength="200" value="<%= booking.location || '' %>">
+          </div>
+          <div class="admin-field admin-field--grow">
+            <label for="rs-reason">Alasan perubahan (opsional)</label>
+            <input type="text" id="rs-reason" name="reason" maxlength="200" placeholder="Permintaan client / cuaca / jadwal kampus">
+          </div>
+        </div>
+
+        <details class="bd-reschedule__override">
+          <summary>Butuh pengecualian?</summary>
+          <label class="admin-check">
+            <input type="checkbox" name="allow_override" value="1">
+            <span>Izinkan tanggal Full Booking / Ditutup (alasan wajib diisi di kolom di atas)</span>
+          </label>
+          <label class="admin-check">
+            <input type="checkbox" name="conflict_ack" value="1">
+            <span>Tim bentrok pada tanggal itu sudah saya cek dan tetap dilanjutkan</span>
+          </label>
+        </details>
+
+        <div class="admin-form__actions">
+          <button class="admin-btn admin-btn--primary" type="submit">Simpan jadwal baru</button>
+          <button class="admin-btn" type="button" data-cancel-reschedule>Batal</button>
+        </div>
+      </form>
+    </div>
+
+    <%# Revisi 4 — pengajuan reschedule dari KLIEN + pintu manual H-7. %>
+    <div class="bd-rsaccess">
+      <div>
+        <span class="spec-label">Akses Reschedule di Portal Klien</span>
+        <% if (rescheduleAccess.override) { %>
+          <strong class="admin-badge admin-badge--ok">Dibuka manual oleh admin</strong>
+          <small class="cell-sub">Klien bisa mengajukan jadwal baru walau sudah masuk H-<%= rescheduleHoldDays %>.</small>
+        <% } else if (rescheduleAccess.locked) { %>
+          <strong class="admin-badge admin-badge--warn">Terkunci (H-<%= rescheduleHoldDays %>)</strong>
+          <small class="cell-sub"><%= rescheduleAccess.reason %></small>
+        <% } else { %>
+          <strong class="admin-badge admin-badge--ok">Terbuka otomatis</strong>
+          <small class="cell-sub">
+            <% if (rescheduleAccess.daysLeft !== null) { %>Sesi <%= rescheduleAccess.daysLeft %> hari lagi — masih boleh diajukan klien.<% } %>
+          </small>
+        <% } %>
+      </div>
+      <div class="bd-rsaccess__actions">
+        <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/reschedule-access"
+              data-confirm="<%= rescheduleAccess.override ? 'Tutup kembali menu Reschedule klien mengikuti batas H-7?' : 'Buka menu Reschedule untuk klien walau sudah masuk H-7?' %>">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <input type="hidden" name="open" value="<%= rescheduleAccess.override ? '0' : '1' %>">
+          <button class="admin-btn admin-btn--sm" type="submit">
+            <%= rescheduleAccess.override ? 'Tutup Akses Reschedule' : 'Buka Akses Reschedule' %>
+          </button>
+        </form>
+        <%# Undangan kalender (berisi jadwal baru) dikirim ulang ke SEMUA anggota tim. %>
+        <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/resend-invites">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="admin-btn admin-btn--sm" type="submit"
+                  title="Kirim ulang undangan Google Calendar (jadwal terbaru) ke semua anggota tim yang punya email">
+            Kirim Jadwal ke Tim
+          </button>
+        </form>
+      </div>
+    </div>
+    <p class="admin-hint" style="margin:-6px 0 12px">
+      Saklar ini mengatur <strong>Reschedule &amp; Upgrade Paket</strong> sekaligus: keduanya
+      terkunci otomatis H-<%= rescheduleHoldDays %> dan bisa dibuka manual dari sini.
+      Menyetujui reschedule sudah otomatis memperbarui Google Calendar dan mengirim undangan
+      baru ke tim.
+    </p>
+
+    <% if (rescheduleRequests.length) { %>
+      <h3 class="bd-subhead">Pengajuan reschedule dari klien</h3>
+      <ul class="bd-rsreqs">
+        <% rescheduleRequests.forEach(function (r) { %>
+          <li class="bd-rsreq bd-rsreq--<%= r.status %>">
+            <div class="bd-rsreq__head">
+              <strong>
+                <%= formatDateID(r.new_date, true) %> · <%= r.new_time %> WIB
+              </strong>
+              <span class="admin-badge admin-badge--<%= r.tone === 'ok' ? 'ok' : (r.tone === 'warn' ? 'warn' : 'muted') %>"><%= r.statusLabel %></span>
+            </div>
+            <small class="cell-sub">Lokasi baru: <%= r.new_location %></small>
+            <small class="cell-sub">
+              Diajukan <%= String(r.created_at).slice(0, 16) %> · dari
+              <%= formatDateID(r.old_date) %><%= r.old_time ? ' · ' + r.old_time : '' %> · <%= r.old_location || '—' %>
+            </small>
+            <% if (r.conflict) { %><small class="cell-sub bd-rsreq__conflict">Catatan sistem: <%= r.conflict %></small><% } %>
+            <% if (r.admin_note) { %><small class="cell-sub">Catatan admin: <%= r.admin_note %></small><% } %>
+            <% if (r.status === 'pending') { %>
+              <div class="bd-rsreq__actions">
+                <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/reschedule-requests/<%= r.id %>/approve"
+                      data-confirm="Setujui reschedule ke <%= formatDateID(r.new_date, true) %> <%= r.new_time %>? Jadwal booking & Google Calendar ikut diperbarui.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <label class="admin-check admin-check--inline" title="Pakai bila tanggal Full Booking / Ditutup atau tim bentrok dan sudah dicek">
+                    <input type="checkbox" name="allow_override" value="1">
+                    <span>Override</span>
+                  </label>
+                  <button class="admin-btn admin-btn--sm admin-btn--primary" type="submit">Setujui</button>
+                </form>
+                <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/reschedule-requests/<%= r.id %>/reject"
+                      data-confirm="Tolak pengajuan reschedule ini? Jadwal booking tidak berubah.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="text" name="admin_note" maxlength="300" placeholder="Alasan menolak (opsional)">
+                  <button class="admin-btn admin-btn--sm admin-btn--danger" type="submit">Tolak</button>
+                </form>
+              </div>
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+
+    <% if (reschedules.length) { %>
+      <h3 class="bd-subhead">Riwayat reschedule</h3>
+      <ol class="bd-reschedule__history">
+        <% reschedules.forEach(function (r) { %>
+          <li>
+            <div class="bd-reschedule__when"><strong><%= String(r.created_at).slice(0, 16) %></strong><small><%= r.actor || 'admin' %></small></div>
+            <div class="bd-reschedule__change">
+              <span class="bd-reschedule__old"><%= formatDateID(r.old_date) %><%= r.old_time ? ' · ' + r.old_time : '' %> · <%= r.old_location || '—' %></span>
+              <span class="bd-reschedule__arrow" aria-hidden="true">&rarr;</span>
+              <span class="bd-reschedule__new"><%= formatDateID(r.new_date) %><%= r.new_time ? ' · ' + r.new_time : '' %> · <%= r.new_location || '—' %></span>
+              <% if (r.reason) { %><small class="cell-sub">Alasan: <%= r.reason %></small><% } %>
+              <small class="cell-sub">
+                Kalender:
+                <% if (r.gcal_status === 'failed') { %><span class="pay-chip pay-chip--warn">gagal — <%= r.gcal_error %></span>
+                <% } else if (r.gcal_status) { %><span class="pay-chip pay-chip--ok">tersinkron</span>
+                <% } else { %><span class="pay-chip pay-chip--muted">belum perlu</span><% } %>
+              </small>
+            </div>
+          </li>
+        <% }); %>
+      </ol>
+    <% } %>
+  </section>
+
+  <%# v14: panel "Status & catatan internal" DIHAPUS. Yang tetap ada: tautan portal,
+      catatan editing (internal, hanya bila ada), dan hapus booking. %>
+  <% if (editingJob && editingJob.note) { %>
+    <section class="admin-panel">
+      <div class="admin-note">
+        <p><strong>Catatan editing (internal):</strong> <%= editingJob.note %></p>
+      </div>
+    </section>
+  <% } %>
+
+  <section class="admin-panel bd-actions-panel">
+    <div class="bd-actions">
+      <% if (booking.selection_portal_id) { %>
+        <a class="admin-link" href="<%= base %>/admin/selection/<%= booking.selection_portal_id %>">Portal Pilih Foto (pengaturan & hasil)</a>
+      <% } else { %>
+        <a class="admin-link" href="<%= base %>/admin/bookings/<%= booking.id %>/portal">Buat Portal Pilih Foto</a>
+      <% } %>
+      <a class="admin-link" href="<%= base %>/admin/selection">Daftar semua seleksi foto</a>
+      <form method="post" action="<%= base %>/admin/bookings/<%= booking.id %>/delete"
+            data-confirm="Hapus booking <%= booking.code %>? Data booking, portal seleksi, dan catatan pembayaran ikut terhapus.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn admin-btn--sm admin-btn--danger" type="submit">Hapus booking</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="admin-panel">
+    <h3 class="bd-subhead">Riwayat aktivitas</h3>
+    <% if (!events.length) { %>
+      <p class="admin-muted">Belum ada aktivitas tercatat untuk booking ini.</p>
+    <% } else { %>
+      <ol class="bd-timeline">
+        <% events.forEach(function (e) { %>
+          <li>
+            <span class="bd-timeline__dot bd-timeline__dot--<%= e.kind %>"></span>
+            <div>
+              <strong><%= e.description %></strong>
+              <small class="cell-sub"><%= String(e.created_at || '').slice(0, 16) %><%= e.actor ? ' · ' + e.actor : '' %></small>
+            </div>
+          </li>
+        <% }); %>
+      </ol>
+    <% } %>
+  </section>
+
+  </div><%# /#workflow %>
+
+  <%# WhatsApp konfirmasi reschedule — hanya bila pernah di-reschedule %>
+  <% if (reschedules.length) { %>
+    <%
+      // Teks reschedule berasal dari template yang bisa diubah admin
+      // (Dashboard → Template Chat). Tidak lagi di-hardcode di view.
+      const last = reschedules[0];
+      const waReschedule = renderTemplate(
+        (settings.wa_reschedule_template || '').trim() || DEFAULT_RESCHEDULE_TEMPLATE,
+        {
+          nama: booking.client_name || '-',
+          kode: booking.code || '-',
+          tanggal_lama: formatDateID(last.old_date, true),
+          jam_lama: last.old_time || '-',
+          lokasi_lama: last.old_location || '-',
+          tanggal_baru: formatDateID(last.new_date, true),
+          jam_baru: last.new_time || '-',
+          lokasi_baru: last.new_location || '-'
+        }
+      );
+    %>
+    <section class="admin-panel">
+      <div class="admin-panel__head"><div><h2>Konfirmasi reschedule ke client</h2>
+        <p class="admin-muted">Teks sudah terisi dari riwayat terakhir. Dikirim lewat WhatsApp, tidak otomatis.</p></div></div>
+      <a class="bk-btn bk-btn--wa bk-btn--icon"
+         href="https://wa.me/<%= normalizePhone(booking.client_phone) %>?text=<%= encodeURIComponent(waReschedule) %>"
+         target="_blank" rel="noopener">
+        <span>Kirim Konfirmasi Reschedule via WhatsApp</span>
+      </a>
+    </section>
+  <% } %>
+<% } %>

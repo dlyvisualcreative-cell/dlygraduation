@@ -1,0 +1,83 @@
+  ok  Kode booking memakai format DLY-WISUDA-NAMA###
+  ok  Dua booking berbeda mendapat kode berbeda
+  ok  Detail booking menampilkan kartu Client Portal
+  ok  Kode pada kartu portal sama dengan kode booking
+  ok  Admin bisa membuat PIN 4 digit
+  ok  PIN tampil di halaman admin (untuk dikirim via WhatsApp)
+  ok  Halaman masuk portal tersedia
+  ok  Judul "Selamat Datang" tampil
+  ok  Label PORTAL CLIENT tampil
+  ok  Tidak ada field username/email/password/Google
+  ok  Ada field KODE BOOKING dan PIN
+  ok  PIN salah ditolak dengan pesan jelas
+  ok  Kode tidak dikenal ditolak
+  ok  Login dengan kode + PIN berhasil
+  ok  Sidebar punya 6 menu utama (termasuk Reschedule & Upgrade Paket)
+  ok  Menu = Ringkasan / Pilih Foto Favorit / Pantau Order / Reschedule / Upgrade Paket / Orderanmu Siap
+  ok  Ringkasan menampilkan nama lengkap
+  ok  Ringkasan menampilkan kampus, fakultas, jurusan
+  ok  Ringkasan menampilkan kode booking
+  ok  Ringkasan menampilkan persetujuan S&K
+  ok  Ringkasan menampilkan status order saat ini
+  ok  Menu foto nonaktif sebelum portal sortir dibuat
+  ok  Halaman portal tidak menerima parameter booking id apa pun
+  ok  Form buat portal punya 4 bagian
+  ok  Wajib-kuota bisa dimatikan (klien boleh kirim di bawah kuota)
+  ok  Portal sortir dibuat (masuk ke editor portal)
+  ok  Foto portal tersimpan
+  ok  Portal terhubung ke Booking ID
+  ok  Foto tersimpan di database portal
+  ok  Menu Pilih Foto Favorit aktif setelah portal dibuat
+  ok  Galeri menampilkan foto dari portal
+  ok  Header menampilkan nama klien & kode booking
+  ok  Ada info kuota, sisa kuota, dan jumlah foto
+  ok  Counter 0/40 tampil di header
+  ok  Counter bertambah langsung setelah memilih
+  ok  Foto terpilih punya penanda visual (is-picked)
+  ok  Ketuk lagi membatalkan pilihan
+  ok  Tombol Kirim Pilihan aktif meski kuota belum penuh
+  ok  Modal konfirmasi menampilkan 2 nama file
+  ok  Nama file tanpa nomor urut & tanpa ekstensi
+  ok  WhatsApp dibuka setelah menyimpan
+  ok  Pilihan tersimpan di database sebelum WhatsApp
+  ok  Status portal menjadi "submitted" (terkunci)
+  ok  Dua foto tersimpan sebagai pilihan
+  ok  Timeline mencatat tahap submit
+  ok  Tahap 06 & 07 aktif bersamaan setelah submit
+  ok  Tahap 08 belum aktif (order belum selesai)
+  ok  Pesan WhatsApp memuat nama klien & kampus
+  ok  Pesan WhatsApp memuat daftar nama file bersih
+  ok  Halaman foto menampilkan status "Pilihan Foto Sudah Dikirim"
+  ok  Jumlah foto & waktu pengiriman tampil
+  ok  Galeri tidak bisa dipilih lagi (tidak ada tombol pilih)
+  ok  Timeline hanya menampilkan tahap yang tercapai
+  ok  Timeline memuat Booking Terkonfirmasi
+  ok  Timeline memuat Foto Siap Dipilih
+  ok  Timeline memuat Masuk Antrean Editing & Proses Editing
+  ok  Tahap Foto Editmu Siap BELUM tampil
+  ok  Timeline menampilkan deadline 10 hari kerja
+  ok  Label "Sedang Berlangsung" ada pada tahap terakhir
+  ok  Sebelum selesai: "belum tersedia" ditampilkan
+  ok  Tanpa tombol Google Drive aktif
+  ok  Order selesai menyimpan link final + waktu selesai
+  ok  Tahap 08 tercatat di timeline
+  ok  Halaman final menampilkan "Foto Final Kamu"
+  ok  Pesan hangat & tombol BUKA GOOGLE DRIVE muncul
+  ok  Ajakan mengisi ulasan tampil saat order selesai
+  ok  Tombol "Isi Ulasan Sekarang" menuju halaman testimoni/ulasan yang sudah ada
+  ok  Tombol mengarah ke link final yang benar
+  ok  Teks penutup terima kasih tampil
+  ok  Timeline kini menampilkan Foto Editmu Siap
+  ok  Logout kembali ke halaman masuk
+  ok  Halaman portal tanpa sesi dialihkan ke form masuk
+  ok  Percobaan berulang dibatasi (rate limit)
+  ok  Halaman masuk tidak overflow di HP
+  ok  Klien kedua bisa masuk dengan PIN-nya sendiri
+  ok  Sidebar tersembunyi di HP sebelum dibuka
+  ok  Tombol menu membuka sidebar (drawer)
+  ok  Escape menutup drawer
+  ok  Halaman ringkasan tidak overflow di HP
+  ok  Halaman timeline tidak overflow di HP
+  ok  Tidak ada error JavaScript di halaman portal
+
+81 checks passed, 0 failed

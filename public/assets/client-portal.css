@@ -1,0 +1,830 @@
+/* ==========================================================================
+   Client Portal DLY Graduation — gaya halaman portal (sidebar 4 menu)
+   Palet: Deep Navy #0B2340 · Teal #2C5E73 · Warm White #F7F6F2 · Border #E3E5E7
+   Mobile-first: sidebar menjadi drawer; konten tidak pernah tertutup.
+   ========================================================================== */
+
+.cp-body {
+  --cp-side: 264px;
+  margin: 0;
+  min-height: 100vh;
+  background: #F4F2EC;
+  color: #252A30;
+  font-family: var(--font-body, 'Instrument Sans', system-ui, sans-serif);
+}
+.cp-skip {
+  position: absolute; left: -9999px; top: 0; z-index: 999;
+  background: #0B2340; color: #fff; padding: 10px 16px; border-radius: 0 0 10px 0;
+}
+.cp-skip:focus { left: 0; }
+
+/* ---------- sidebar ---------- */
+.cp-side {
+  position: fixed; inset: 0 auto 0 0; z-index: 60;
+  width: var(--cp-side);
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 20px 14px 16px;
+  background: linear-gradient(180deg, #0A1E33 0%, #0B2340 58%, #0D2A4A 100%);
+  color: #fff;
+  transform: translateX(-100%);
+  transition: transform .28s cubic-bezier(.22,.61,.36,1);
+  overflow-y: auto;
+}
+.cp-side.is-open { transform: none; }
+.cp-side__brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.cp-side__logo { height: var(--logo-h, 40px); width: auto; max-width: 220px; object-fit: contain; }
+.cp-side__mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 12px;
+  background: linear-gradient(150deg, #F3E8D5, #E3D3BA); color: #0B2340;
+  font-weight: 700; font-size: .8rem; letter-spacing: .06em;
+}
+.cp-side__eyebrow { font-size: .56rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.cp-side__who { display: grid; gap: 1px; padding: 0 8px; }
+.cp-side__who strong { font-size: .9rem; }
+.cp-side__who small { font-size: .66rem; letter-spacing: .06em; color: rgba(255,255,255,.6); }
+
+.cp-nav { display: grid; gap: 3px; margin-top: 4px; }
+.cp-nav__item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-radius: 10px;
+  color: rgba(255,255,255,.76); text-decoration: none;
+  font-size: .82rem;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+.cp-nav__item:hover { background: rgba(255,255,255,.08); color: #fff; transform: translateX(2px); }
+.cp-nav__item.is-active {
+  background: rgba(255,255,255,.15); color: #fff; font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.cp-nav__icon { display: inline-flex; opacity: .85; flex: 0 0 auto; }
+.cp-nav__label { flex: 1; min-width: 0; }
+.cp-nav__item.is-disabled { opacity: .42; cursor: not-allowed; }
+.cp-nav__tag {
+  font-size: .5rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 99px; background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6); white-space: nowrap;
+}
+.cp-nav__badge {
+  font-size: .52rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 99px; background: #2C5E73; color: #fff;
+}
+.cp-side__foot { margin-top: auto; display: grid; gap: 8px; padding: 12px 6px 0; border-top: 1px solid rgba(255,255,255,.1); }
+.cp-side__out, .cp-side__wa {
+  display: block; width: 100%; text-align: center;
+  padding: 9px 12px; border-radius: 9px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: transparent; color: rgba(255,255,255,.8);
+  font: inherit; font-size: .76rem; cursor: pointer; text-decoration: none;
+}
+.cp-side__out:hover, .cp-side__wa:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+.cp-backdrop {
+  position: fixed; inset: 0; z-index: 55;
+  background: rgba(6, 18, 32, .42);
+  opacity: 0; transition: opacity .24s ease;
+}
+.cp-backdrop[hidden] { display: none; }
+.cp-backdrop.is-open { opacity: 1; }
+
+/* ---------- main ---------- */
+.cp-main { min-height: 100vh; display: flex; flex-direction: column; }
+.cp-top {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  background: rgba(255,255,255,.92);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #E3E5E7;
+}
+.cp-burger {
+  display: inline-flex; flex-direction: column; justify-content: center; gap: 4px;
+  width: 40px; height: 40px; padding: 0 10px;
+  border: 1px solid #E3E5E7; border-radius: 10px; background: #fff; cursor: pointer;
+}
+.cp-burger span { display: block; height: 2px; background: #0B2340; border-radius: 2px; transition: transform .25s ease, opacity .2s ease; }
+.cp-body.cp-nav-open .cp-burger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.cp-body.cp-nav-open .cp-burger span:nth-child(2) { opacity: 0; }
+.cp-body.cp-nav-open .cp-burger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.cp-top__title { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.cp-top__eyebrow { font-size: .54rem; letter-spacing: .18em; text-transform: uppercase; color: #8B95A1; }
+.cp-top__title strong { font-size: .95rem; color: #0B2340; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-top__who { display: none; text-align: right; font-size: .76rem; color: #0B2340; }
+.cp-top__who small { display: block; font-size: .62rem; color: #8B95A1; letter-spacing: .06em; }
+
+.cp-content { flex: 1; padding: 18px 16px calc(28px + env(safe-area-inset-bottom)); }
+.cp-foot { padding: 16px; border-top: 1px solid #E3E5E7; text-align: center; font-size: .7rem; color: #8B95A1; }
+.cp-foot a { color: #2C5E73; }
+.cp-foot__note { margin-top: 4px; font-size: .66rem; }
+
+@media (min-width: 1000px) {
+  .cp-side { transform: none; }
+  .cp-main { margin-left: var(--cp-side); }
+  .cp-burger { display: none; }
+  .cp-backdrop { display: none !important; }
+  .cp-top { padding: 14px 28px; }
+  .cp-top__who { display: block; }
+  .cp-content { padding: 26px 28px 40px; }
+}
+
+/* ---------- komponen halaman ---------- */
+.cp-page { display: grid; gap: 16px; max-width: 980px; margin: 0 auto; }
+.cp-page__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.cp-eyebrow { font-size: .58rem; letter-spacing: .2em; text-transform: uppercase; color: #2C5E73; }
+.cp-page__head h1 { font-family: var(--font-heading, Georgia, serif); font-size: clamp(1.5rem, 4.4vw, 2.1rem); margin: 4px 0 4px; color: #0B2340; letter-spacing: -0.015em; }
+.cp-page__head p { margin: 0; font-size: .86rem; color: #5F6B7A; }
+
+.cp-card {
+  background: #fff; border: 1px solid #E3E5E7; border-radius: 16px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 1px 2px rgba(11,35,64,.04), 0 10px 24px rgba(11,35,64,.05);
+}
+.cp-card__title { font-size: .95rem; color: #0B2340; margin: 0 0 12px; letter-spacing: -0.01em; }
+.cp-muted { color: #5F6B7A; font-size: .84rem; }
+.cp-small-note { font-size: .72rem; color: #8B95A1; text-align: center; margin: 4px 0 0; }
+
+.cp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 11px 18px; border-radius: 10px; border: 1px solid #E3E5E7;
+  background: #fff; color: #0B2340; font: inherit; font-size: .82rem; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .12s ease;
+}
+.cp-btn:hover { border-color: rgba(11,35,64,.3); transform: translateY(-1px); }
+.cp-btn--primary { background: #0B2340; border-color: #0B2340; color: #fff; }
+.cp-btn--primary:hover { background: #16405F; border-color: #16405F; }
+.cp-btn--ghost { background: #F7F6F2; }
+.cp-btn--lg { padding: 14px 26px; font-size: .88rem; }
+.cp-btn--disabled { opacity: .5; pointer-events: none; }
+
+.cp-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: .62rem; font-weight: 600; letter-spacing: .04em;
+  background: #F1F3F5; color: #4A5A6B;
+}
+.cp-chip--ok, .cp-chip--done { background: rgba(31,92,66,.12); color: #1F5C42; }
+.cp-chip--live { background: rgba(44,94,115,.14); color: #2C5E73; }
+.cp-chip--muted { background: #F1F0ED; color: #8B95A1; }
+.cp-chip--code { background: #0B2340; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+
+.cp-alert { padding: 11px 14px; border-radius: 12px; font-size: .82rem; }
+.cp-alert--warn { background: #FDF4E6; border: 1px solid #EBD3A6; color: #7E5B16; }
+
+/* identitas */
+.cp-ident { margin: 0; display: grid; gap: 0; }
+.cp-ident__row {
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  gap: 2px; padding: 9px 0; border-bottom: 1px solid #F0F1F3;
+}
+.cp-ident__row:last-child { border-bottom: 0; }
+.cp-ident dt { font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: #8B95A1; }
+.cp-ident dd { margin: 0; font-size: .88rem; color: #252A30; word-break: break-word; }
+.cp-ident dd small { display: block; font-size: .7rem; color: #8B95A1; }
+@media (min-width: 640px) {
+  .cp-ident__row { grid-template-columns: 180px minmax(0, 1fr); align-items: baseline; gap: 12px; }
+}
+
+/* status terbaru */
+.cp-status__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cp-status__now { display: flex; gap: 14px; align-items: flex-start; padding: 4px 0 12px; }
+.cp-status__no {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 12px;
+  background: rgba(44,94,115,.12); color: #2C5E73; font-weight: 700; font-size: .84rem;
+}
+.cp-status__now strong { font-size: 1.05rem; color: #0B2340; }
+.cp-status__now p { margin: 2px 0 4px; font-size: .84rem; color: #5F6B7A; }
+
+.cp-deadline {
+  display: grid; gap: 2px; padding: 11px 14px; margin: 4px 0 14px;
+  border-radius: 12px; background: #F7F6F2; border: 1px solid #E3E5E7;
+}
+.cp-deadline__label { font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: #8B95A1; }
+.cp-deadline strong { color: #0B2340; font-size: .95rem; }
+.cp-deadline small { font-size: .7rem; color: #8B95A1; }
+
+.cp-grid2 { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) { .cp-grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cp-card--link { display: grid; gap: 10px; align-content: start; justify-items: start; }
+
+/* ---------- halaman foto ---------- */
+.cp-photo__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cp-photo__id h1 { font-family: var(--font-heading, Georgia, serif); font-size: clamp(1.4rem, 4.6vw, 2rem); margin: 4px 0 6px; color: #0B2340; }
+.cp-photo__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0; font-size: .78rem; color: #5F6B7A; }
+.cp-photo__count { display: grid; justify-items: end; }
+.cp-photo__count strong { font-size: 1.7rem; color: #0B2340; font-variant-numeric: tabular-nums; line-height: 1; }
+.cp-photo__count strong i { font-style: normal; font-size: 1rem; color: #8B95A1; font-weight: 400; }
+.cp-photo__count span { font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: #8B95A1; }
+.cp-photo__instr {
+  background: #fff; border: 1px solid #E3E5E7; border-radius: 14px; padding: 13px 15px;
+  display: grid; gap: 8px;
+}
+.cp-photo__instr p { margin: 0; font-size: .84rem; color: #3C434B; }
+.cp-photo__facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .72rem; color: #5F6B7A; }
+.cp-photo__facts b { color: #0B2340; font-variant-numeric: tabular-nums; }
+.cp-photo__deadline b { color: #7E5B16; }
+
+/* kolom galeri di dalam portal diberi bingkai putih, bukan edge-to-edge */
+.cp-page--photo .sel-section { background: transparent; }
+.cp-page--photo .sel-toolbar { background: #fff; border: 1px solid #E3E5E7; border-radius: 14px; padding: 10px 12px; }
+.cp-page--photo .sel-bar {
+  position: sticky; bottom: 0; z-index: 20;
+  margin: 14px -16px calc(-28px - env(safe-area-inset-bottom));
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-radius: 16px 16px 0 0;
+}
+@media (min-width: 1000px) {
+  .cp-page--photo .sel-bar { margin-left: 0; margin-right: 0; border-radius: 14px; box-shadow: 0 8px 24px rgba(11,35,64,.12); }
+}
+
+/* kirim sukses */
+.cp-sentbox { text-align: center; display: grid; gap: 8px; justify-items: center; padding: 26px 20px; }
+.cp-sentbox__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(31,92,66,.12); color: #1F5C42; font-size: 1.5rem;
+}
+.cp-sentbox h2 { margin: 0; font-family: var(--font-heading, Georgia, serif); font-size: 1.3rem; color: #0B2340; }
+.cp-sentbox p { margin: 0; max-width: 46ch; font-size: .86rem; color: #3C434B; }
+.cp-sentbox__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 6px; }
+
+/* ---------- timeline ---------- */
+.cp-tl__head { display: grid; gap: 6px; margin-bottom: 16px; }
+.cp-tl__progress { display: block; height: 6px; border-radius: 99px; background: #EDEBE6; overflow: hidden; }
+.cp-tl__progress i { display: block; height: 100%; background: linear-gradient(90deg, #2C5E73, #0B2340); }
+.cp-tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.cp-tl__item { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding-bottom: 18px; }
+.cp-tl__item::before {
+  content: ''; position: absolute; left: 16px; top: 30px; bottom: 0;
+  width: 2px; background: #E3E5E7;
+}
+.cp-tl__item:last-child { padding-bottom: 0; }
+.cp-tl__item:last-child::before { display: none; }
+.cp-tl__dot {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid #E3E5E7; background: #fff;
+  color: #fff; font-size: .8rem;
+}
+.cp-tl__item.is-done .cp-tl__dot { background: #1F5C42; border-color: #1F5C42; }
+.cp-tl__item.is-current .cp-tl__dot {
+  border-color: #2C5E73; background: #fff;
+  box-shadow: 0 0 0 4px rgba(44,94,115,.16);
+}
+.cp-tl__item.is-current .cp-tl__dot::after {
+  content: ''; width: 10px; height: 10px; border-radius: 50%; background: #2C5E73;
+}
+.cp-tl__title { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cp-tl__no {
+  font-size: .58rem; font-weight: 700; letter-spacing: .08em;
+  color: #8B95A1; font-variant-numeric: tabular-nums;
+}
+.cp-tl__title strong { font-size: .9rem; color: #0B2340; }
+.cp-tl__blurb { margin: 2px 0 3px; font-size: .8rem; color: #5F6B7A; }
+
+/* ---------- drive final ---------- */
+.cp-final { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 30px 20px; }
+.cp-final__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 58px; height: 58px; border-radius: 16px;
+  background: rgba(44,94,115,.1); color: #2C5E73;
+}
+.cp-final h2 { margin: 0; font-family: var(--font-heading, Georgia, serif); font-size: 1.35rem; color: #0B2340; }
+.cp-final p { margin: 0; max-width: 48ch; font-size: .86rem; color: #3C434B; }
+.cp-final__thanks { margin-top: 6px !important; font-size: .76rem !important; color: #8B95A1 !important; }
+.cp-final--waiting .cp-final__icon { background: #F1F0ED; color: #8B95A1; }
+
+/* Revisi 2 (06): kartu ajakan ulasan di halaman "Orderanmu Siap". */
+.cp-review {
+  margin-top: 18px;
+  display: grid; gap: 16px; justify-items: center;
+  text-align: center; padding: 24px 20px;
+  border: 1px solid rgba(11, 35, 64, .1);
+  background: linear-gradient(180deg, #FFFFFF, #F7F6F2);
+}
+.cp-review__head { display: grid; gap: 10px; justify-items: center; }
+.cp-review__icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 14px;
+  background: rgba(243, 232, 213, .85); color: #8A6A2F;
+}
+.cp-review h2 {
+  margin: 0; font-family: var(--font-heading, Georgia, serif);
+  font-size: 1.12rem; line-height: 1.35; color: #0B2340; max-width: 30ch;
+}
+.cp-review p { margin: 6px 0 0; font-size: .82rem; max-width: 46ch; }
+.cp-review .cp-btn { width: 100%; max-width: 320px; }
+
+/* ---------- login (revsi: modal putih besar, latar gelap blur) ---------- */
+.cp-login {
+  position: relative; min-height: 100svh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+}
+.cp-login__bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(60% 50% at 18% 8%, rgba(44, 94, 115, .55), transparent 62%),
+    radial-gradient(55% 45% at 92% 92%, rgba(11, 35, 64, .75), transparent 66%),
+    #07182B;
+}
+.cp-login__bg::after {
+  content: ''; position: absolute; inset: 0;
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.cp-login__card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 460px;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, .6);
+  border-radius: 26px;
+  padding: 34px 30px 28px;
+  box-shadow: 0 30px 80px rgba(4, 14, 26, .45), 0 2px 10px rgba(4, 14, 26, .2);
+  display: grid; gap: 18px;
+  animation: cpCardIn .45s cubic-bezier(.22,.61,.36,1) both;
+}
+@keyframes cpCardIn { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+
+.cp-login__head { text-align: center; display: grid; gap: 10px; justify-items: center; }
+.cp-login__mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 54px; height: 54px; border-radius: 16px;
+  background: #0B2340; color: #F3E8D5;
+  font-weight: 700; letter-spacing: .08em; font-size: .84rem;
+}
+.cp-login__eyebrow {
+  font-size: .58rem; letter-spacing: .26em; text-transform: uppercase;
+  color: #2C5E73; font-weight: 600;
+}
+.cp-login__head h1 {
+  margin: 0;
+  font-family: var(--font-heading, 'Montserrat', Georgia, serif);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 5.4vw, 2rem);
+  line-height: 1.15; letter-spacing: -0.02em;
+  color: #0B2340;
+}
+.cp-login__head p {
+  margin: 0; font-size: .86rem; line-height: 1.55; color: #5F6B7A;
+  max-width: 32ch;
+}
+.cp-login__err {
+  padding: 11px 14px; border-radius: 12px; font-size: .82rem; line-height: 1.5;
+  background: #FBEDEA; border: 1px solid #EBC7BE; color: #B4442A;
+}
+.cp-login__form { display: grid; gap: 14px; }
+.cp-login__field { display: grid; gap: 7px; }
+.cp-login__field > span {
+  font-size: .6rem; letter-spacing: .16em; text-transform: uppercase;
+  font-weight: 700; color: #0B2340;
+}
+.cp-login__field input {
+  width: 100%; padding: 14px 16px;
+  border: 1px solid #E3E5E7; border-radius: 14px;
+  font: inherit; font-size: .95rem; color: #252A30; background: #FBFBFA;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.cp-login__field input::placeholder { color: #A9B0B8; letter-spacing: .02em; }
+.cp-login__field input:focus {
+  outline: none; background: #fff;
+  border-color: rgba(44, 94, 115, .6); box-shadow: 0 0 0 4px rgba(44, 94, 115, .12);
+}
+.cp-login__pin { letter-spacing: .55em; text-align: center; font-size: 1.15rem !important; }
+.cp-login__btn {
+  margin-top: 4px;
+  padding: 15px 20px; border: 0; border-radius: 999px;
+  background: #0B2340; color: #fff;
+  font: inherit; font-size: .86rem; font-weight: 700; letter-spacing: .1em;
+  cursor: pointer; width: 100%;
+  transition: background .18s ease, transform .12s ease, box-shadow .18s ease;
+  box-shadow: 0 10px 24px rgba(11, 35, 64, .28);
+}
+.cp-login__btn:hover { background: #16405F; box-shadow: 0 14px 30px rgba(11, 35, 64, .34); }
+.cp-login__btn:active { transform: translateY(1px); }
+.cp-login__help { margin: 0; font-size: .76rem; line-height: 1.5; color: #5F6B7A; text-align: center; }
+.cp-login__help a { color: #2C5E73; font-weight: 600; }
+.cp-login__note { margin: 0; font-size: .68rem; color: #9AA3AC; text-align: center; }
+
+@media (max-width: 480px) {
+  .cp-login { padding: 18px 14px calc(18px + env(safe-area-inset-bottom)); align-items: flex-start; }
+  .cp-login__card { margin-top: 6vh; padding: 26px 20px 22px; border-radius: 22px; gap: 16px; }
+  .cp-login__head p { font-size: .82rem; }
+  .cp-login__field input { padding: 13px 14px; font-size: .9rem; }
+  .cp-login__btn { padding: 14px 18px; }
+}
+@media (max-height: 640px) {
+  .cp-login__card { margin-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp-login__card { animation: none; }
+}
+
+
+/* ==========================================================================
+   Revisi — responsive Client Portal (mobile-first)
+   Teks tidak kebesaran, logo proporsional, footer tidak dominan.
+   ========================================================================== */
+@media (max-width: 640px) {
+  .cp-content { padding: 14px 14px calc(24px + env(safe-area-inset-bottom)); }
+  .cp-page { gap: 13px; }
+  .cp-page__head h1 { font-size: 1.28rem; line-height: 1.25; }
+  .cp-page__head p { font-size: .8rem; }
+  .cp-card { padding: 15px 14px 14px; border-radius: 14px; }
+  .cp-card__title { font-size: .9rem; margin-bottom: 10px; }
+  .cp-muted { font-size: .8rem; }
+  .cp-ident dd { font-size: .84rem; }
+  .cp-ident__row { padding: 8px 0; }
+  .cp-status__now strong { font-size: .97rem; }
+  .cp-status__now p { font-size: .8rem; }
+  .cp-photo__id h1 { font-size: 1.2rem; }
+  .cp-photo__count strong { font-size: 1.45rem; }
+  .cp-photo__instr p { font-size: .8rem; }
+  .cp-photo__facts { font-size: .68rem; gap: 5px 12px; }
+  .cp-tl__title strong { font-size: .85rem; }
+  .cp-tl__blurb { font-size: .76rem; }
+  .cp-btn { padding: 10px 15px; font-size: .78rem; }
+  .cp-final h2 { font-size: 1.15rem; }
+  .cp-final p { font-size: .82rem; }
+  .cp-side { width: min(84vw, 300px); padding: 16px 12px 14px; }
+  .cp-side__logo { height: var(--logo-h, 40px); }
+  .cp-side__mark { width: 34px; height: 34px; font-size: .74rem; border-radius: 10px; }
+  .cp-side__who strong { font-size: .84rem; }
+  .cp-nav__item { padding: 10px 11px; font-size: .8rem; }
+  .cp-top { padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); }
+  .cp-top__title strong { font-size: .88rem; }
+  .cp-foot { padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); font-size: .64rem; }
+  .cp-foot p + p { margin-top: 3px; }
+  .cp-foot__note { font-size: .6rem; opacity: .8; }
+}
+@media (max-width: 380px) {
+  .cp-page__head h1 { font-size: 1.16rem; }
+  .cp-photo__count strong { font-size: 1.3rem; }
+  .cp-nav__tag { display: none; }
+}
+@media (min-width: 641px) and (max-width: 999px) {
+  .cp-content { padding: 20px 22px 32px; }
+  .cp-page__head h1 { font-size: 1.6rem; }
+}
+
+/* ==========================================================================
+   Revisi lanjutan — logo resmi di login, badge status aktif (dot hijau pulse
+   + soft glow), pengingat sesi, dan ikon centang timeline.
+   Palet tetap DLY: navy #0B2340, teal #2C5E73, hijau status #22A06B.
+   ========================================================================== */
+
+/* Logo resmi DLY (asset yang sama dengan header website) menggantikan kotak "DLY".
+   Asset punya ruang transparan, jadi tinggi container dibuat cukup besar agar
+   logo tetap terbaca tanpa meregangkan/memotong bentuknya. */
+.cp-login__logo {
+  display: block;
+  height: var(--logo-h, 40px);
+  width: auto;
+  max-width: 88%;
+  margin: 0 auto;
+  object-fit: contain;
+}
+@media (max-width: 380px) {
+  .cp-login__logo { height: var(--logo-h, 40px); }
+}
+
+/* Baris header kartu status: judul di kiri, badge ringkas di kanan (satu baris). */
+.cp-status__top {
+  flex-wrap: wrap;
+  row-gap: 6px;
+  align-items: center;
+}
+.cp-card--status .cp-card__title { margin-bottom: 0; }
+
+/* Badge "Sedang Berlangsung": compact, Montserrat, dot hijau berdenyut + halo tipis. */
+.cp-chip--live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 4px 10px 4px 8px;
+  border: 1px solid rgba(44, 94, 115, .18);
+  background: rgba(44, 94, 115, .10);
+  color: #2C5E73;
+  font-family: 'Montserrat', var(--font-body), system-ui, sans-serif;
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 0 0 1px rgba(44, 94, 115, .05), 0 6px 16px rgba(44, 94, 115, .16);
+}
+.cp-chip__dot {
+  width: 6px; height: 6px; flex: 0 0 auto;
+  border-radius: 50%;
+  background: #22A06B;
+  animation: cpLivePulse 2.4s ease-in-out infinite;
+}
+@keyframes cpLivePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 160, 107, .55); }
+  70% { box-shadow: 0 0 0 6px rgba(34, 160, 107, 0); }
+}
+
+/* Tahap yang belum terjadi tapi sudah dijadwalkan (sesi foto): tampil sebagai ring
+   kosong, bukan centang, supaya jelas belum berjalan. */
+.cp-tl__item.is-upcoming .cp-tl__dot {
+  background: #fff;
+  border: 2px dashed rgba(44, 94, 115, .45);
+  box-shadow: none;
+}
+.cp-tl__item.is-upcoming .cp-tl__title strong { color: #3C434B; }
+.cp-chip--upcoming { background: #EEF3F6; color: #2C5E73; }
+
+/* Revisi 2 (08): posisi antrean aktual di tahap 06. */
+.cp-tl__queue {
+  margin: 8px 0 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #EEF3F6;
+  color: #2C5E73;
+  font-size: .78rem;
+}
+.cp-tl__queue strong { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Pengingat: hanya muncul saat tahap 03 "Sesi Foto Selesai" masih berjalan. */
+.cp-status__reminder,
+.cp-tl__reminder {
+  margin: 9px 0 2px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border-left: 3px solid #2C5E73;
+  background: rgba(44, 94, 115, .07);
+  color: #274A5C;
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+/* Tahap selesai: centang statis hijau. Tahap aktif: dot hijau + halo teal lembut. */
+.cp-tl__item.is-done .cp-tl__dot { background: #1F5C42; border-color: #1F5C42; }
+.cp-tl__item.is-done .cp-tl__dot svg { display: block; }
+.cp-tl__item.is-current .cp-tl__dot {
+  box-shadow: 0 0 0 4px rgba(44, 94, 115, .14), 0 0 20px rgba(44, 94, 115, .26);
+}
+.cp-tl__item.is-current .cp-tl__dot::after {
+  background: #22A06B;
+  animation: cpDotPulse 2.4s ease-in-out infinite;
+}
+@keyframes cpDotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 160, 107, .5); }
+  70% { box-shadow: 0 0 0 7px rgba(34, 160, 107, 0); }
+}
+
+@media (max-width: 640px) {
+  .cp-status__top .cp-card__title { font-size: .88rem; }
+  .cp-chip--live { font-size: .56rem; padding: 3px 8px 3px 7px; }
+  .cp-status__reminder, .cp-tl__reminder { font-size: .74rem; padding: 8px 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-chip__dot,
+  .cp-tl__item.is-current .cp-tl__dot::after { animation: none; }
+}
+
+/* Header kartu status: judul + badge benar-benar sejajar pada lebar HP umum
+   (≥360px). Di bawah itu boleh wrap rapi, sesuai revisi 18.3. */
+@media (max-width: 640px) {
+  .cp-card--status .cp-card__title { font-size: .84rem; }
+  .cp-status__top { gap: 8px; }
+  .cp-chip--live {
+    font-size: .52rem;
+    padding: 3px 7px 3px 6px;
+    gap: 5px;
+    letter-spacing: .03em;
+  }
+  .cp-chip__dot { width: 5px; height: 5px; }
+}
+
+/* v14.6 — kartu "Lihat Foto Mentah Lengkap Kamu di Sini" di Portal Pilih Foto */
+.cp-rawdrive {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 14px 18px;
+}
+.cp-rawdrive__text { min-width: 0; }
+.cp-rawdrive__text p { margin: 4px 0 0; }
+.cp-rawdrive .cp-btn { white-space: nowrap; }
+@media (max-width: 560px) {
+  .cp-rawdrive .cp-btn { width: 100%; text-align: center; white-space: normal; }
+}
+
+/* ==========================================================================
+   Upgrade Paket & Extra Time (revisi pemilik)
+   Kartu mengikuti bahasa visual pricelist: foto di atas, judul, chip durasi,
+   harga tebal, tombol pill navy.
+   ========================================================================== */
+.cp-alert {
+  margin: 0 0 16px; padding: 12px 16px; border-radius: 14px;
+  font-size: .84rem; line-height: 1.55;
+}
+.cp-alert--ok { background: rgba(31, 92, 66, .1); color: #1F5C42; border: 1px solid rgba(31, 92, 66, .18); }
+.cp-alert--err { background: rgba(178, 60, 60, .09); color: #9B2C2C; border: 1px solid rgba(178, 60, 60, .2); }
+
+.cp-up__now { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+.cp-up__now strong { display: block; margin: 4px 0 2px; font-size: 1.06rem; color: #0B2340; }
+
+.cp-up__h2 {
+  margin: 28px 0 12px;
+  font-family: var(--font-heading, Georgia, serif);
+  font-size: 1.12rem; color: #0B2340;
+}
+.cp-up__hint { margin: -4px 0 14px; font-size: .82rem; }
+
+.cp-up__grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 760px) { .cp-up__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1120px) { .cp-up__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cp-up__grid--extra { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.cp-up__card {
+  display: flex; flex-direction: column; min-width: 0;
+  background: #fff; border: 1px solid rgba(11, 35, 64, .1);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 10px 26px rgba(11, 35, 64, .07);
+}
+.cp-up__media {
+  position: relative; aspect-ratio: 4 / 3; background: #0B2340;
+  display: flex; align-items: center; justify-content: center;
+}
+.cp-up__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cp-up__ph {
+  font-family: var(--font-heading, Georgia, serif);
+  letter-spacing: .22em; font-size: 1rem; color: rgba(255, 255, 255, .55);
+}
+.cp-up__body { display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 18px; min-width: 0; }
+.cp-up__cat {
+  font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: #8B95A1;
+}
+.cp-up__title { margin: 0; font-family: var(--font-heading, Georgia, serif); font-size: 1.1rem; color: #0B2340; }
+.cp-up__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cp-up__chip {
+  font-size: .66rem; padding: 5px 9px; border-radius: 8px;
+  background: #F4F3EF; color: #3C434B; border: 1px solid rgba(11, 35, 64, .07);
+}
+.cp-up__foot { margin-top: auto; display: grid; gap: 10px; }
+.cp-up__price small { display: block; font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; color: #8B95A1; }
+.cp-up__price strong { display: block; font-size: 1.06rem; font-weight: 700; color: #0B2340; }
+.cp-up__price em { display: block; font-style: normal; font-size: .72rem; color: #2C5E73; }
+.cp-up__foot .cp-btn { width: 100%; justify-content: center; }
+.cp-up__pending {
+  display: block; text-align: center; font-size: .74rem; font-weight: 600;
+  padding: 9px 12px; border-radius: 99px; background: #EEF3F6; color: #2C5E73;
+}
+.cp-up__lock {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  font-size: .74rem; font-weight: 600; color: #8B95A1;
+  padding: 9px 12px; border-radius: 99px; background: #F4F3EF;
+}
+.cp-up__card.is-locked { opacity: .78; }
+.cp-up__card.is-locked .cp-up__title { color: #635F82; }
+
+.cp-up__reqs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cp-up__reqs li {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 10px 12px; border-radius: 12px; background: #F7F6F2;
+  font-size: .8rem;
+}
+.cp-up__reqname { flex: 1 1 55%; color: #0B2340; font-weight: 600; }
+.cp-up__reqprice { color: #3C434B; font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   v24 — halaman Reschedule (tanggal, jam, lokasi) + upgrade durasi
+   ========================================================================== */
+.cp-rs__now { display: grid; gap: 4px; }
+.cp-rs__now strong { font-size: 1.02rem; color: #0B2340; }
+.cp-rs__pending { border-left: 3px solid #C79A3E; }
+
+.cp-rs__form { display: grid; gap: 14px; }
+.cp-field { display: grid; gap: 6px; }
+.cp-field > span {
+  font-size: .6rem; letter-spacing: .14em; text-transform: uppercase;
+  color: #8B95A1; font-weight: 600;
+}
+.cp-field input {
+  width: 100%; padding: 11px 13px;
+  border: 1px solid #E3E5E7; border-radius: 11px;
+  background: #fff; color: #252A30; font: inherit; font-size: .86rem;
+}
+.cp-field input:focus { outline: 2px solid rgba(44, 94, 115, .28); outline-offset: 1px; }
+.cp-rs__form .cp-btn { justify-self: start; }
+
+.cp-rs__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cp-rs__list > li {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 6px 12px;
+  padding: 10px 12px;
+  border: 1px solid #EDEFF1; border-radius: 11px; background: #FBFAF8;
+}
+.cp-rs__list strong { display: block; font-size: .84rem; color: #0B2340; }
+.cp-rs__list small { display: block; font-size: .74rem; }
+
+/* Kartu upgrade durasi: penanda tipis supaya beda dari kartu paket. */
+.cp-up__card--duration { border-color: rgba(44, 94, 115, .35); }
+.cp-up__card--duration .cp-up__cat { color: #2C5E73; }
+
+@media (max-width: 520px) {
+  .cp-rs__form .cp-btn { width: 100%; justify-self: stretch; }
+}
+
+/* ==========================================================================
+   v25 — Upgrade Paket: kartu paket & durasi GAYA PRICELIST (.pkg-feature)
+   ========================================================================== */
+.cp-pkglist { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
+.cp-pkglist .pkg-feature {
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border-color: #E3E5E7;
+  box-shadow: 0 10px 24px rgba(11, 35, 64, .06);
+}
+.cp-pkgcard.is-current { border-color: #0B2340; box-shadow: 0 12px 28px rgba(11, 35, 64, .13); }
+.cp-pkgcard.is-locked { opacity: .74; }
+.cp-pkgcard.is-locked .pkg-feature__media { filter: grayscale(.35); }
+.cp-pkgcard .pkg-feature__body { display: grid; gap: 10px; align-content: start; }
+.cp-pkgcard .pkg-feature__title { font-size: 1.16rem; }
+.cp-pkgcard .pkg-feature__durations,
+.cp-pkgcard__durs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+  margin-top: 2px;
+}
+.cp-pkgcard .benefit-list { margin: 2px 0 0; }
+.cp-pkgcard .pkg-feature__footer {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 12px; margin-top: 6px; padding-top: 14px; border-top: 1px solid #EDEFF1;
+}
+.cp-pkgcard__flag {
+  position: absolute; top: 12px; left: 12px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 99px;
+  font-size: .62rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+.cp-pkgcard__flag--current { background: #0B2340; color: #fff; }
+.cp-pkgcard__flag--locked { background: rgba(11, 35, 64, .72); color: #fff; }
+
+/* Chip durasi: pakai gaya .dur-card pricelist, tapi berisi form/status (bukan button). */
+.cp-dur {
+  display: grid; gap: 3px; align-content: start;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #E3E5E7; border-radius: 12px;
+  background: #fff; cursor: default;
+}
+.cp-dur.is-active { background: #0B2340; border-color: #0B2340; }
+.cp-dur.is-active .dur-card__time { color: rgba(255,255,255,.74); }
+.cp-dur.is-active .dur-card__price { color: #fff; }
+.cp-dur.is-active .dur-card__photos { color: rgba(255,255,255,.68); }
+.cp-dur.is-locked { opacity: .62; background: #F7F7F5; }
+.cp-dur__state { font-size: .6rem; letter-spacing: .04em; text-transform: uppercase; color: #8B95A1; }
+.cp-dur__state--locked { color: #B4442A; }
+.cp-dur__state--pending { color: #8A6A22; }
+.cp-dur form { margin: 4px 0 0; }
+.cp-btn--xs { padding: 6px 12px; font-size: .7rem; border-radius: 8px; }
+.cp-up__addondesc { margin: 0; font-size: .78rem; }
+.cp-up__nowname { display: block; margin: 4px 0 2px; font-size: 1.04rem; color: #0B2340; }
+.cp-up__nowline {
+  margin: 0; font-size: .84rem; color: #3C434B;
+  display: flex; flex-wrap: wrap; gap: 4px 10px;
+}
+.cp-up__nowline span, .cp-up__nowline { line-height: 1.5; }
+.cp-up__lockedbar { border-left: 3px solid #B4442A; }
+.cp-up__grid--addon { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+@media (min-width: 900px) {
+  .cp-pkgcard .pkg-feature__body { padding: 26px 28px; }
+  .cp-pkgcard .pkg-feature__media img,
+  .cp-pkgcard .pkg-feature__placeholder { min-height: 300px; }
+}
+@media (max-width: 520px) {
+  .cp-pkgcard .pkg-feature__footer .cp-btn,
+  .cp-pkgcard .pkg-feature__footer form { width: 100%; }
+  .cp-pkgcard .pkg-feature__footer form .cp-btn { width: 100%; }
+}
+
+/* ==========================================================================
+   v25 — Ringkasan: tiga kotak tagihan + catatan rekening
+   ========================================================================== */
+.cp-pay { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) { .cp-pay { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+.cp-pay__box {
+  display: grid; gap: 4px; align-content: start;
+  padding: 16px 18px;
+  background: #fff; border: 1px solid #E3E5E7; border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(11,35,64,.04), 0 10px 24px rgba(11,35,64,.05);
+}
+.cp-pay__box--ok { border-color: rgba(31, 92, 66, .3); }
+.cp-pay__box--warn { border-color: rgba(199, 154, 62, .42); background: #FEFBF4; }
+.cp-pay__label {
+  font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
+  color: #8B95A1; font-weight: 700;
+}
+.cp-pay__value { font-size: 1.22rem; color: #0B2340; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.cp-pay__note { font-size: .72rem; color: #635F82; }
+.cp-pay__alert { border-left: 3px solid #C79A3E; }
+.cp-pay__rek { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.cp-pay__banknote { font-style: italic; }

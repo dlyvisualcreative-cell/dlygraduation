@@ -1,0 +1,145 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span><%= site['cities.title'] %></span>
+    </nav>
+    <span class="eyebrow">Choose Location</span>
+    <h1><%= site['cities.title'] %></h1>
+    <p class="page-head__lede"><%= site['cities.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="archive-grid">
+      <% cities.forEach(function (city) { %>
+        <article class="archive-card <%= city.is_active ? '' : 'is-inactive' %> <%= selected && selected.id === city.id ? 'is-selected' : '' %>">
+          <a class="archive-card__media" href="<%= base %>/city?kota=<%= city.slug %>#harga-<%= city.slug %>"
+             aria-label="Lihat paket <%= city.name %>">
+            <% if (city.cover_image) { %>
+              <%- picture(city.cover_image, {
+                    alt: 'Fotografi wisuda ' + city.name,
+                    widths: [480, 800, 1200], sizes: '(max-width: 720px) 92vw, 45vw'
+                  }) %>
+            <% } else { %>
+              <span class="archive-card__placeholder"><%= city.name %></span>
+            <% } %>
+            <span class="archive-card__badge">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>
+              </svg>
+              <%= city.is_active ? 'Tersedia' : 'Segera hadir' %>
+            </span>
+          </a>
+          <div class="archive-card__body">
+            <h2><%= city.name %></h2>
+            <p><%= (city.description || ('Layanan fotografi wisuda di ' + city.name + '.')).slice(0, 160) %><%= (city.description || '').length > 160 ? '…' : '' %></p>
+            <ul class="archive-card__meta">
+              <li><%= city.package_count %> sesi aktif</li>
+              <li><%= city.photo_count %> foto gallery</li>
+              <li>
+                <% if (city.starting_price) { %>
+                  Mulai <%= rupieh(city.starting_price) %>
+                <% } else { %>
+                  Harga belum dikonfigurasi
+                <% } %>
+              </li>
+            </ul>
+            <% if (city.is_active) { %>
+              <div class="archive-card__actions">
+                <a class="btn btn--primary btn--sm" href="<%= base %>/city?kota=<%= city.slug %>#harga-<%= city.slug %>">Pilih <%= city.name %></a>
+                <a class="link-arrow" href="<%= base %>/city/<%= city.slug %>">Halaman kota <span aria-hidden="true">&rarr;</span></a>
+              </div>
+            <% } else { %>
+              <span class="archive-card__soon">Kota ini belum dibuka. Hubungi kami untuk informasi jadwal.</span>
+            <% } %>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<% if (selected) { %>
+  <section class="section section--alt" id="harga-<%= selected.slug %>">
+    <div class="container">
+      <nav class="breadcrumb breadcrumb--dark" aria-label="Breadcrumb">
+        <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+        <a href="<%= base %>/city"><%= site['cities.title'] %></a><span aria-hidden="true">/</span>
+        <span><%= selected.name %></span>
+      </nav>
+
+      <div class="section-head section-head--split">
+        <div>
+          <span class="eyebrow">Sesi &amp; Harga — <%= selected.name %></span>
+          <h2>Pilih kategori &amp; durasi di <%= selected.name %></h2>
+          <p class="section-sub">Harga di bawah berasal langsung dari data resmi DLY Graduation untuk kota <%= selected.name %>.</p>
+        </div>
+        <a class="link-arrow" href="<%= base %>/city/<%= selected.slug %>">Halaman kota <%= selected.name %> <span aria-hidden="true">&rarr;</span></a>
+      </div>
+
+      <% if (!selected.payload || !selected.payload.categories.length) { %>
+        <div class="empty-state">
+          <h2>Paket di <%= selected.name %> belum tersedia</h2>
+          <p>Admin belum menambahkan paket aktif untuk kota ini. Hubungi kami via WhatsApp untuk informasi terbaru.</p>
+          <a class="btn btn--primary" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai paket foto wisuda di ' + selected.name + '.') %>" target="_blank" rel="noopener">Tanya via WhatsApp</a>
+        </div>
+      <% } else { %>
+        <%- include('partials/package-browser', { catalogCity: selected.payload, alternating: true }) %>
+      <% } %>
+    </div>
+  </section>
+
+  <% if (gallery.length) { %>
+    <section class="section section--tight">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <span class="eyebrow">Gallery <%= selected.name %></span>
+            <h2>Sesi terbaru di <%= selected.name %></h2>
+          </div>
+          <a class="link-arrow" href="<%= base %>/gallery?kota=<%= selected.slug %>">Semua foto <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <div class="masonry-grid" data-gallery>
+          <% gallery.forEach(function (item) { %>
+            <figure class="masonry-item">
+              <button class="masonry-item__btn" type="button"
+                      data-lightbox
+                      data-src="<%= lightboxUrl(item.image_src) %>"
+                      data-title="<%= item.title %>"
+                      data-meta="<%= [(PORTFOLIO_CATEGORIES.find(function(c){return c.value===item.category;})||{}).label || item.category, item.city_name].filter(Boolean).join(' · ') %>"
+                      data-desc="<%= item.description || '' %>">
+                <%- picture(item.image_src, {
+                      alt: item.alt_text || item.title,
+                      widths: [320, 480, 800],
+                      sizes: '(max-width: 560px) 45vw, 22vw'
+                    }) %>
+                <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+              </button>
+            </figure>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+<% } else { %>
+  <section class="section section--tight">
+    <div class="container">
+      <div class="archive-hint">
+        <h2>Pilih kota untuk melihat sesi &amp; harga</h2>
+        <p>Klik salah satu kota di atas. Paket, durasi, dan harga kota tersebut akan tampil di halaman ini tanpa perlu kembali ke homepage.</p>
+        <div class="city-pills">
+          <% cities.filter(function (c) { return c.is_active; }).forEach(function (c) { %>
+            <a class="city-pill" href="<%= base %>/city?kota=<%= c.slug %>#harga-<%= c.slug %>">
+              <span class="city-pill__pin" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+              </span>
+              <span class="city-pill__name"><%= c.name %></span>
+            </a>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  </section>
+<% } %>

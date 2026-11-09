@@ -1,0 +1,87 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Link testimoni untuk klien</h2>
+      <p class="admin-muted">
+        Halaman ini <strong>tidak muncul di navigasi website</strong>. Kirimkan link di bawah hanya kepada klien
+        yang ingin Anda minta testimoni. Link memakai token rahasia sehingga tidak bisa ditebak.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/testimonials">Lihat daftar testimoni &rarr;</a>
+  </div>
+
+  <div class="copy-row" style="margin-bottom:16px">
+    <input type="text" readonly id="testimonial-link" value="<%= origin %><%= path %>" aria-label="Link testimoni">
+    <button type="button" class="admin-btn admin-btn--sm" data-copy="testimonial-link">Salin</button>
+    <a class="admin-btn admin-btn--sm" href="<%= base %><%= path %>" target="_blank" rel="noopener">Buka</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/testimonial-link" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="action" value="save">
+
+    <div class="admin-field-grid">
+      <div class="admin-field admin-field--full">
+        <label for="intro">Teks pengantar di halaman testimoni</label>
+        <textarea id="intro" name="intro" rows="3" maxlength="600"><%= intro %></textarea>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="notice">Pesan setelah testimoni terkirim (opsional)</label>
+        <input type="text" id="notice" name="notice" maxlength="300" value="<%= notice %>"
+               placeholder="Terima kasih atas testimoni Anda!">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="auto_approve" value="1" <%= autoApprove ? 'checked' : '' %>>
+          <span>Tampilkan testimoni klien langsung tanpa persetujuan admin</span>
+        </label>
+        <span class="admin-hint">
+          Jika tidak dicentang, testimoni masuk sebagai <strong>menunggu persetujuan</strong> dan baru tampil
+          setelah Anda aktifkan di halaman Testimoni.
+        </span>
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Keamanan link</h2>
+      <p class="admin-muted">Ganti token jika link pernah tersebar ke orang yang tidak seharusnya.</p>
+    </div>
+  </div>
+  <form method="post" action="<%= base %>/admin/testimonial-link" data-confirm="Buat link baru? Link lama tidak akan bisa dipakai lagi.">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="action" value="regenerate">
+    <button class="admin-btn admin-btn--danger" type="submit">Buat link baru</button>
+  </form>
+  <p class="admin-hint" style="margin-top:12px">
+    Data yang dikirim klien: Nama lengkap &amp; gelar, nama kampus, isi testimoni, 1 foto, dan rating bintang.
+    Foto disimpan di penyimpanan media aplikasi.
+  </p>
+</section>
+
+<script>
+(function () {
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var input = document.getElementById(btn.dataset.copy);
+      if (!input) return;
+      input.select();
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = 'Tersalin';
+        setTimeout(function () { btn.textContent = old; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(done, function () { document.execCommand('copy'); done(); });
+      } else { document.execCommand('copy'); done(); }
+    });
+  });
+})();
+</script>

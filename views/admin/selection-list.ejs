@@ -1,0 +1,94 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Seleksi Foto Client</h2>
+      <p class="admin-muted">
+        Portal seleksi dibuat per booking. Klien hanya bisa membuka portal melalui link bertoken
+        yang Anda kirim — kode booking saja tidak cukup. Foto yang dilihat klien selalu versi
+        ber-watermark; file master tidak pernah dibagikan.
+      </p>
+    </div>
+    <div class="cell-actions">
+      <a class="admin-link" href="<%= base %>/admin/bookings">Ke halaman Booking &rarr;</a>
+    </div>
+  </div>
+
+  <div class="sel-toolbar">
+    <div class="filter-pills filter-pills--admin">
+      <a class="pill <%= !activeStatus ? 'is-active' : '' %>"
+         href="<%= base %>/admin/selection<%= query ? '?q=' + encodeURIComponent(query) : '' %>">Semua (<%= total %>)</a>
+      <% statuses.forEach(function (s) { %>
+        <a class="pill <%= activeStatus === s.value ? 'is-active' : '' %>"
+           href="<%= base %>/admin/selection?status=<%= s.value %><%= query ? '&q=' + encodeURIComponent(query) : '' %>">
+          <%= s.label %> (<%= counts[s.value] || 0 %>)
+        </a>
+      <% }); %>
+    </div>
+    <form method="get" action="<%= base %>/admin/selection" class="sel-search">
+      <% if (activeStatus) { %><input type="hidden" name="status" value="<%= activeStatus %>"><% } %>
+      <input type="search" name="q" value="<%= query %>" placeholder="Cari nama klien atau kode booking…" aria-label="Cari portal">
+      <button class="admin-btn admin-btn--sm" type="submit">Cari</button>
+    </form>
+  </div>
+
+  <% if (!rows.length) { %>
+    <p class="admin-muted">Belum ada booking pada filter ini.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table admin-table--selection">
+        <thead>
+          <tr>
+            <th>Klien</th>
+            <th>Booking</th>
+            <th>Tanggal sesi</th>
+            <th>Paket</th>
+            <th>Foto</th>
+            <th>Kuota</th>
+            <th>Terpilih</th>
+            <th>Status seleksi</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(function (r) { %>
+            <tr>
+              <td>
+                <strong><%= r.client_name %></strong>
+                <small class="cell-sub"><%= r.city_name %></small>
+              </td>
+              <td><code class="sel-code"><%= r.code %></code></td>
+              <td>
+                <%= formatDateID(r.shooting_date) %>
+                <small class="cell-sub"><%= r.shooting_time ? r.shooting_time + ' WIB' : '—' %></small>
+              </td>
+              <td><%= r.package_name %></td>
+              <td><%= r.photo_count || 0 %></td>
+              <td><%= r.portal_id ? r.quota : '—' %></td>
+              <td>
+                <%= r.pick_count || 0 %><% if (r.portal_id) { %> / <%= r.quota %><% } %>
+              </td>
+              <td>
+                <span class="sel-status sel-status--<%= r.status %>"><%= statuses.find(function (s) { return s.value === r.status; }).label %></span>
+                <% if (r.portal_id && !r.is_open) { %><small class="cell-sub">Portal ditutup</small><% } %>
+                <% if (r.deadline && r.status !== 'done') { %>
+                  <small class="cell-sub">Batas: <%= formatDateID(r.deadline) %></small>
+                <% } %>
+              </td>
+              <td class="cell-actions">
+                <% if (r.portal_id) { %>
+                  <a class="admin-link" href="<%= base %>/admin/selection/<%= r.portal_id %>">Kelola portal</a>
+                <% } else { %>
+                  <form method="post" action="<%= base %>/admin/selection/create">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="booking_id" value="<%= r.booking_id %>">
+                    <button type="submit" class="admin-btn admin-btn--sm admin-btn--primary">+ Buat portal</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

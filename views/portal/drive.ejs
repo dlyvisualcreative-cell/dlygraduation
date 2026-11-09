@@ -1,0 +1,62 @@
+<section class="cp-page">
+  <header class="cp-page__head">
+    <div>
+      <%# Revisi 2 (06): halaman ini bernama "Orderanmu Siap" — isinya tetap hasil akhir
+          + tautan Google Drive, ditambah ajakan mengisi ulasan saat order selesai. %>
+      <span class="cp-eyebrow">Orderanmu Siap</span>
+      <h1>Foto Final Kamu</h1>
+    </div>
+    <span class="cp-chip cp-chip--code"><%= booking.code %></span>
+  </header>
+
+  <% if (finalUrl) { %>
+    <section class="cp-card cp-final">
+      <div class="cp-final__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3l6 0 6 10.5-3 5.5H6L3 13.5zM9 3L3 13.5M15 3l6 10.5"/>
+        </svg>
+      </div>
+      <h2>Yeay, foto kamu sudah siap!</h2>
+      <p>
+        Seluruh hasil foto sesi kamu kini bisa diakses melalui satu folder Google Drive —
+        berisi <strong>01. FILE MENTAH</strong>, <strong>02. FILE SORTIR</strong>, dan
+        <strong>03. FILE EDIT</strong>. Klik tombol di bawah untuk membuka folder tersebut.
+      </p>
+      <a class="cp-btn cp-btn--primary cp-btn--lg" href="<%= finalUrl %>" target="_blank" rel="noopener">
+        BUKA GOOGLE DRIVE
+      </a>
+      <% if (finalAt) { %>
+        <small class="cp-muted">Ditandai selesai <%= formatDateTimeWIB(finalAt) %></small>
+      <% } %>
+      <p class="cp-final__thanks">Terima kasih sudah mempercayakan momen spesialmu kepada <%= brand.name %>.</p>
+    </section>
+
+    <%# Revisi 2 (06): ajakan ulasan — HANYA saat order selesai & link hasil foto tersedia.
+        Tombolnya memakai halaman testimoni yang sudah ada (bukan form baru). %>
+    <section class="cp-card cp-review">
+      <div class="cp-review__head">
+        <span class="cp-review__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.6 9.7l5.8-.8z"/>
+          </svg>
+        </span>
+        <div>
+          <h2>Bagikan pengalamanmu sekarang yukk dengan mengisi ulasan</h2>
+          <p class="cp-muted">Ceritakan pengalaman sesi fotomu — ulasanmu sangat membantu calon klien berikutnya.</p>
+        </div>
+      </div>
+      <a class="cp-btn cp-btn--primary" href="<%= reviewUrl %>">Isi Ulasan Sekarang</a>
+    </section>
+  <% } else { %>
+    <section class="cp-card cp-final cp-final--waiting">
+      <div class="cp-final__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l4 2"/>
+        </svg>
+      </div>
+      <h2>Foto final kamu belum tersedia</h2>
+      <p>Kami sedang mempersiapkannya. Halaman ini otomatis menampilkan tautan begitu admin menyelesaikan order.</p>
+      <a class="cp-btn cp-btn--ghost" href="<%= base %>/portal/pantau-order">Lihat Pantau Order</a>
+    </section>
+  <% } %>
+</section>

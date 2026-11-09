@@ -1,0 +1,98 @@
+<%
+  // Kartu booking ringkas (Tahap 3). Semua aksi operasional ada di halaman detail;
+  // kartu ini hanya menampilkan informasi penting + dua tombol WhatsApp + portal.
+  const pay = b.pay || { label: '—', tone: 'muted', total: null, paid: 0, status: 'unrecorded' };
+  const sel = b.selection_portal_id ? selectionStatus(b) : '';
+%>
+<article class="bk-card bk-card--tile" id="b-<%= b.id %>" data-status="<%= b.status %>">
+  <header class="bk-card__head">
+    <div class="bk-card__title">
+      <strong><%= b.client_name %></strong>
+      <span class="bk-card__code"><%= b.code %></span>
+    </div>
+    <div class="bk-card__badges">
+      <span class="bk-status bk-status--<%= b.status %>"><%= b.status %></span>
+      <% if (Number(b.reschedule_pending) > 0) { %>
+        <span class="admin-badge admin-badge--warn" title="Klien mengajukan reschedule — menunggu keputusan admin">Reschedule baru</span>
+      <% } %>
+    </div>
+  </header>
+
+  <dl class="bk-tile__rows">
+    <div>
+      <dt>Jadwal</dt>
+      <dd><%= formatDateID(b.shooting_date) %><%= b.shooting_time ? ' · ' + b.shooting_time : '' %></dd>
+    </div>
+    <div>
+      <dt>Lokasi</dt>
+      <dd><%= b.location %><span class="bk-tile__sub"><%= b.city_name %></span></dd>
+    </div>
+    <div>
+      <dt>Paket</dt>
+      <dd><%= b.package_name %><span class="bk-tile__sub"><%= b.category_name || '—' %></span></dd>
+    </div>
+    <div>
+      <dt>Pembayaran</dt>
+      <dd>
+        <span class="pay-chip pay-chip--<%= pay.tone %>"><%= pay.label %></span>
+        <span class="bk-tile__sub">
+          <%= pay.total ? rupiah(pay.paid) + ' / ' + rupiah(pay.total) : 'Belum ada tagihan tercatat' %>
+        </span>
+      </dd>
+    </div>
+    <% if (b.selection_portal_id) { %>
+      <div>
+        <dt>Seleksi foto</dt>
+        <dd>
+          <%= selectionStatusLabel(sel) %>
+          <span class="bk-tile__sub"><%= b.selection_picks || 0 %> / <%= b.selection_quota %> dipilih · <%= b.selection_photos || 0 %> foto</span>
+        </dd>
+      </div>
+    <% } %>
+    <% if (b.team_name_snapshot) { %>
+      <div>
+        <dt>Tim</dt>
+        <dd><%= b.team_name_snapshot %></dd>
+      </div>
+    <% } %>
+  </dl>
+
+  <div class="bk-card__actions bk-card__actions--tile">
+    <a class="bk-btn bk-btn--wa bk-btn--icon"
+       href="https://wa.me/<%= normalizePhone(b.client_phone) %>?text=<%= encodeURIComponent(b.wa_confirm_text) %>"
+       target="_blank" rel="noopener" data-chat-client
+       title="Kirim konfirmasi jadwal & pembayaran DP">
+      <svg class="bk-btn__icon" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+        <path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.6-.9-2.2-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 1.8 2.8 4.3 3.9 2.1.9 2.6.8 3.1.7.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.4z"/>
+        <path d="M12 2.2A9.8 9.8 0 0 0 3.5 17l-1.3 4.8 4.9-1.3A9.8 9.8 0 1 0 12 2.2zm0 17.9c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3a8.1 8.1 0 1 1 7 3.8z"/>
+      </svg>
+      <span>Konfirmasi &amp; DP</span>
+    </a>
+
+    <% if (b.selection_portal_id && b.portal_ready) { %>
+      <a class="bk-btn bk-btn--portal bk-btn--icon"
+         href="https://wa.me/<%= normalizePhone(b.client_phone) %>?text=<%= encodeURIComponent(b.wa_portal_text) %>"
+         target="_blank" rel="noopener" title="Kirim link portal seleksi foto">
+        <span>Link Portal</span>
+      </a>
+    <% } else { %>
+      <a class="bk-btn bk-btn--portal is-disabled bk-btn--icon"
+         href="<%= base %>/admin/bookings/<%= b.id %>/portal"
+         title="Belum ada portal seleksi foto / foto belum diunggah — klik untuk membuat portal">
+        <span>Link Portal</span>
+      </a>
+    <% } %>
+
+    <%# Revisi 4 — satu tombol: pakai folder "01. FILE MENTAH", buat/segarkan portal,
+        catat tahap 04, lalu beri tahu klien bahwa foto siap dipilih. %>
+    <form method="post" action="<%= base %>/admin/bookings/<%= b.id %>/photos-ready" class="inline-form"
+          data-confirm="Tandai foto siap dipilih untuk <%= b.client_name %>? Sistem membaca folder 01. FILE MENTAH dan mengirim notifikasi ke klien.">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="bk-btn bk-btn--portal" type="submit" title="Foto mentah siap dipilih: baca folder 01. FILE MENTAH & beri tahu klien">
+        Foto Siap
+      </button>
+    </form>
+
+    <a class="bk-btn bk-btn--select" href="<%= base %>/admin/bookings/<%= b.id %>">Detail</a>
+  </div>
+</article>

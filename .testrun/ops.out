@@ -1,0 +1,63 @@
+  ok  Google is connected in the test harness
+  ok  Pending booking shows the Team dropdown
+  ok  Pending booking shows the Confirm button
+  ok  One crew member is stored on the booking (dropdown)
+  ok  Legacy single-crew column mirrors that member
+  ok  Confirmation sets the status to confirmed
+  ok  Confirmation records when it happened
+  ok  A Google Calendar event id is stored
+  ok  The event URL is stored for the "Buka Google Calendar" button
+  ok  A Drive folder URL is stored
+  ok  Exactly ONE calendar event was created
+  ok  Event title follows "Dly Visual | <Nama> | Graduation"
+  ok  The assigned crew email is an attendee
+  ok  Event timezone is Asia/Jakarta
+  ok  Event description contains the booking code
+  ok  Event description contains the crew name
+  ok  Event description never prints a raw object (H-1 template bug)
+  ok  Event description contains the drive link
+  ok  Drive folder is named "<Client> - <Campus> - <Code>"
+  ok  A second confirmation does not create a duplicate event
+  ok  …and keeps the same event id
+  ok  …and does not create a duplicate Drive folder
+  ok  Swapping a crew member does NOT create a new event
+  ok  The calendar attendee list now has the new member
+  ok  The previous member is no longer an attendee
+  ok  The crew change is written to the activity history
+  ok  Re-sync updates the SAME event (no duplicate)
+  ok  Resend invites reports the recipient list
+  ok  The "Sudah DP" button is shown for an unpaid booking
+  ok  The DP button shows the configured amount
+  ok  DP records exactly one payment of 100.000
+  ok  Remaining balance is computed (550.000 − 100.000 = 450.000)
+  ok  Status becomes DP Dibayar
+  ok  The Pelunasan button appears with the remaining amount
+  ok  Settlement adds one payment of 450.000
+  ok  Total paid equals the snapshot total (550.000)
+  ok  Price snapshot was not modified
+  ok  Status becomes Lunas
+  ok  No payment buttons remain once paid
+  ok  Reschedule saves the new date/time/location
+  ok  A reschedule history row is written
+  ok  The history keeps the OLD schedule
+  ok  The history stores the reason
+  ok  Reschedule keeps the booking code
+  ok  Reschedule keeps the price snapshot
+  ok  Reschedule keeps the Drive folder
+  ok  Reschedule did not create a second event
+  ok  The calendar event moved to the new time
+  ok  The calendar event carries the new location
+  ok  Reschedule keeps the crew attendee
+  ok  Reschedule is recorded in the activity history
+  ok  A WhatsApp reschedule confirmation link is offered
+  ok  The WhatsApp message contains the old and new schedule
+  ok  Clicking a date opens the Full Booking panel
+  ok  Manual Full Booking is stored separately from "closed"
+  ok  The public availability API reports the date as full
+  ok  A booking request on a Full Booking date is rejected with a clear message
+  ok  Reopening the date clears the manual flag
+  ok  Capacity 1 marks a date with one booking as full
+  ok  Capacity 0 never auto-marks a date as full
+  ok  No JavaScript errors during the whole flow
+
+61 checks passed, 0 failed

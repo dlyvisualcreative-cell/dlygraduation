@@ -1,0 +1,32 @@
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <% if (brand.logos.onLight) { %>
+        <img class="admin-side__logoimg" src="<%= brand.logos.onLight %>" alt="<%= brand.name %>" width="168" height="48">
+      <% } else { %>
+        <span class="admin-side__logo">DLY</span>
+      <% } %>
+      <div><strong><%= brand.name %></strong><small>Content Manager</small></div>
+    </div>
+    <h1>Masuk ke dashboard</h1>
+    <p class="login-lede">Kelola konten, tampilan, kota, kategori paket, harga, portfolio, dan booking.</p>
+
+    <% if (error) { %>
+      <div class="admin-flash admin-flash--err"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="<%= base %>/admin/login" class="login-form">
+      <div class="admin-field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autocomplete="username" value="<%= username %>" autofocus>
+      </div>
+      <div class="admin-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      <button class="admin-btn admin-btn--primary admin-btn--block" type="submit">Masuk</button>
+    </form>
+
+    <a class="login-back" href="<%= base %>/">&larr; Kembali ke website</a>
+  </div>
+</div>

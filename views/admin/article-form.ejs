@@ -1,0 +1,64 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah artikel' : 'Edit artikel' %></h2>
+      <p class="admin-muted">Tulis satu paragraf per baris pada isi artikel — setiap baris tampil sebagai paragraf di halaman publik.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/articles">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/articles/save" enctype="multipart/form-data" class="admin-form" data-upload-form>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (article.id) { %><input type="hidden" name="id" value="<%= article.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field admin-field--full">
+        <label for="title">Judul <span class="req">*</span></label>
+        <input type="text" id="title" name="title" required value="<%= article.title %>">
+      </div>
+      <div class="admin-field">
+        <label for="slug">Slug URL</label>
+        <input type="text" id="slug" name="slug" value="<%= article.slug || '' %>" placeholder="persiapan-sesi-foto">
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= article.sort_order || 0 %>">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="excerpt">Ringkasan</label>
+        <textarea id="excerpt" name="excerpt" rows="2" maxlength="400"><%= article.excerpt %></textarea>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="body">Isi artikel</label>
+        <textarea id="body" name="body" rows="12"><%= article.body %></textarea>
+        <span class="admin-hint">Satu baris = satu paragraf. Tidak mendukung HTML.</span>
+      </div>
+      <div class="admin-field">
+        <label for="cover_file">Upload cover</label>
+        <input type="file" id="cover_file" name="cover_file" accept="image/*">
+      </div>
+      <div class="admin-field">
+        <label for="cover_image">atau URL/path cover</label>
+        <input type="text" id="cover_image" name="cover_image" value="<%= article.cover_image || '' %>" placeholder="/ph/portfolio-campus.svg">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_published" value="1" <%= Number(article.is_published) ? 'checked' : '' %>>
+          <span>Publish artikel ini</span>
+        </label>
+      </div>
+    </div>
+
+    <% if (article.cover_image) { %>
+      <div class="admin-preview">
+        <span class="admin-hint">Cover saat ini</span>
+        <img src="<%= imageUrl(article.cover_image) %>" alt="" style="max-width:300px">
+      </div>
+    <% } %>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan artikel</button>
+      <a class="admin-btn" href="<%= base %>/admin/articles">Batal</a>
+    </div>
+  </form>
+</div>

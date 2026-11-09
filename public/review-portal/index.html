@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DLY Graduation — Review Client Portal</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  body{margin:0;padding:30px 18px 70px;background:#F7F6F2;color:#252A30;font:15px/1.6 Inter,system-ui,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto}
+  h1{font-size:clamp(1.6rem,3.6vw,2.3rem);color:#0B2340;margin:6px 0 8px}
+  .eyebrow{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#2C5E73}
+  p.lede{color:#5F6B7A;max-width:800px}
+  h2{font-size:1.05rem;color:#0B2340;margin:34px 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+  figure{margin:0;background:#fff;border:1px solid #E3E5E7;border-radius:16px;overflow:hidden;
+         box-shadow:0 2px 6px rgba(11,35,64,.05),0 16px 34px rgba(11,35,64,.07)}
+  figure img{display:block;width:100%;height:auto;max-height:560px;object-fit:cover;object-position:top}
+  figcaption{padding:11px 14px;font-size:.8rem;display:flex;justify-content:space-between;gap:10px}
+  .note{margin-top:30px;padding:14px 16px;border:1px dashed #C9CDD1;border-radius:12px;color:#5F6B7A;font-size:.82rem}
+</style></head><body><div class="wrap">
+<header>
+  <span class="eyebrow">DLY Graduation · Client Portal</span>
+  <h1>Portal Client — Hasil Implementasi Blueprint</h1>
+  <p class="lede">Akses dengan Kode Booking + PIN (tanpa akun), sidebar empat menu, ringkasan identitas,
+  galeri pemilihan foto dengan submit dua jalur, timeline order dinamis, dan halaman link Google Drive final.
+  Semua data pada tangkapan layar adalah data demo dari salinan database.</p>
+</header>
+<h2>Halaman masuk</h2><div class="grid">
+<figure><a href="01-login.png" target="_blank" rel="noopener"><img src="01-login.png" alt="Halaman masuk — Kode Booking + PIN" loading="lazy"></a>
+<figcaption><span>Halaman masuk — Kode Booking + PIN</span><a href="01-login.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="20-mobile-login.png" target="_blank" rel="noopener"><img src="20-mobile-login.png" alt="Mobile — halaman masuk" loading="lazy"></a>
+<figcaption><span>Mobile — halaman masuk</span><a href="20-mobile-login.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<h2>Ringkasan</h2><div class="grid">
+<figure><a href="02-ringkasan.png" target="_blank" rel="noopener"><img src="02-ringkasan.png" alt="Ringkasan — identitas client + status terbaru" loading="lazy"></a>
+<figcaption><span>Ringkasan — identitas client + status terbaru</span><a href="02-ringkasan.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="21-mobile-ringkasan.png" target="_blank" rel="noopener"><img src="21-mobile-ringkasan.png" alt="Mobile — ringkasan" loading="lazy"></a>
+<figcaption><span>Mobile — ringkasan</span><a href="21-mobile-ringkasan.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<h2>Pilih Foto Favorit</h2><div class="grid">
+<figure><a href="03-pilih-foto.png" target="_blank" rel="noopener"><img src="03-pilih-foto.png" alt="Pilih Foto Favorit — galeri + kuota" loading="lazy"></a>
+<figcaption><span>Pilih Foto Favorit — galeri + kuota</span><a href="03-pilih-foto.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="04-terpilih.png" target="_blank" rel="noopener"><img src="04-terpilih.png" alt="Foto terpilih — border teal, centang, nomor urut" loading="lazy"></a>
+<figcaption><span>Foto terpilih — border teal, centang, nomor urut</span><a href="04-terpilih.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="05-konfirmasi.png" target="_blank" rel="noopener"><img src="05-konfirmasi.png" alt="Konfirmasi Kirim Pilihan — daftar nama file bersih" loading="lazy"></a>
+<figcaption><span>Konfirmasi Kirim Pilihan — daftar nama file bersih</span><a href="05-konfirmasi.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="06-terkirim.png" target="_blank" rel="noopener"><img src="06-terkirim.png" alt="Setelah dikirim — pilihan terkunci" loading="lazy"></a>
+<figcaption><span>Setelah dikirim — pilihan terkunci</span><a href="06-terkirim.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="24-mobile-terkirim.png" target="_blank" rel="noopener"><img src="24-mobile-terkirim.png" alt="Mobile — status pilihan terkirim" loading="lazy"></a>
+<figcaption><span>Mobile — status pilihan terkirim</span><a href="24-mobile-terkirim.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<h2>Pantau Order</h2><div class="grid">
+<figure><a href="07-pantau-order.png" target="_blank" rel="noopener"><img src="07-pantau-order.png" alt="Pantau Order — timeline tahap yang tercapai" loading="lazy"></a>
+<figcaption><span>Pantau Order — timeline tahap yang tercapai</span><a href="07-pantau-order.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="10-timeline-lengkap.png" target="_blank" rel="noopener"><img src="10-timeline-lengkap.png" alt="Pantau Order — tahap 08 muncul" loading="lazy"></a>
+<figcaption><span>Pantau Order — tahap 08 muncul</span><a href="10-timeline-lengkap.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="23-mobile-timeline.png" target="_blank" rel="noopener"><img src="23-mobile-timeline.png" alt="Mobile — pantau order" loading="lazy"></a>
+<figcaption><span>Mobile — pantau order</span><a href="23-mobile-timeline.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<h2>Link Google Drive</h2><div class="grid">
+<figure><a href="08-drive-belum.png" target="_blank" rel="noopener"><img src="08-drive-belum.png" alt="Link Google Drive — belum tersedia" loading="lazy"></a>
+<figcaption><span>Link Google Drive — belum tersedia</span><a href="08-drive-belum.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="09-drive-siap.png" target="_blank" rel="noopener"><img src="09-drive-siap.png" alt="Link Google Drive — foto final siap" loading="lazy"></a>
+<figcaption><span>Link Google Drive — foto final siap</span><a href="09-drive-siap.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<h2>Admin</h2><div class="grid">
+<figure><a href="30-admin-portal-card.png" target="_blank" rel="noopener"><img src="30-admin-portal-card.png" alt="Admin — kartu Client Portal (kode, PIN, akses, timeline)" loading="lazy"></a>
+<figcaption><span>Admin — kartu Client Portal (kode, PIN, akses, timeline)</span><a href="30-admin-portal-card.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="31-admin-buat-portal.png" target="_blank" rel="noopener"><img src="31-admin-buat-portal.png" alt="Admin — form Buat Portal Seleksi Foto" loading="lazy"></a>
+<figcaption><span>Admin — form Buat Portal Seleksi Foto</span><a href="31-admin-buat-portal.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+<figure><a href="32-admin-selesai.png" target="_blank" rel="noopener"><img src="32-admin-selesai.png" alt="Admin — Selesaikan Order + link final" loading="lazy"></a>
+<figcaption><span>Admin — Selesaikan Order + link final</span><a href="32-admin-selesai.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<h2>Mobile (navigasi)</h2><div class="grid">
+<figure><a href="22-mobile-drawer.png" target="_blank" rel="noopener"><img src="22-mobile-drawer.png" alt="Mobile — sidebar drawer" loading="lazy"></a>
+<figcaption><span>Mobile — sidebar drawer</span><a href="22-mobile-drawer.png" target="_blank" rel="noopener">Buka</a></figcaption></figure>
+</div>
+<div class="note">Halaman review ini hanya untuk pemeriksaan dan boleh dihapus kapan saja.</div>
+</div></body></html>

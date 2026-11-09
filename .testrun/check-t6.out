@@ -1,0 +1,48 @@
+  ok  Gallery page loads
+  ok  A portfolio card links to its client page
+  ok  The card is a real link (not a lightbox trigger)
+  ok  The card shows the client name with the degree
+  ok  The card shows campus and date as supporting info
+  ok  The client name is visually primary (larger than the meta line)
+  ok  The card never shows the city on the cover
+  ok  The client page answers 200
+  ok  The client page header shows name + degree
+  ok  The client page header shows the campus
+  ok  The client page header shows the shoot date
+  ok  The client page header shows the session time
+  ok  The client page shows the photo count
+  ok  The client page renders a gallery of the other photos
+  ok  The client page has no horizontal overflow
+  ok  Gallery images are lazy-loaded (only the first two eager)
+  ok  Cover opens the lightbox
+  ok  The lightbox knows the whole photo set
+  ok  Next moves to the second photo
+  ok  The lightbox closes
+  ok  An unpublished portfolio page is NOT reachable (404)
+  ok  The client page contains no booking/payment/selection data
+  ok  Published client pages are in the sitemap
+  ok  Unpublished client pages are NOT in the sitemap
+  ok  The admin edit form loads
+  ok  The admin form has a session-time field
+  ok  The admin form has a slug field with a preview prefix
+  ok  The admin form links to the public client page
+  ok  Saving the session time works
+  ok  Portfolio stays manageable from the sidebar
+  ok  The pricelist package renders a photo carousel
+FAIL  The carousel holds every package photo — 1
+FAIL  The carousel shows position indicators (dots) — 0
+FAIL  The carousel shows a counter
+FAIL  The carousel is swipeable (scroll-snap + overflow) — x mandatory
+FAIL  Autoplay advances the carousel — 0 → 0
+FAIL  The active dot follows the current photo
+  ok  Autoplay does not shift the layout
+locator.hover: Error: strict mode violation: locator('[data-pkg-carousel]') resolved to 2 elements:
+    1) <div data-count="1" class="pkg-carousel" data-pkg-carousel="" data-interval="5500">…</div> aka locator('.pkg-carousel').first()
+    2) <div data-count="3" class="pkg-carousel" data-pkg-carousel="" data-interval="5500">…</div> aka getByText('‹ › 2 /')
+
+Call log:
+  - waiting for locator('[data-pkg-carousel]')
+
+    at /home/vibecoderco/workspace/dlyvisualcreative/dlygraduation/scripts/check-t6.js:260:47 {
+  log: [ "  - waiting for locator('[data-pkg-carousel]')" ]
+}

@@ -1,0 +1,3 @@
+Folder ini adalah sisa salinan database untuk pengujian. File .sqlite di dalamnya dikunci oleh
+sistem (mount) sehingga tidak dapat dihapus dari shell. Bukan bagian dari aplikasi; aplikasi
+memakai data/app.sqlite. Aman diabaikan.

@@ -1,0 +1,46 @@
+<section class="sel-hero sel-hero--compact">
+  <div class="sel-hero__inner">
+    <span class="sel-hero__eyebrow">Konfirmasi Pilihan</span>
+    <h1>Periksa pilihan Kakak</h1>
+    <p class="sel-hero__lede">
+      Pastikan foto di bawah ini sudah sesuai. Setelah dikirim, pilihan tidak dapat diubah lagi
+      dan tim DLY Graduation akan mulai proses editing.
+    </p>
+    <dl class="sel-meta">
+      <div><dt>Nama</dt><dd><%= booking.client_name %></dd></div>
+      <div><dt>Booking ID</dt><dd><%= booking.code %></dd></div>
+      <div><dt>Paket</dt><dd><%= booking.package_name %></dd></div>
+      <div><dt>Jumlah dipilih</dt><dd><strong data-sel-review-count><%= photos.length %> / <%= quota %></strong> foto</dd></div>
+    </dl>
+  </div>
+</section>
+
+<%- include('partials/selection-drive') %>
+
+<section class="sel-section">
+  <div class="sel-grid sel-grid--review">    <% photos.forEach(function (p, i) { %>
+      <figure class="sel-tile is-picked">
+        <a class="sel-tile__view" href="<%= photoSrc(p.id) %>" data-lightbox data-lb-group="selection"
+           data-src="<%= photoSrc(p.id) %>" data-title="Foto #<%= p.code %>" data-meta="<%= brand.name %>">
+          <img src="<%= photoSrc(p.id) %>?w=320"
+               srcset="<%= photoSrc(p.id) %>?w=320 320w, <%= photoSrc(p.id) %>?w=640 640w"
+               sizes="(max-width: 560px) 45vw, 22vw"
+               alt="Foto pilihan #<%= p.code %>"
+               loading="<%= i < 6 ? 'eager' : 'lazy' %>" decoding="async">
+        </a>
+        <span class="sel-tile__code">#<%= p.code %></span>
+      </figure>
+    <% }); %>
+  </div>
+
+  <form method="post" action="<%= base %>/selection/<%= portal.token %>/submit" class="sel-confirm"
+        data-sel-confirm>
+    <p class="sel-confirm__note">
+      Dengan menekan <strong>Kirim Pilihan Foto</strong>, Kakak menyatakan pilihan ini sudah final.
+    </p>
+    <div class="sel-confirm__actions">
+      <a class="sel-btn" href="<%= portalUrl %>">← Kembali memilih</a>
+      <button class="sel-btn sel-btn--primary" type="submit">Kirim Pilihan Foto</button>
+    </div>
+  </form>
+</section>

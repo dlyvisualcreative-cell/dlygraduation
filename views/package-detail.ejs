@@ -1,0 +1,214 @@
+<section class="pkg-detail">
+  <div class="container">
+    <nav class="breadcrumb breadcrumb--dark" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <a href="<%= base %>/pricelist?kota=<%= citySlug %>">Pricelist</a><span aria-hidden="true">/</span>
+      <span><%= pkg.name %></span>
+    </nav>
+
+    <div class="pkg-detail__grid">
+      <!-- ================= LEFT: gallery ================= -->
+      <div class="pkg-detail__media">
+        <% if (images.length) { %>
+          <div class="pkg-slider" data-pkg-slider>
+            <div class="pkg-slider__track" data-slider-track>
+              <% images.forEach(function (img, i) { %>
+                <figure class="pkg-slider__slide" data-slide-index="<%= i %>">
+                  <%- picture(img.src, {
+                        alt: img.caption || pkg.name,
+                        widths: [480, 800, 1200, 1600],
+                        sizes: '(max-width: 900px) 92vw, 46vw',
+                        priority: i === 0
+                      }) %>
+                </figure>
+              <% }); %>
+            </div>
+
+            <% if (images.length > 1) { %>
+              <button class="pkg-slider__nav pkg-slider__nav--prev" type="button" data-slider-prev aria-label="Foto sebelumnya">&#8249;</button>
+              <button class="pkg-slider__nav pkg-slider__nav--next" type="button" data-slider-next aria-label="Foto berikutnya">&#8250;</button>
+              <span class="pkg-slider__counter"><span data-slider-current>1</span> / <%= images.length %></span>
+              <div class="pkg-slider__dots" data-slider-dots role="tablist" aria-label="Pilih foto">
+                <% images.forEach(function (img, i) { %>
+                  <button type="button" class="pkg-slider__dot <%= i === 0 ? 'is-active' : '' %>"
+                          data-slider-dot="<%= i %>" aria-label="Foto <%= i + 1 %>"></button>
+                <% }); %>
+              </div>
+            <% } %>
+
+            <% if (bestSeller) { %><span class="pkg-best pkg-detail__badge">👍 Best Seller</span><% } %>
+            <%# Label Recommended (ikon bintang vector, bukan emoji). %>
+            <% if (recommended) { %>
+              <span class="pkg-best pkg-best--recommended pkg-detail__badge<%= bestSeller ? ' pkg-detail__badge--second' : '' %>">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.6 9.7l5.8-.8z"/></svg>
+                Recommended
+              </span>
+            <% } %>
+          </div>
+
+          <% if (images.length > 1) { %>
+            <div class="pkg-thumbs" data-slider-thumbs>
+              <% images.forEach(function (img, i) { %>
+                <button type="button" class="pkg-thumb <%= i === 0 ? 'is-active' : '' %>" data-slider-thumb="<%= i %>"
+                        aria-label="Lihat foto <%= i + 1 %>">
+                  <%- picture(img.src, { alt: '', widths: [96, 192, 320], sizes: '90px' }) %>
+                </button>
+              <% }); %>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="pkg-detail__placeholder">
+            <span><%= pkg.category_name %></span>
+            <small>Foto paket belum diunggah admin</small>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- ================= RIGHT: info ================= -->
+      <div class="pkg-detail__info">
+        <div class="pkg-detail__head">
+          <span class="pkg-detail__cat"><%= pkg.category_name %></span>
+          <%# Revisi 13: judul paket + indikator jumlah sesi dalam SATU baris header. %>
+          <div class="pkg-detail__titlerow">
+            <h1><%= pkg.name %></h1>
+            <% if (soldVisible) { %>
+              <span class="pkg-sold pkg-sold--inline" title="Jumlah sesi yang sudah dipesan">
+                <span class="pkg-sold__dot" aria-hidden="true"></span>
+                <%= soldCount %> <%= soldLabel %>
+              </span>
+            <% } %>
+          </div>
+          <% if (pkg.tagline) { %><p class="pkg-detail__tagline"><%= pkg.tagline %></p><% } %>
+          <div class="pkg-detail__meta">
+            <span class="pkg-detail__chip">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>
+              </svg>
+              <%= pkg.city_name %>
+            </span>
+          </div>
+        </div>
+
+        <div class="pkg-detail__price" data-detail-price-box>
+          <span class="pkg-detail__price-label">Harga</span>
+          <strong data-detail-price><%= preset && preset.price ? rupieh(preset.price) : 'Harga belum tersedia' %></strong>
+          <span data-detail-price-note><%= preset ? 'untuk ' + preset.minutes + ' menit' : 'Admin belum mengisi harga' %></span>
+        </div>
+
+        <div class="pkg-detail__durations" data-detail-durations role="group" aria-label="Pilih durasi">
+          <% durations.forEach(function (d) { %>
+            <button type="button" class="dur-card <%= preset && d.minutes === preset.minutes ? 'is-active' : '' %>"
+                    data-detail-duration="<%= d.minutes %>"
+                    data-price="<%= d.price || '' %>"
+                    data-photos="<%= d.edited_photos || '' %>">
+              <span class="dur-card__time"><%= d.minutes %> menit</span>
+              <span class="dur-card__price"><%= d.price ? rupieh(d.price) : 'Harga belum tersedia' %></span>
+              <% if (d.edited_photos) { %><span class="dur-card__photos"><%= d.edited_photos %> foto edit</span><% } %>
+            </button>
+          <% }); %>
+        </div>
+
+        <dl class="pkg-detail__specs">
+          <div>
+            <dt>Foto edit</dt>
+            <dd data-detail-photos><%= preset && preset.edited_photos ? preset.edited_photos + ' foto' : 'Belum dikonfigurasi' %></dd>
+          </div>
+          <div>
+            <dt>Durasi tersedia</dt>
+            <dd><%= durations.length ? durations.map(function (d) { return d.minutes; }).join(' / ') + ' menit' : 'Belum dikonfigurasi' %></dd>
+          </div>
+          <div>
+            <dt>Kota layanan</dt>
+            <dd><%= pkg.city_name %></dd>
+          </div>
+        </dl>
+
+        <% if (pkg.description) { %>
+          <div class="pkg-detail__block">
+            <h2>Deskripsi</h2>
+            <p><%= pkg.description %></p>
+          </div>
+        <% } %>
+
+        <% if (benefits.length) { %>
+          <div class="pkg-detail__block">
+            <h2>Benefit &amp; Fasilitas</h2>
+            <ul class="benefit-list">
+              <% benefits.forEach(function (b) { %>
+                <li><span class="benefit-list__icon"><%- icon(b.icon) %></span><span><%= b.text %></span></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } %>
+
+        <% if (terms.length) { %>
+          <div class="pkg-detail__block">
+            <h2>Ketentuan</h2>
+            <ul class="pkg-detail__list pkg-detail__list--terms">
+              <% terms.forEach(function (t) { %>
+                <li><span aria-hidden="true">·</span><%= t %></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } %>
+
+        <div class="pkg-detail__cta">
+          <a class="btn btn--primary btn--lg btn--block" data-detail-book
+             href="<%= base %>/booking?kota=<%= citySlug %>&paket=<%= pkg.id %><%= preset ? '&durasi=' + preset.minutes : '' %>">
+            Booking Paket Ini
+          </a>
+          <p class="pkg-detail__cta-note">
+            Anda akan diarahkan ke form booking dengan paket, kota, dan durasi ini sudah terpilih.
+            Jadwal dikonfirmasi admin setelah permintaan dikirim.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <% if (related.length) { %>
+      <section class="pkg-detail__related">
+        <div class="section-head section-head--split">
+          <div><span class="eyebrow">Paket lain</span><h2>Paket lain di <%= pkg.city_name %></h2></div>
+          <a class="link-arrow" href="<%= base %>/pricelist?kota=<%= citySlug %>">Semua paket <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <div class="related-grid">
+          <% related.forEach(function (r) { %>
+            <a class="related-card" href="<%= base %>/paket/<%= r.slug %>">
+              <span class="related-card__media">
+                <% if (r.image) { %>
+                  <%- picture(r.image, {
+                        alt: r.name, widths: [320, 480, 800],
+                        sizes: '(max-width: 720px) 92vw, 30vw'
+                      }) %>
+                <% } else { %>
+                  <span class="related-card__placeholder"><%= r.category_name %></span>
+                <% } %>
+              </span>
+              <span class="related-card__body">
+                <strong><%= r.name %></strong>
+                <span><%= r.starting_price ? 'mulai ' + rupieh(r.starting_price) : 'Harga belum tersedia' %></span>
+              </span>
+            </a>
+          <% }); %>
+        </div>
+      </section>
+    <% } %>
+  </div>
+
+  <!-- sticky mobile CTA -->
+  <div class="pkg-sticky-cta">
+    <div class="pkg-sticky-cta__price">
+      <strong data-sticky-price><%= preset && preset.price ? rupieh(preset.price) : 'Harga belum tersedia' %></strong>
+      <span data-sticky-note><%= preset ? preset.minutes + ' menit' : '' %></span>
+    </div>
+    <a class="btn btn--primary" data-detail-book
+       href="<%= base %>/booking?kota=<%= citySlug %>&paket=<%= pkg.id %><%= preset ? '&durasi=' + preset.minutes : '' %>">
+      Booking Paket Ini
+    </a>
+  </div>
+</section>
+
+<script type="application/json" id="pkg-detail-data"><%- JSON.stringify({
+  base: base, city: citySlug, pkgId: pkg.id,
+  durations: durations.map(function (d) { return { minutes: d.minutes, price: d.price, photos: d.edited_photos }; })
+}) %></script>

@@ -1,0 +1,93 @@
+<%
+  /**
+   * Kategori Gallery (dikelola admin).
+   *
+   * Daftar ini yang menjadi pilihan dropdown "Kategori" di halaman Gallery publik dan
+   * di form portfolio. Kategori yang masih dipakai karya tidak bisa dihapus — hanya bisa
+   * dinonaktifkan, supaya data portfolio lama tidak pernah ikut hilang.
+   */
+%>
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Tambah kategori</h2>
+      <p class="admin-muted">
+        Contoh: <strong>Individu</strong>, <strong>Couple</strong>, <strong>Group</strong>,
+        <strong>Wisuda Bersama</strong>. Nama ini tampil apa adanya di filter Gallery.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/portfolio">Kelola Portfolio &rarr;</a>
+  </div>
+  <form method="post" action="<%= base %>/admin/portfolio-categories" class="admin-form admin-form--inline">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field">
+      <label for="label">Nama kategori baru</label>
+      <input type="text" id="label" name="label" required maxlength="40" placeholder="Contoh: Individu">
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Tambah kategori</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Daftar kategori</h2>
+      <p class="admin-muted">
+        Urutan menentukan susunan di dropdown Gallery. Kategori nonaktif tetap tersimpan
+        (karya lamanya tidak berubah) tetapi tidak muncul sebagai pilihan filter.
+      </p>
+    </div>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Nama kategori</th>
+          <th>Slug</th>
+          <th>Karya</th>
+          <th>Urutan</th>
+          <th>Aktif</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(function (c) { %>
+          <tr>
+            <td>
+              <form method="post" action="<%= base %>/admin/portfolio-categories/<%= c.id %>" id="catform-<%= c.id %>">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="text" name="label" value="<%= c.label %>" maxlength="40" class="admin-input-inline">
+              </form>
+            </td>
+            <td><code><%= c.slug %></code></td>
+            <td><%= c.used %></td>
+            <td>
+              <input type="number" form="catform-<%= c.id %>" name="sort_order" value="<%= c.sort_order %>" min="0" class="admin-input-order">
+            </td>
+            <td>
+              <input type="checkbox" form="catform-<%= c.id %>" name="is_active" value="1" <%= c.is_active ? 'checked' : '' %>>
+            </td>
+            <td class="cell-actions">
+              <button class="admin-btn admin-btn--sm admin-btn--primary" type="submit" form="catform-<%= c.id %>">Simpan</button>
+              <% if (!c.used) { %>
+                <form method="post" action="<%= base %>/admin/portfolio-categories/<%= c.id %>/delete"
+                      data-confirm="Hapus kategori “<%= c.label %>”? Kategori ini belum dipakai karya.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="admin-link-btn admin-link-btn--danger" type="submit">Hapus</button>
+                </form>
+              <% } else { %>
+                <span class="admin-muted" title="Kategori yang sudah dipakai karya hanya bisa dinonaktifkan">dipakai <%= c.used %> karya</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+        <% if (!items.length) { %>
+          <tr><td colspan="6" class="admin-muted">Belum ada kategori. Tambahkan satu di atas.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>

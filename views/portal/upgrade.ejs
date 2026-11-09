@@ -1,0 +1,315 @@
+<%
+  /**
+   * Upgrade Paket & Extra Time (revisi 5 pemilik).
+   *
+   *  - Paket & durasi memakai kartu GAYA PRICELIST (komponen `.pkg-feature` yang sama
+   *    dengan halaman /pricelist), supaya tampilannya persis seperti brosur harga.
+   *  - Hanya NAIK yang bisa diajukan. Paket / durasi yang lebih rendah tetap DITAMPILKAN
+   *    tetapi DIKUNCI (downgrade tidak tersedia).
+   *  - Add-on bisa diajukan dari sini (takutnya klien baru kepikiran setelah booking).
+   *  - Extra Time terbuka saat sesi foto DIMULAI.
+   *  - Ringkasan "Paket kamu sekarang" ikut berubah setelah upgrade / extra / add-on
+   *    disetujui admin.
+   */
+  const pendingPackageId = pendingPackage ? Number(pendingPackage.package_id) : 0;
+  const pendingDurationMin = pendingDuration ? Number(pendingDuration.minutes) : 0;
+  const pendingAddonId = pendingAddon ? Number(pendingAddon.package_id) : 0;
+  const pendingExtraMin = pendingExtra ? Number(pendingExtra.minutes) : 0;
+  const extraOpen = Boolean(sessionStarted || sessionDone);
+  // Upgrade dikunci H-7 (kecuali admin membuka manual) DAN otomatis setelah sesi foto
+  // selesai (permintaan pemilik). Extra Time tidak ikut terkunci.
+  const canUpgrade = Boolean(access && access.ok);
+  const sessionClosed = Boolean(access && access.sessionOver);
+  const lockLabel = sessionClosed ? 'Dikunci (sesi selesai)' : `Dikunci (H-${access ? access.holdDays : 7})`;
+  const lockTitle = sessionClosed ? 'Upgrade sudah ditutup' : 'Upgrade paket sedang dikunci';
+  const money = (n) => rupiah(n) || 'Harga belum tersedia';
+  const durStateLabel = { current: 'Paket kamu sekarang', upgrade: 'Bisa upgrade', locked: 'Tidak tersedia' };
+%>
+<section class="cp-page cp-up">
+  <header class="cp-page__head">
+    <div>
+      <span class="cp-eyebrow">Upgrade Paket</span>
+      <h1>Naikkan paket, durasi, atau tambah add-on</h1>
+      <p>Semua pengajuan dikonfirmasi admin dulu. Turun paket / turun durasi tidak tersedia.</p>
+    </div>
+    <span class="cp-chip cp-chip--code"><%= booking.code %></span>
+  </header>
+
+  <% if (flash) { %><div class="cp-alert cp-alert--ok" role="status"><%= flash %></div><% } %>
+  <% if (flashError) { %><div class="cp-alert cp-alert--err" role="alert"><%= flashError %></div><% } %>
+
+  <%# Ringkasan paket sekarang — ikut diperbarui setelah admin menyetujui upgrade /
+      extra time / add-on. %>
+  <section class="cp-card cp-up__now">
+    <span class="cp-eyebrow">Paket kamu sekarang</span>
+    <strong class="cp-up__nowname"><%= summary.packageName %></strong>
+    <p class="cp-up__nowline"><%= summary.parts.join(' | ') %></p>
+    <% if (summary.hasExtras) { %>
+      <small class="cp-muted">Sudah termasuk paket yang kamu pilih + Extra Time + Add-on.</small>
+    <% } %>
+    <% if (plannedChanges.length || access.override) { %>
+      <small class="cp-muted">
+        <% if (plannedChanges.extraMinutes) { %>Extra Time <%= plannedChanges.extraMinutes %> menit menunggu persetujuan admin.<% } %>
+        <% if (plannedChanges.addonPrice) { %>Add-on <%= plannedChanges.addonName %> menunggu persetujuan admin.<% } %>
+      </small>
+    <% } %>
+  </section>
+
+  <% if (!canUpgrade) { %>
+    <section class="cp-card cp-up__lockedbar">
+      <h2 class="cp-card__title"><%= lockTitle %></h2>
+      <p class="cp-muted"><%= access.reason %></p>
+      <a class="cp-btn cp-btn--primary" href="<%= waHref %>" target="_blank" rel="noopener">Konfirmasi ke Admin via WhatsApp</a>
+    </section>
+  <% } %>
+
+  <% if (requests.length) { %>
+    <section class="cp-card cp-up__history">
+      <h2 class="cp-card__title">Pengajuan kamu</h2>
+      <ul class="cp-up__reqs">
+        <% requests.forEach(function (r) { %>
+          <li>
+            <span class="cp-up__reqname">
+              <% if (r.kind === 'package') { %>Upgrade paket: <%= r.package_name %>
+              <% } else if (r.kind === 'duration') { %>Upgrade durasi: <%= r.minutes %> menit
+              <% } else if (r.kind === 'addon') { %>Add-on: <%= r.package_name %>
+              <% } else { %>Extra Time <%= r.minutes %> menit<% } %>
+            </span>
+            <span class="cp-up__reqprice"><%= money(r.price) %></span>
+            <span class="cp-chip cp-chip--<%= requestStatus(r.status).tone === 'ok' ? 'done' : (requestStatus(r.status).tone === 'warn' ? 'upcoming' : 'muted') %>">
+              <%= requestStatus(r.status).label %>
+            </span>
+          </li>
+        <% }); %>
+      </ul>
+    </section>
+  <% } %>
+
+  <%# ================= PAKET & DURASI (gaya pricelist) ================= %>
+  <h2 class="cp-up__h2">Pilih paket &amp; durasi</h2>
+  <p class="cp-up__hint">
+    Kartu di bawah sama seperti daftar harga kami. Paket atau durasi yang lebih rendah dari
+    paket kamu sekarang dikunci (tidak bisa turun).
+  </p>
+
+  <div class="cp-pkglist">
+    <% cards.forEach(function (p) { %>
+      <article class="pkg-feature cp-pkgcard <%= p.is_current ? 'is-current' : '' %> <%= p.state === 'locked' ? 'is-locked' : '' %>"
+               data-package-id="<%= p.id %>" data-state="<%= p.state %>">
+        <div class="pkg-feature__media">
+          <% if (p.cover) { %>
+            <%- picture(p.cover, {
+                  alt: 'Paket ' + p.name,
+                  className: 'pkg-feature__img',
+                  widths: [480, 800, 1200],
+                  sizes: '(max-width: 899px) 92vw, 46vw'
+                }) %>
+          <% } else { %>
+            <div class="pkg-feature__placeholder">
+              <span class="pkg-feature__monogram" aria-hidden="true">DLY</span>
+              <span><%= p.category_name || 'Paket' %></span>
+              <small>Foto sesi belum diunggah admin</small>
+            </div>
+          <% } %>
+          <% if (p.is_best_seller) { %>
+            <span class="pkg-best pkg-best--on-media">Best Seller</span>
+          <% } %>
+          <% if (p.is_recommended) { %>
+            <span class="pkg-best pkg-best--recommended pkg-best--on-media">Recommended</span>
+          <% } %>
+          <% if (p.is_current) { %>
+            <span class="cp-pkgcard__flag cp-pkgcard__flag--current">Paket kamu</span>
+          <% } else if (p.state === 'locked') { %>
+            <span class="cp-pkgcard__flag cp-pkgcard__flag--locked">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+              Terkunci
+            </span>
+          <% } %>
+        </div>
+
+        <div class="pkg-feature__body">
+          <header class="pkg-feature__head">
+            <span class="pkg-feature__cat"><%= p.category_name || 'Paket' %><%= p.city_name ? ' · ' + p.city_name : '' %></span>
+          </header>
+
+          <div class="pkg-feature__titlerow">
+            <h3 class="pkg-feature__title"><%= p.name %></h3>
+          </div>
+          <% if (p.description) { %><p class="pkg-feature__desc"><%= p.description %></p><% } %>
+
+          <p class="pkg-feature__meta">
+            <span class="pkg-feature__meta-item">
+              <strong><%= p.durations.length ? p.durations.length + ' pilihan durasi' : 'Durasi belum diatur' %></strong>
+            </span>
+          </p>
+
+          <%# Chip durasi = titik pengajuan upgrade durasi (paket yang sama). %>
+          <div class="pkg-feature__durations cp-pkgcard__durs" role="group" aria-label="Durasi <%= p.name %>">
+            <% p.durations.forEach(function (d) { %>
+              <%
+                const durLocked = !canUpgrade || d.durationState === 'locked';
+                const isCurrentDur = d.durationState === 'current';
+                const alreadyPending = pendingDurationMin === d.minutes;
+              %>
+              <div class="dur-card cp-dur <%= isCurrentDur ? 'is-active' : '' %> <%= durLocked && !isCurrentDur ? 'is-locked' : '' %>"
+                   data-duration="<%= d.minutes %>">
+                <span class="dur-card__time"><%= d.minutes %> menit</span>
+                <span class="dur-card__price"><%= money(d.price) %></span>
+                <span class="dur-card__photos"><%= d.edited_photos ? d.edited_photos + ' foto edit' : 'Foto edit belum diatur' %></span>
+                <% if (isCurrentDur) { %>
+                  <span class="cp-dur__state">Paket kamu sekarang</span>
+                <% } else if (d.durationState === 'locked') { %>
+                  <span class="cp-dur__state cp-dur__state--locked">Tidak tersedia</span>
+                <% } else if (alreadyPending) { %>
+                  <span class="cp-dur__state cp-dur__state--pending">Menunggu konfirmasi</span>
+                <% } else if (!canUpgrade) { %>
+                  <span class="cp-dur__state cp-dur__state--locked"><%= lockLabel %></span>
+                <% } else { %>
+                  <form method="post" action="<%= base %>/portal/upgrade/duration"
+                        data-confirm="Ajukan upgrade durasi ke <%= d.minutes %> menit (<%= money(d.price) %>)? Admin akan mengonfirmasi harga & pembayarannya lebih dulu.">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="minutes" value="<%= d.minutes %>">
+                    <button class="cp-btn cp-btn--primary cp-btn--xs" type="submit">Ajukan</button>
+                  </form>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+
+          <% if (p.benefits.length) { %>
+            <ul class="benefit-list benefit-list--compact pkg-feature__benefits">
+              <% p.benefits.slice(0, 4).forEach(function (b) { %>
+                <li><span class="benefit-list__icon"><%- icon(b.icon) %></span><span><%= b.text %></span></li>
+              <% }); %>
+            </ul>
+          <% } %>
+
+          <div class="pkg-feature__footer">
+            <div class="pkg-feature__price">
+              <span class="spec-label">Harga</span>
+              <strong class="<%= p.price_from ? '' : 'is-empty' %>"><%= p.price_from ? money(p.price_from) : 'Harga belum tersedia' %></strong>
+              <span>
+                <% if (p.is_current) { %>
+                  Paket yang kamu booking sekarang
+                <% } else if (p.state === 'upgrade') { %>
+                  +<%= money(p.diff) %> dari paket sekarang
+                <% } else { %>
+                  Lebih murah — tidak bisa dipilih
+                <% } %>
+              </span>
+            </div>
+
+            <% if (p.is_current) { %>
+              <span class="cp-btn cp-btn--ghost cp-btn--disabled">Paket kamu</span>
+            <% } else if (p.state === 'locked') { %>
+              <span class="cp-btn cp-btn--ghost cp-btn--disabled" title="Downgrade tidak tersedia">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                Tidak tersedia
+              </span>
+            <% } else if (!canUpgrade) { %>
+              <span class="cp-btn cp-btn--ghost cp-btn--disabled"><%= lockLabel %></span>
+            <% } else if (pendingPackageId === Number(p.id)) { %>
+              <span class="cp-up__pending">Menunggu konfirmasi admin</span>
+            <% } else { %>
+              <form method="post" action="<%= base %>/portal/upgrade/package"
+                    data-confirm="Ajukan upgrade ke paket <%= p.name %>? Admin akan mengonfirmasi harga & pembayarannya lebih dulu.">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="hidden" name="package_id" value="<%= p.id %>">
+                <button class="cp-btn cp-btn--primary" type="submit">Ajukan Upgrade</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      </article>
+    <% }); %>
+  </div>
+
+  <%# ================= ADD-ON ================= %>
+  <h2 class="cp-up__h2">Tambah Add-on</h2>
+  <p class="cp-up__hint">
+    Baru kepikiran setelah booking? Ajukan add-on di bawah — admin akan mengonfirmasi
+    harga dan pembayarannya.
+  </p>
+  <% if (!addons.length) { %>
+    <section class="cp-card"><p class="cp-muted">Belum ada add-on untuk paket kamu.</p></section>
+  <% } else { %>
+    <div class="cp-up__grid">
+      <% addons.forEach(function (a) { %>
+        <article class="cp-up__card cp-up__card--addon <%= (a.owned || !a.available || !canUpgrade) ? 'is-locked' : '' %>">
+          <div class="cp-up__body">
+            <span class="cp-up__cat">Add-on</span>
+            <h3 class="cp-up__title"><%= a.name %></h3>
+            <% if (a.description) { %><p class="cp-muted cp-up__addondesc"><%= a.description %></p><% } %>
+            <div class="cp-up__foot">
+              <span class="cp-up__price">
+                <small>Harga</small>
+                <strong><%= a.available ? money(a.price) : 'Belum diatur admin' %></strong>
+              </span>
+              <% if (a.owned) { %>
+                <span class="cp-chip cp-chip--done">Sudah ada di paket kamu</span>
+              <% } else if (!canUpgrade) { %>
+                <span class="cp-up__lock"><%= lockLabel %></span>
+              <% } else if (pendingAddonId === Number(a.id)) { %>
+                <span class="cp-up__pending">Menunggu konfirmasi admin</span>
+              <% } else if (!a.available) { %>
+                <span class="cp-up__pending">Harga belum diatur</span>
+              <% } else { %>
+                <form method="post" action="<%= base %>/portal/upgrade/addon"
+                      data-confirm="Ajukan add-on <%= a.name %> (<%= money(a.price) %>)? Admin akan mengonfirmasi lebih dulu.">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="addon_id" value="<%= a.id %>">
+                  <button class="cp-btn cp-btn--primary" type="submit">Ajukan Add-on</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <%# ================= EXTRA TIME ================= %>
+  <h2 class="cp-up__h2">Extra Time</h2>
+  <p class="cp-muted cp-up__hint">
+    Tambahan waktu sesi foto. Harga diatur admin dan bisa berubah kapan saja.
+    <% if (!extraOpen) { %><strong>Extra Time terbuka saat sesi foto kamu dimulai.</strong><% } %>
+  </p>
+  <div class="cp-up__grid cp-up__grid--extra">
+    <% extraOptions.forEach(function (o) { %>
+      <article class="cp-up__card cp-up__card--extra <%= extraOpen ? '' : 'is-locked' %>">
+        <div class="cp-up__body">
+          <span class="cp-up__cat">Extra Time</span>
+          <h3 class="cp-up__title">+<%= o.minutes %> menit</h3>
+          <div class="cp-up__foot">
+            <span class="cp-up__price">
+              <small>Harga</small>
+              <strong><%= o.available ? money(o.price) : 'Belum diatur admin' %></strong>
+            </span>
+            <% if (!extraOpen) { %>
+              <span class="cp-up__lock">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                Terbuka saat sesi foto dimulai
+              </span>
+            <% } else if (pendingExtraMin === o.minutes) { %>
+              <span class="cp-up__pending">Menunggu konfirmasi admin</span>
+            <% } else if (!o.available) { %>
+              <span class="cp-up__pending">Harga belum diatur</span>
+            <% } else { %>
+              <form method="post" action="<%= base %>/portal/upgrade/extra"
+                    data-confirm="Ajukan Extra Time <%= o.minutes %> menit (<%= money(o.price) %>)? Admin akan mengonfirmasi lebih dulu.">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="hidden" name="minutes" value="<%= o.minutes %>">
+                <button class="cp-btn cp-btn--primary" type="submit">Ajukan Extra Time</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      </article>
+    <% }); %>
+  </div>
+
+  <p class="cp-small-note">
+    Setelah admin menyetujui, paket/durasi, add-on, dan total tagihan pada booking kamu ikut
+    diperbarui. Belum ada pembayaran yang ditarik otomatis dari halaman ini.
+  </p>
+</section>

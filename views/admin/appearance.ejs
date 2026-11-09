@@ -1,0 +1,88 @@
+<div class="admin-note">
+  Warna, font, logo, dan gaya tombol diatur di sini sebagai <strong>draft</strong>. Tekan <strong>Publish Changes</strong> untuk menerapkannya ke website publik.
+</div>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Preset tampilan</h2>
+      <p class="admin-muted">Preset mengisi seluruh token warna dan font. Anda tetap bisa mengubah detail setelahnya.</p>
+    </div>
+  </div>
+  <div class="preset-grid">
+    <% presets.forEach(function (p) { %>
+      <article class="preset-card <%= app.preset === p.value ? 'is-active' : '' %>">
+        <div class="preset-card__swatches">
+          <span style="background: <%= p.values.primary %>"></span>
+          <span style="background: <%= p.values.secondary %>"></span>
+          <span style="background: <%= p.values.background %>"></span>
+          <span style="background: <%= p.values.border %>"></span>
+        </div>
+        <h3><%= p.label %></h3>
+        <p><%= p.description %></p>
+        <form method="post" action="<%= base %>/admin/appearance/preset">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <input type="hidden" name="preset" value="<%= p.value %>">
+          <button class="admin-btn admin-btn--sm <%= app.preset === p.value ? 'admin-btn--primary' : '' %>" type="submit">
+            <%= app.preset === p.value ? 'Preset aktif' : 'Terapkan preset' %>
+          </button>
+        </form>
+      </article>
+    <% }); %>
+  </div>
+</section>
+
+<form method="post" action="<%= base %>/admin/appearance" enctype="multipart/form-data" class="admin-form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="preset" value="custom">
+
+  <section class="admin-panel">
+    <div class="admin-panel__head"><h2>Warna &amp; tipografi</h2></div>
+    <div class="admin-field-grid">
+      <% fields.forEach(function (f) { %>
+        <div class="admin-field">
+          <label for="appearance_<%= f.key %>"><%= f.label %></label>
+
+          <% if (f.type === 'color') { %>
+            <div class="color-field">
+              <input type="color" id="appearance_<%= f.key %>" name="appearance_<%= f.key %>" value="<%= app[f.key] %>">
+              <input type="text" value="<%= app[f.key] %>" readonly>
+            </div>
+          <% } else if (f.type === 'font') { %>
+            <select id="appearance_<%= f.key %>" name="appearance_<%= f.key %>">
+              <% fonts.forEach(function (font) { %>
+                <option value="<%= font.value %>" <%= app[f.key] === font.value ? 'selected' : '' %>><%= font.label %></option>
+              <% }); %>
+            </select>
+          <% } else if (f.type === 'select') { %>
+            <select id="appearance_<%= f.key %>" name="appearance_<%= f.key %>">
+              <% f.options.forEach(function (o) { %>
+                <option value="<%= o.value %>" <%= app[f.key] === o.value ? 'selected' : '' %>><%= o.label %></option>
+              <% }); %>
+            </select>
+          <% } else { %>
+            <input type="text" id="appearance_<%= f.key %>" name="appearance_<%= f.key %>" value="<%= app[f.key] %>" placeholder="/uploads/logo.png atau https://...">
+          <% } %>
+        </div>
+      <% }); %>
+
+      <div class="admin-field">
+        <label for="logo_file">Upload logo baru</label>
+        <input type="file" id="logo_file" name="logo_file" accept="image/*">
+        <span class="admin-hint">Kosongkan jika tidak ingin mengganti logo.</span>
+      </div>
+    </div>
+
+    <% if (app.logo) { %>
+      <div class="admin-preview">
+        <span class="admin-hint">Logo saat ini</span>
+        <img src="<%= imageUrl(app.logo) %>" alt="Logo" style="background:#fff;padding:10px;max-width:220px">
+      </div>
+    <% } %>
+  </section>
+
+  <div class="admin-sticky-actions">
+    <button class="admin-btn admin-btn--primary" type="submit">Save Draft</button>
+    <a class="admin-btn" href="<%= base %>/admin/preview?path=%2F" target="_blank" rel="noopener">Preview Website</a>
+  </div>
+</form>

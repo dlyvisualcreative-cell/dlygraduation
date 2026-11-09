@@ -1,0 +1,40 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>FAQ</h2>
+      <p class="admin-muted">Pertanyaan aktif tampil di halaman FAQ dan sebagian di halaman Cara Order.</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/faqs/new">+ Tambah FAQ</a>
+  </div>
+
+  <% if (!faqs.length) { %>
+    <p class="admin-muted">Belum ada FAQ.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Pertanyaan</th><th>Jawaban</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% faqs.forEach(function (f) { %>
+            <tr>
+              <td><strong><%= f.question %></strong></td>
+              <td class="cell-quote"><%= (f.answer || '').slice(0, 120) %><%= (f.answer || '').length > 120 ? '…' : '' %></td>
+              <td><%= f.sort_order %></td>
+              <td><span class="admin-badge <%= Number(f.is_active) ? 'admin-badge--ok' : 'admin-badge--muted' %>"><%= Number(f.is_active) ? 'Aktif' : 'Nonaktif' %></span></td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/faqs/<%= f.id %>/edit">Edit</a>
+                <form method="post" action="<%= base %>/admin/faqs/<%= f.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= Number(f.is_active) ? 'Nonaktifkan' : 'Aktifkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/faqs/<%= f.id %>/delete" data-confirm="Hapus FAQ ini?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

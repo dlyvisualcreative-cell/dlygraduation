@@ -1,0 +1,190 @@
+<%
+  /**
+   * Ringkasan (blueprint §5): identitas client + status order terbaru.
+   * Data hanya dibaca dari booking milik sesi ini; tidak bisa diedit dari sini.
+   */
+  const degree = String(booking.client_degree || '').trim();
+  const fullName = degree ? `${booking.client_name}, ${degree}` : booking.client_name;
+  const current = timeline.current;
+  const rows = [
+    ['Nama lengkap', fullName],
+    ['WhatsApp', booking.client_phone],
+    ['Instagram', booking.instagram ? '@' + booking.instagram : ''],
+    ['Kampus / Universitas', booking.campus],
+    ['Fakultas', booking.faculty],
+    ['Jurusan', booking.major],
+    ['Kode Booking', booking.code],
+    ['Tanggal Booking', formatDateID(String(booking.created_at || '').slice(0, 10), true)],
+    ['Tanggal Sesi', formatDateID(booking.shooting_date, true) + (booking.shooting_time ? ' · ' + booking.shooting_time + ' WIB' : '')],
+    ['Paket', booking.package_name]
+  ].filter(([, v]) => String(v || '').trim());
+%>
+
+<section class="cp-page">
+  <header class="cp-page__head">
+    <div>
+      <span class="cp-eyebrow">Ringkasan</span>
+      <h1>Halo, <%= String(booking.client_name || '').split(' ')[0] %> 👋</h1>
+      <p>Ini ringkasan booking dan status order kamu di DLY Graduation.</p>
+    </div>
+    <a class="cp-btn cp-btn--ghost" href="<%= base %>/portal/pantau-order">Lihat Pantau Order</a>
+  </header>
+
+  <section class="cp-card" aria-labelledby="cp-identitas">
+    <h2 id="cp-identitas" class="cp-card__title">Identitas Client</h2>
+    <dl class="cp-ident">
+      <% rows.forEach(function (r) { %>
+        <div class="cp-ident__row">
+          <dt><%= r[0] %></dt>
+          <dd><%= r[1] %></dd>
+        </div>
+      <% }); %>
+      <div class="cp-ident__row">
+        <dt>Persetujuan S&amp;K</dt>
+        <dd>
+          <% if (booking.terms_consent) { %>
+            <span class="cp-chip cp-chip--ok">Disetujui</span>
+            <% if (booking.terms_consent_at) { %>
+              <small><%= formatDateID(String(booking.terms_consent_at).slice(0, 10), true) %></small>
+            <% } %>
+          <% } else { %>
+            <span class="cp-chip cp-chip--muted">Belum disetujui</span>
+          <% } %>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <%# Revisi 5 — tiga kotak tagihan di bawah identitas client.
+      Angka dari snapshot booking + baris pembayaran (tidak pernah dikarang). %>
+  <section class="cp-pay" aria-label="Ringkasan tagihan">
+    <div class="cp-pay__box">
+      <span class="cp-pay__label">Total Harga Paket</span>
+      <strong class="cp-pay__value"><%= pay.total != null ? rupiah(pay.total) : 'Belum tercatat' %></strong>
+      <% if (hasExtras) { %>
+        <small class="cp-pay__note">Sudah termasuk paket yang kamu pilih + <%= extrasLabel %></small>
+      <% } %>
+    </div>
+    <div class="cp-pay__box <%= pay.paid > 0 ? 'cp-pay__box--ok' : '' %>">
+      <span class="cp-pay__label">Yang Sudah di Bayar</span>
+      <strong class="cp-pay__value"><%= rupiah(pay.paid) %></strong>
+      <small class="cp-pay__note"><%= payStatusLabel %></small>
+    </div>
+    <div class="cp-pay__box <%= pay.due ? 'cp-pay__box--warn' : 'cp-pay__box--ok' %>">
+      <span class="cp-pay__label">Yang Belum di Bayar</span>
+      <strong class="cp-pay__value"><%= pay.due != null ? rupiah(pay.due) : '—' %></strong>
+      <small class="cp-pay__note"><%= pay.due ? 'Sisa pelunasan' : 'Tidak ada sisa' %></small>
+    </div>
+  </section>
+
+  <% if (pay.due) { %>
+    <section class="cp-card cp-pay__alert">
+      <h2 class="cp-card__title">Catatan pelunasan</h2>
+      <p class="cp-muted">
+        Sisa pelunasan wajib dikirimkan paling lambat <strong>H-1 sebelum pemotretan</strong>
+        <% if (bank.name || bank.number) { %>
+          , dan untuk sisa pelunasan dikirim ke nomor rekening
+          <strong><%= bank.name || 'bank' %></strong>
+          <strong class="cp-pay__rek"><%= bank.number || '(nomor rekening belum diisi admin)' %></strong>
+          <% if (bank.holder) { %>a.n. <strong><%= bank.holder %></strong><% } %>
+        <% } %>.
+      </p>
+      <% if (bank.notes) { %><p class="cp-muted cp-pay__banknote"><%= bank.notes %></p><% } %>
+      <p class="cp-small-note">Konfirmasi pembayaran ke admin lewat WhatsApp setelah transfer.</p>
+    </section>
+  <% } %>
+
+  <section class="cp-card cp-card--status" aria-labelledby="cp-status"
+           data-cp-live data-stage="<%= current ? current.key : '' %>"
+           data-state="<%= current ? current.state : '' %>"
+           data-queue="<%= (timeline.items.find(function (s) { return s.key === 'editing_queue' && s.queue; }) || {}).queue
+             ? (timeline.items.find(function (s) { return s.key === 'editing_queue' && s.queue; })).queue.position : '' %>"
+           data-next-at="<%= timeline.nextSessionAt || '' %>">
+    <div class="cp-status__top">
+      <h2 id="cp-status" class="cp-card__title">Status Order Kamu Saat Ini</h2>
+      <% if (timeline.current) { %>
+        <%# Revisi 2: badge "Sedang Berlangsung" hanya untuk tahap yang benar-benar aktif.
+            Order yang sudah selesai (tahap 08) tampil sebagai "Selesai". %>
+        <% if (timeline.current.state === 'active') { %>
+          <span class="cp-chip cp-chip--live">
+            <span class="cp-chip__dot" aria-hidden="true"></span>Sedang Berlangsung
+          </span>
+        <% } else { %>
+          <span class="cp-chip cp-chip--done">Selesai</span>
+        <% } %>
+      <% } %>
+    </div>
+
+    <% if (!current) { %>
+      <p class="cp-muted">Status order akan muncul setelah booking kamu dikonfirmasi admin.</p>
+    <% } else { %>
+      <div class="cp-status__now">
+        <span class="cp-status__no"><%= current.no %></span>
+        <div>
+          <strong><%= current.title %></strong>
+          <p><%= current.blurb %></p>
+          <small class="cp-muted">Diperbarui <%= current.atLabel %> · <%= current.actor === 'klien' ? 'oleh kamu' : current.actor === 'admin' ? 'oleh admin' : 'otomatis' %></small>
+          <% if (current.key === 'session_done' && current.state === 'active') { %>
+            <p class="cp-status__reminder"><%= SESSION_REMINDER %></p>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (editingDeadline) { %>
+        <div class="cp-deadline">
+          <span class="cp-deadline__label">Estimasi selesai editing</span>
+          <strong><%= formatDateID(editingDeadline, true) %></strong>
+          <small>10 hari kerja sejak pilihan foto dikirim (Sabtu, Minggu &amp; hari libur tidak dihitung).</small>
+        </div>
+      <% } %>
+
+      <a class="cp-btn" href="<%= base %>/portal/pantau-order">Lihat riwayat lengkap</a>
+    <% } %>
+  </section>
+
+  <div class="cp-grid2">
+    <section class="cp-card cp-card--link">
+      <h2 class="cp-card__title">Pilih Foto Favorit</h2>
+      <% if (selPortal && selPortal.submitted_at) { %>
+        <p class="cp-muted">Pilihan fotomu sudah dikirim pada <%= formatDateTimeWIB(selPortal.submitted_at) %>.</p>
+        <a class="cp-btn cp-btn--ghost" href="<%= base %>/portal/pilih-foto">Lihat pilihan</a>
+      <% } else if (selPortal) { %>
+        <p class="cp-muted">Foto kamu sudah siap dipilih. Kuota <%= selPortal.quota %> foto.</p>
+        <a class="cp-btn cp-btn--primary" href="<%= base %>/portal/pilih-foto">Mulai pilih foto</a>
+      <% } else { %>
+        <p class="cp-muted">Admin belum menyiapkan foto untuk dipilih. Kami kabari lewat WhatsApp.</p>
+      <% } %>
+    </section>
+
+    <section class="cp-card cp-card--link">
+      <h2 class="cp-card__title">Foto Final</h2>
+      <% if (booking.final_url) { %>
+        <p class="cp-muted">Foto hasil edit sudah siap diakses lewat Google Drive.</p>
+        <a class="cp-btn cp-btn--primary" href="<%= base %>/portal/drive">Buka Link Google Drive</a>
+      <% } else { %>
+        <p class="cp-muted">Foto final kamu belum tersedia. Kami sedang mempersiapkannya.</p>
+        <span class="cp-btn cp-btn--disabled" aria-disabled="true">Belum tersedia</span>
+      <% } %>
+    </section>
+  </div>
+
+  <section class="cp-card cp-notify" data-cp-push data-base="<%= base %>" data-key="<%= cpPushKey %>">
+    <div class="cp-notify__text">
+      <h2 class="cp-card__title">Notifikasi HP</h2>
+      <p class="cp-muted">
+        Aktifkan agar kamu tahu saat booking dikonfirmasi, foto siap dipilih, batas waktu
+        pemilihan dekat, jadwal berubah, atau foto final sudah siap.
+      </p>
+      <p class="cp-small-note" data-cp-push-state>Memeriksa status…</p>
+    </div>
+    <div class="cp-notify__action">
+      <button type="button" class="cp-btn cp-btn--primary" data-cp-push-on>Aktifkan Notifikasi</button>
+      <button type="button" class="cp-btn cp-btn--ghost" data-cp-push-off hidden>Matikan di perangkat ini</button>
+    </div>
+  </section>
+
+  <p class="cp-small-note">
+    Data di halaman ini berasal dari formulir booking kamu dan tidak dapat diubah dari portal.
+    Bila ada yang perlu diperbaiki, hubungi admin melalui WhatsApp.
+  </p>
+</section>

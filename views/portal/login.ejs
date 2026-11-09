@@ -1,0 +1,58 @@
+<section class="cp-login">
+  <div class="cp-login__bg" aria-hidden="true"></div>
+  <div class="cp-login__card">
+    <div class="cp-login__head">
+      <%# Logo resmi DLY Graduation — asset yang sama dengan header website.
+          Tidak ada kotak/badge baru di belakang logo. %>
+      <% const loginLogo = logoFor(settings.selection_portal_logo, 'dark'); %>
+      <% if (loginLogo) { %>
+        <%- picture(loginLogo, {
+              alt: brand.name,
+              className: 'cp-login__logo',
+              widths: [192, 320, 480],
+              sizes: '(max-width: 520px) 60vw, 260px',
+              eager: true
+            }) %>
+      <% } else { %>
+        <span class="cp-login__mark" aria-hidden="true">DLY</span>
+      <% } %>
+      <span class="cp-login__eyebrow">PORTAL CLIENT <%= (portalBrandName || '').toUpperCase() %></span>
+      <h1>Selamat Datang</h1>
+      <p>Masukkan kode booking yang telah kamu terima melalui WhatsApp.</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="cp-login__err" role="alert"><%= error %></div>
+    <% } %>
+
+    <form method="post" action="<%= base %>/portal/masuk" class="cp-login__form">
+      <input type="hidden" name="next" value="<%= next || '' %>">
+      <label class="cp-login__field">
+        <span>KODE BOOKING</span>
+        <input type="text" name="code" value="<%= code || '' %>" required
+               autocomplete="one-time-code" autocapitalize="characters" spellcheck="false"
+               placeholder="DLY-WISUDA-ANJAS001" inputmode="text">
+      </label>
+      <label class="cp-login__field">
+        <span>PIN 4 ANGKA</span>
+        <input type="password" name="pin" required inputmode="numeric" pattern="\d{4}"
+               maxlength="4" autocomplete="one-time-code" placeholder="••••"
+               class="cp-login__pin">
+      </label>
+      <button class="cp-login__btn" type="submit">MASUK PORTAL</button>
+    </form>
+
+    <p class="cp-login__help">
+      Kode booking dan PIN dikirim admin melalui WhatsApp setelah booking dikonfirmasi.
+      Belum menerima? <a href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin meminta kode booking & PIN Portal Client.') %>"
+      target="_blank" rel="noopener">Hubungi admin</a>.
+    </p>
+    <p class="cp-login__note">
+      Selama booking belum dikonfirmasi admin, kode booking hanya berlaku
+      <strong><%= pendingAccessHours || 24 %> jam</strong> sejak booking dikirim.
+    </p>
+    <p class="cp-login__note">
+      Demi keamanan, maksimal <%= attemptLimit %> percobaan dalam <%= attemptWindow %> menit.
+    </p>
+  </div>
+</section>

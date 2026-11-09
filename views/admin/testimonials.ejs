@@ -1,0 +1,73 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Testimoni</h2>
+      <p class="admin-muted">
+        Hanya testimoni aktif yang tampil di website. Testimoni dengan sumber <strong>Klien</strong> berstatus
+        “Menunggu persetujuan” sampai Anda klik <em>Setujui &amp; tampilkan</em>.
+      </p>
+    </div>
+    <div class="cell-actions">
+      <a class="admin-link" href="<%= base %>/admin/testimonial-link">Link testimoni klien</a>
+      <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/testimonials/new">+ Tambah testimoni</a>
+    </div>
+  </div>
+
+  <% if (!items.length) { %>
+    <p class="admin-muted">Belum ada testimoni.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Klien</th><th>Isi testimoni</th><th>Rating</th><th>Sumber</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% items.forEach(function (t) { %>
+            <tr>
+              <td>
+                <div class="cell-media">
+                  <% if (t.photo) { %><img src="<%= imageUrl(t.photo) %>" alt="Foto <%= t.client_name %>"><% } %>
+                  <div>
+                    <strong><%= t.client_name %></strong>
+                    <small class="cell-sub"><%= t.campus || t.client_meta || '—' %></small>
+                  </div>
+                </div>
+              </td>
+              <td class="cell-quote">
+                <%= (t.quote || '').slice(0, 110) %><%= (t.quote || '').length > 110 ? '…' : '' %>
+                <% if (t.is_placeholder) { %><span class="admin-badge admin-badge--warn">Contoh</span><% } %>
+              </td>
+              <td>
+                <span class="admin-stars-mini" aria-label="<%= t.rating %> dari 5 bintang">
+                  <% for (let s = 1; s <= 5; s += 1) { %>
+                    <span class="<%= s <= t.rating ? 'is-on' : '' %>" aria-hidden="true">&#9733;</span>
+                  <% } %>
+                </span>
+                <small class="cell-sub"><%= t.rating %>/5</small>
+              </td>
+              <td>
+                <span class="admin-badge <%= t.source === 'client' ? 'admin-badge--warn' : 'admin-badge--muted' %>">
+                  <%= t.source === 'client' ? 'Klien' : 'Admin' %>
+                </span>
+              </td>
+              <td>
+                <span class="admin-badge <%= t.is_active ? 'admin-badge--ok' : 'admin-badge--warn' %>">
+                  <%= t.is_active ? 'Tampil' : (t.source === 'client' ? 'Menunggu persetujuan' : 'Nonaktif') %>
+                </span>
+              </td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/testimonials/<%= t.id %>/edit">Edit</a>
+                <form method="post" action="<%= base %>/admin/testimonials/<%= t.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= t.is_active ? 'Sembunyikan' : 'Setujui &amp; tampilkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/testimonials/<%= t.id %>/delete" data-confirm="Hapus testimoni ini?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

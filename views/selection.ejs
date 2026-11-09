@@ -1,0 +1,171 @@
+<section class="sel-hero sel-hero--app">
+  <div class="sel-hero__inner">
+    <div class="sel-hero__brandrow">
+      <span class="sel-hero__brand"><%= portalBrand %></span>
+      <span class="sel-hero__eyebrow">Portal Seleksi Foto</span>
+    </div>
+    <h1><%= booking.client_name %></h1>
+    <p class="sel-hero__code">Booking <strong><%= booking.code %></strong></p>
+    <p class="sel-hero__lede"><%= settings.selection_brand_note || 'Pilih foto favoritmu untuk kami edit.' %></p>
+
+    <div class="sel-hero__counterline">
+      <span class="sel-hero__counterlabel">Pilih hingga <strong><%= quota %> foto</strong></span>
+      <span class="sel-hero__bigcount" data-sel-counter-big><%= picks.size %><i>/<%= quota %></i></span>
+    </div>
+
+    <div class="sel-hero__stats">
+      <div class="sel-hero__stat">
+        <span class="sel-hero__statlabel">Batas pilihan</span>
+        <strong><%= quota %> foto</strong>
+      </div>
+      <div class="sel-hero__stat sel-hero__stat--count">
+        <span class="sel-hero__statlabel">Foto terpilih</span>
+        <strong data-sel-counter><%= picks.size %>/<%= quota %></strong>
+      </div>
+      <div class="sel-hero__stat">
+        <span class="sel-hero__statlabel">Tanggal sesi</span>
+        <strong><%= formatDateID(booking.shooting_date) %></strong>
+      </div>
+      <% if (portal.deadline) { %>
+        <div class="sel-hero__stat">
+          <span class="sel-hero__statlabel">Batas waktu</span>
+          <strong><%= formatDateID(portal.deadline) %></strong>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%# v14: admin melihat antarmuka yang SAMA dengan client. Penanda admin dibuat
+    seringkas mungkin (chip kecil), bukan halaman teknis terpisah. %>
+<% if (adminView) { %>
+  <div class="sel-adminchip">
+    <span class="sel-adminchip__dot" aria-hidden="true"></span>
+    <span>Mode admin — tampilan sama seperti client</span>
+    <a href="<%= base %>/admin/selection/<%= portal.id %>">Kelola portal</a>
+  </div>
+<% } %>
+
+<%- include('partials/selection-drive') %>
+
+<% if (gate.closed) { %>
+  <section class="sel-section">
+    <div class="sel-card sel-card--state">
+      <span class="sel-state-icon" aria-hidden="true">&#128274;</span>
+      <h2>Portal seleksi sudah ditutup</h2>
+      <p>Portal ini tidak dapat dibuka lagi. Silakan hubungi DLY Graduation melalui WhatsApp bila Kakak masih
+        perlu mengubah pilihan foto.</p>
+      <a class="sel-btn sel-btn--wa" target="_blank" rel="noopener"
+         href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', portal seleksi foto saya (' + booking.code + ') sudah ditutup.') %>">
+        Hubungi DLY Graduation
+      </a>
+    </div>
+  </section>
+
+<% } else if (gate.submitted) { %>
+  <section class="sel-section">
+    <div class="sel-card sel-card--state sel-card--ok">
+      <span class="sel-state-icon" aria-hidden="true">&#10003;</span>
+      <h2><%= sent ? 'Pilihan foto berhasil dikirim!' : 'Pilihan foto sudah dikirim' %></h2>
+      <p>
+        Terima kasih, Kak <%= booking.client_name %>. Tim DLY Graduation sudah menerima
+        <strong><%= picks.size %> foto</strong> pilihan Kakak
+        <% if (portal.submitted_at) { %> pada <%= String(portal.submitted_at).slice(0, 16) %> <% } %>
+        dan akan melanjutkan proses editing.
+      </p>
+      <p class="sel-card__hint">Pilihan yang sudah dikirim tidak dapat diubah lagi. Bila ada yang perlu diperbaiki,
+        hubungi admin melalui WhatsApp.</p>
+      <a class="sel-btn sel-btn--wa" target="_blank" rel="noopener" href="<%= submitWa %>">
+        Kirim Daftar Foto ke Admin
+      </a>
+    </div>
+  </section>
+
+  <%# Tahap 5: status editing (hanya tahapnya — catatan internal admin tidak pernah ditampilkan). %>
+  <% if (editingStatus) { %>
+    <section class="sel-section">
+      <div class="sel-card sel-edit">
+        <div class="sel-edit__head">
+          <span class="sel-edit__eyebrow">Status editing</span>
+          <strong class="sel-edit__label sel-edit__label--<%= editingStatus.tone %>"><%= editingStatus.label %></strong>
+        </div>
+        <p class="sel-edit__hint"><%= editingStatus.hint %></p>
+        <ol class="sel-edit__steps" aria-label="Tahap editing">
+          <% editingStatus.stages.forEach(function (st, i) { %>
+            <li class="sel-edit__step <%= i < editingStatus.index ? 'is-done' : '' %> <%= i === editingStatus.index ? 'is-current' : '' %>">
+              <span class="sel-edit__dot" aria-hidden="true"><%= i < editingStatus.index ? '✓' : (i + 1) %></span>
+              <span class="sel-edit__steplabel"><%= st.label %></span>
+            </li>
+          <% }); %>
+        </ol>
+        <p class="sel-edit__note">
+          Status ini diperbarui oleh tim DLY Graduation. Bila ada pertanyaan, silakan hubungi kami via WhatsApp.
+        </p>
+      </div>
+    </section>
+  <% } %>
+
+  <% if (picks.size) { %>
+    <section class="sel-section">
+      <div class="sel-section__head">
+        <h2>Foto yang Kakak pilih</h2>
+        <span class="sel-count"><%= picks.size %> / <%= quota %></span>
+      </div>
+      <ol class="sel-grid sel-grid--readonly">
+        <% photos.filter(function (p) { return picks.has(p.id); }).forEach(function (p, i) { %>
+          <li class="sel-tile is-picked" data-photo="<%= p.id %>">
+            <span class="sel-tile__order"><%= i + 1 %></span>
+            <a class="sel-tile__view" href="<%= photoSrc(p.id) %>" data-lightbox data-lb-group="selection"
+               data-src="<%= photoSrc(p.id) %>" data-title="<%= p.file_name || ('#' + p.code) %>" data-meta="<%= portalBrand %>">
+              <img src="<%= photoSrc(p.id) %>?w=320"
+                   srcset="<%= photoSrc(p.id) %>?w=320 320w, <%= photoSrc(p.id) %>?w=640 640w"
+                   sizes="(max-width: 560px) 45vw, 22vw"
+                   alt="<%= p.file_name || ('Foto #' + p.code) %>" loading="lazy" decoding="async">
+            </a>
+            <span class="sel-tile__code"><%= p.code %></span>
+            <% if (allowDownload) { %>
+              <a class="sel-tile__dl" href="<%= downloadSrc(p.id) %>" download
+                 title="Unduh foto ini">&#8595; Unduh</a>
+            <% } %>
+          </li>
+        <% }); %>
+      </ol>
+    </section>
+  <% } %>
+
+<% } else if (!photos.length) { %>
+  <section class="sel-section">
+    <div class="sel-card sel-card--state">
+      <span class="sel-state-icon" aria-hidden="true">&#128247;</span>
+      <h2>Foto belum tersedia</h2>
+      <p>Admin DLY Graduation belum menyiapkan foto untuk sesi ini. Silakan cek kembali beberapa saat lagi
+        atau hubungi kami melalui WhatsApp.</p>
+      <a class="sel-btn sel-btn--wa" target="_blank" rel="noopener"
+         href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya sudah membuka portal seleksi foto (' + booking.code + ') namun belum ada foto.') %>">
+        Hubungi DLY Graduation
+      </a>
+    </div>
+  </section>
+
+<% } else { %>
+  <% if (gate.deadlinePassed) { %>
+    <div class="sel-notice sel-notice--warn">
+      Batas waktu pemilihan sudah lewat pada <%= formatDateID(portal.deadline, true) %>. Hubungi admin untuk
+      memperpanjang waktu seleksi.
+    </div>
+  <% } %>
+  <% if (error) { %><div class="sel-notice sel-notice--warn"><%= error %></div><% } %>
+  <% if (empty) { %><div class="sel-notice sel-notice--warn">Belum ada foto yang dipilih.</div><% } %>
+  <% if (unavailableCount) { %>
+    <div class="sel-notice sel-notice--warn">
+      <%= unavailableCount %> foto tidak lagi tersedia di folder Drive sehingga disembunyikan dari galeri.
+    </div>
+  <% } %>
+
+  <section class="sel-section sel-instructions">
+    <h2>Cara memilih</h2>
+    <div class="sel-instructions__body"><%= portal.instructions %></div>
+  </section>
+
+  <%- include('portal/partials/photo-app') %>
+<% } %>

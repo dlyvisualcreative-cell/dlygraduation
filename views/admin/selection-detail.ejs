@@ -1,0 +1,501 @@
+<section class="admin-panel sel-head">
+  <div class="admin-panel__head">
+    <div>
+      <span class="sel-head__eyebrow">Portal Seleksi Foto</span>
+      <h2><%= booking ? booking.client_name : '—' %></h2>
+      <p class="admin-muted">
+        <code class="sel-code"><%= booking ? booking.code : '' %></code>
+        &nbsp;·&nbsp; <%= booking ? booking.package_name : '' %>
+        &nbsp;·&nbsp; <%= booking ? formatDateID(booking.shooting_date) : '' %>
+        <% if (booking && booking.shooting_time) { %>&nbsp;·&nbsp; <%= booking.shooting_time %> WIB<% } %>
+      </p>
+    </div>
+    <div class="cell-actions sel-head__actions">
+      <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/selection/<%= portal.id %>/preview"
+         target="_blank" rel="noopener">Buka Portal Client &#8599;</a>
+      <button type="button" class="admin-btn" data-copy="<%= url %>">Salin Link</button>
+      <% if (waLink) { %>
+        <a class="admin-btn bk-btn--wa" href="<%= waLink %>" target="_blank" rel="noopener">Kirim via WhatsApp</a>
+      <% } %>
+      <form method="post" action="<%= base %>/admin/bookings/<%= portal.booking_id %>/photos-ready" class="inline-form"
+            data-confirm="Tandai foto siap dipilih? Folder 01. FILE MENTAH dibaca ulang, tahap Foto Siap Dipilih dicatat, dan klien menerima notifikasi.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn admin-btn--primary" type="submit"
+                title="Baca folder 01. FILE MENTAH lalu beri tahu klien bahwa foto siap dipilih">
+          Foto Siap Dipilih
+        </button>
+      </form>
+      <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/sync" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="drive_folder" value="<%= portal.drive_folder_id || '' %>">
+        <button class="admin-btn" type="submit"
+                title="Baca ulang folder 01. FILE MENTAH: foto baru ditambahkan, pilihan klien tidak diubah">
+          Perbarui dari 01. File Mentah
+        </button>
+      </form>
+      <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/toggle" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn" type="submit"><%= portal.is_open ? 'Nonaktifkan Portal' : 'Aktifkan Portal' %></button>
+      </form>
+    </div>
+  </div>
+
+  <% if (portal.sync_error) { %>
+    <div class="admin-flash admin-flash--err" role="alert">
+      Sinkronisasi Drive terakhir gagal: <%= portal.sync_error %>
+    </div>
+  <% } %>
+  <% if (driveMode === 'none') { %>
+    <div class="admin-panel admin-panel--warn" style="margin-bottom:12px">
+      <strong>Akses baca Google Drive belum diatur.</strong>
+      <span class="admin-muted">
+        Isi API key atau hubungkan akun Drive di
+        <a href="<%= base %>/admin/selection/settings" style="text-decoration:underline">Pengaturan Seleksi Foto</a>
+        supaya tombol “Perbarui Foto dari Google Drive” bisa membaca folder.
+      </span>
+    </div>
+  <% } %>
+
+  <div class="sel-chips">
+    <span class="sel-status sel-status--<%= status %>"><%= statusLabel %></span>
+    <span class="admin-badge <%= portal.is_open ? 'admin-badge--ok' : 'admin-badge--warn' %>">
+      <%= portal.is_open ? 'Portal aktif' : 'Portal ditutup' %>
+    </span>
+    <% if (portal.deadline) { %>
+      <span class="admin-badge admin-badge--muted">Batas pilih: <%= formatDateID(portal.deadline) %></span>
+    <% } %>
+    <% if (portal.submitted_at) { %>
+      <span class="admin-badge admin-badge--ok">Dikirim: <%= String(portal.submitted_at).slice(0, 16) %></span>
+    <% } %>
+    <span class="admin-badge admin-badge--muted"><%= availableCount %> foto tersedia</span>
+    <% if (portal.drive_folder_id) { %>
+      <span class="admin-badge admin-badge--ok" title="Foto dibaca dari folder Google Drive">Google Drive</span>
+    <% } %>
+    <% if (portal.sync_at) { %>
+      <span class="admin-badge admin-badge--muted">Sinkron: <%= String(portal.sync_at).slice(0, 16) %></span>
+    <% } %>
+    <span class="admin-badge admin-badge--muted"><%= pickedCount %> / <%= portal.quota %> terpilih</span>
+  </div>
+</section>
+
+<div class="sel-cols">
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Link untuk klien</h2>
+        <p class="admin-muted">
+          Siapa pun yang memiliki link ini dapat membuka portal. Kirim hanya kepada klien pemilik sesi
+          dan gunakan <em>Buat token baru</em> bila link tersebar.
+        </p>
+      </div>
+    </div>
+    <div class="copy-row">
+      <input type="text" readonly value="<%= url %>" aria-label="Link portal seleksi" data-portal-url>
+      <button type="button" class="admin-btn admin-btn--primary admin-btn--sm" data-copy="<%= url %>">Salin</button>
+    </div>
+
+    <div class="sel-actions">
+      <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/token"
+            data-confirm="Buat token baru? Link lama langsung tidak berlaku dan klien harus memakai link baru.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button type="submit" class="admin-btn admin-btn--sm">Buat token baru</button>
+      </form>
+      <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/delete"
+            data-confirm="Hapus portal seleksi ini beserta daftar foto dan pilihan klien? Booking tetap tersimpan.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm">Hapus portal</button>
+      </form>
+    </div>
+
+    <p class="admin-hint">
+      Pesan WhatsApp berisi link portal, nama klien, dan kuota foto. Ubah teksnya di
+      <a href="<%= base %>/admin/wa-template">Template Chat</a>.
+    </p>
+  </section>
+
+  <%# v15 — kendali ADMIN untuk membuka kembali portal setelah deadline.
+      Hanya ada di area admin (tidak pernah dirender di Portal Client/publik). %>
+  <section class="admin-panel" id="akses-portal">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Akses portal setelah deadline</h2>
+        <p class="admin-muted">
+          Portal menutup sendiri begitu batas waktu lewat. Butuh membuka lagi? Tetapkan batas waktu
+          baru + alasan — setiap perubahan tercatat di audit log.
+        </p>
+      </div>
+      <span class="admin-badge <%= deadlinePassed ? 'admin-badge--warn' : 'admin-badge--ok' %>">
+        <%= deadlinePassed ? 'Deadline sudah lewat' : 'Akses masih terbuka' %>
+      </span>
+    </div>
+
+    <div class="bd-flow">
+      <div><span>Batas waktu sekarang</span>
+        <strong><%= portal.deadline ? formatDateID(portal.deadline, true) : 'Tanpa batas waktu' %></strong></div>
+      <div><span>Status portal</span>
+        <strong><%= portal.is_open ? 'Aktif' : 'Ditutup admin' %></strong></div>
+      <div><span>Pilihan klien</span>
+        <strong><%= portal.submitted_at ? 'Sudah dikirim & terkunci' : (pickedCount ? pickedCount + ' foto dipilih' : 'Belum ada pilihan') %></strong></div>
+    </div>
+
+    <div class="sel-access">
+      <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/reopen" class="admin-form sel-access__form"
+            data-confirm="Buka kembali Portal Pilih Foto dengan batas waktu baru? Aksi ini tercatat di audit log.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="confirm" value="1">
+        <div class="admin-field">
+          <label for="reopen-deadline">Batas waktu baru</label>
+          <input type="date" id="reopen-deadline" name="deadline" min="<%= todayISO %>"
+                 value="<%= portal.deadline || todayISO %>" required>
+        </div>
+        <div class="admin-field admin-field--grow">
+          <label for="reopen-reason">Alasan perubahan (wajib)</label>
+          <input type="text" id="reopen-reason" name="reason" maxlength="500" required
+                 placeholder="Contoh: klien minta perpanjangan karena jaringan bermasalah">
+        </div>
+        <button class="admin-btn admin-btn--primary" type="submit">Buka Kembali Portal</button>
+      </form>
+
+      <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/close" class="admin-form sel-access__form"
+            data-confirm="Tutup Portal Pilih Foto sekarang? Klien tidak bisa memilih sampai dibuka lagi.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div class="admin-field admin-field--grow">
+          <label for="close-reason">Alasan menutup (wajib)</label>
+          <input type="text" id="close-reason" name="reason" maxlength="500" required
+                 placeholder="Contoh: batas waktu sudah lewat dan hasil edit mulai dikerjakan">
+        </div>
+        <button class="admin-btn" type="submit">Tutup Portal Sekarang</button>
+      </form>
+    </div>
+
+    <% if (portal.submitted_at) { %>
+      <div class="admin-note">
+        Klien sudah mengirim pilihan. Membuka kembali deadline <strong>tidak</strong> membuka kunci
+        submission — itu tindakan terpisah dan tidak dilakukan otomatis.
+      </div>
+    <% } %>
+
+    <h3 class="bd-subhead">Riwayat perubahan akses</h3>
+    <% if (!accessLog.length) { %>
+      <p class="admin-muted">Belum ada perubahan akses yang tercatat.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Waktu</th><th>Aksi</th><th>Deadline lama → baru</th><th>Alasan</th><th>Admin</th></tr>
+          </thead>
+          <tbody>
+            <% accessLog.forEach(function (a) { %>
+              <tr>
+                <td><%= formatDateTimeWIB ? formatDateTimeWIB(a.created_at) : String(a.created_at).slice(0, 16) %></td>
+                <td><%= a.action === 'reopen' ? 'Buka kembali' : (a.action === 'close' ? 'Tutup' : 'Ubah deadline') %></td>
+                <td><%= a.old_deadline ? formatDateID(a.old_deadline) : '—' %> → <%= a.new_deadline ? formatDateID(a.new_deadline) : '—' %></td>
+                <td><%= a.reason || '—' %></td>
+                <td><%= a.actor || '—' %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="admin-panel">
+    <div class="admin-panel__head">
+      <div>
+        <h2>Pengaturan seleksi</h2>
+        <p class="admin-muted">Kuota dihitung di server — klien tidak dapat memilih melebihi angka ini.</p>
+      </div>
+    </div>
+    <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/settings" class="admin-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="quota">Kuota foto dipilih</label>
+          <input type="number" id="quota" name="quota" min="1" max="500" value="<%= portal.quota %>" required>
+          <span class="admin-hint">Saran dari paket: <%= defaultQuota %> foto (bisa diubah).</span>
+        </div>
+        <div class="admin-field">
+          <label for="deadline">Batas waktu (opsional)</label>
+          <input type="date" id="deadline" name="deadline" value="<%= portal.deadline || '' %>">
+          <span class="admin-hint">Kosongkan bila tidak ada batas waktu.</span>
+        </div>
+      </div>
+      <div class="admin-field">
+        <label for="instructions">Instruksi untuk klien</label>
+        <textarea id="instructions" name="instructions" rows="5"><%= portal.instructions %></textarea>
+        <span class="admin-hint">Tampil di bagian atas halaman seleksi klien.</span>
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="allow_download" value="1" <%= Number(portal.allow_download) === 1 ? 'checked' : '' %>>
+          <span>Izinkan klien mengunduh foto yang dipilih</span>
+        </label>
+        <label class="admin-check">
+          <input type="checkbox" name="require_full_quota" value="1" <%= Number(portal.require_full_quota) === 1 ? 'checked' : '' %>>
+          <span>Wajib memenuhi kuota sebelum bisa mengirim pilihan</span>
+        </label>
+      </div>
+
+      <fieldset class="admin-fieldset sel-drive-field">
+        <legend>Sumber foto: 01. FILE MENTAH</legend>
+        <p class="admin-hint" style="margin-top:0">
+          Foto portal dibaca otomatis dari subfolder <strong>01. FILE MENTAH</strong> milik booking ini.
+          Link-nya sudah terisi sendiri — tidak perlu (dan tidak bisa) diketik manual.
+        </p>
+        <div class="admin-field">
+          <% if (rawFolder.url) { %>
+            <label for="drive_url_auto">Link folder Drive (otomatis)</label>
+            <input type="text" id="drive_url_auto" readonly
+                   value="<%= rawFolder.url %>"
+                   aria-readonly="true">
+            <span class="admin-hint">
+              Subfolder <strong>01. FILE MENTAH</strong> terhubung &amp; terisi otomatis.
+              Tekan <em>Perbarui dari 01. File Mentah</em> untuk memperbarui daftar file yang tersedia.
+            </span>
+          <% } else { %>
+            <label for="drive_url">Link folder Drive</label>
+            <%# Booking lama (belum punya subfolder 01. FILE MENTAH) tetap boleh diisi manual —
+                server menolak tautan non-Drive. %>
+            <input type="text" inputmode="url" id="drive_url" name="drive_url" maxlength="500"
+                   value="<%= portal.drive_url || '' %>"
+                   placeholder="https://drive.google.com/drive/folders/…">
+            <span class="admin-hint">
+              <% if (bookingDriveUrl) { %>
+                Kosongkan untuk memakai folder Drive booking ini:
+                <a href="<%= bookingDriveUrl %>" target="_blank" rel="noopener"><%= bookingDrivePath || 'folder Drive booking' %></a>.
+                Siapkan subfolder 01/02/03 di
+                <a href="<%= base %>/admin/bookings/<%= portal.booking_id %>?tab=workflow#drive">tab Workflow</a>
+                supaya link terisi otomatis.
+              <% } else { %>
+                Booking ini belum punya folder Drive. Kosongkan bila tidak ingin menampilkan link.
+              <% } %>
+              Boleh menempel ID folder saja; link non-Drive akan ditolak.
+            </span>
+          <% } %>
+        </div>
+        <div class="admin-field sel-drive-field__actions">
+          <label class="admin-check">
+            <input type="checkbox" name="drive_show" value="1" <%= Number(portal.drive_show) === 0 ? '' : 'checked' %>>
+            <span>Tampilkan tombol folder Drive di portal klien</span>
+          </label>
+          <span class="admin-hint">
+            Untuk memperbarui daftar file, tekan <strong>Perbarui dari 01. File Mentah</strong>
+            di bagian atas halaman (tombol yang sama dengan “Perbarui Foto dari Drive”).
+          </span>
+        </div>
+        <% if (drive.visible) { %>
+          <p class="sel-drive-preview">
+            Yang akan dilihat klien:
+            <a href="<%= drive.url %>" target="_blank" rel="noopener"><%= drive.url %></a>
+            <span class="admin-badge admin-badge--muted"><%= drive.source === 'custom' ? 'link manual' : 'folder booking' %></span>
+          </p>
+        <% } else if (!drive.url) { %>
+          <p class="admin-hint">Belum ada link folder Drive — tombol tidak akan muncul di portal.</p>
+        <% } else { %>
+          <p class="admin-hint">Tombol folder Drive sedang disembunyikan dari portal klien.</p>
+        <% } %>
+      </fieldset>
+      <div class="admin-form__actions">
+        <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Foto hasil pemotretan</h2>
+      <p class="admin-muted">
+        Unggah foto yang boleh dipilih klien. Setiap foto mendapat kode tetap (dipakai tim editing).
+        Foto pertama otomatis menjadi foto utama.
+      </p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/photos"
+        enctype="multipart/form-data" class="sel-upload">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field">
+      <label for="photo_files">Unggah foto (bisa banyak sekaligus)</label>
+      <input type="file" id="photo_files" name="photo_files" accept="image/jpeg,image/png,image/webp,image/gif" multiple required>
+      <span class="admin-hint">Maksimal 40 foto per unggahan, tiap file maksimal 15MB. Format JPG/PNG/WEBP/GIF.</span>
+    </div>
+    <div class="admin-field" style="justify-content:flex-end">
+      <button class="admin-btn admin-btn--primary" type="submit">Unggah foto</button>
+    </div>
+  </form>
+
+  <% if (!photos.length) { %>
+    <p class="admin-muted">
+      Belum ada foto. Tempel link folder Google Drive di pengaturan lalu tekan
+      <strong>Perbarui Foto dari Google Drive</strong>, atau unggah foto manual di bawah.
+    </p>
+  <% } else { %>
+    <div class="sel-photo-grid">
+      <% photos.forEach(function (p, i) { %>
+        <figure class="sel-photo">
+          <a class="sel-photo__media" href="<%= base %>/admin/selection/<%= portal.id %>/photo/<%= p.id %>" target="_blank" rel="noopener">
+            <img src="<%= base %>/admin/selection/<%= portal.id %>/photo/<%= p.id %>" alt="Foto #<%= p.code %>" loading="lazy">
+          </a>
+          <figcaption>
+            <div class="sel-photo__meta">
+              <strong title="<%= p.file_name || ('#' + p.code) %>">
+                <%= p.file_name ? p.file_name.slice(0, 20) : '#' + p.code %>
+                <small class="cell-sub" style="display:block;font-weight:400">#<%= p.code %></small>
+              </strong>
+              <span class="sel-photo__flags">
+                <% if (Number(p.is_available) === 0) { %><span class="admin-badge admin-badge--warn">Tidak ada di Drive</span><% } %>
+                <% if (p.is_primary) { %><span class="admin-badge admin-badge--ok">Utama</span><% } %>
+                <% if (Number(p.is_highlight) === 1) { %><span class="admin-badge admin-badge--ok">Highlight</span><% } %>
+                <% if (pickedPhotos.some(function (x) { return x.id === p.id; })) { %><span class="admin-badge admin-badge--warn">Dipilih</span><% } %>
+              </span>
+            </div>
+            <div class="sel-photo__actions">
+              <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/photos/<%= p.id %>/highlight">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button type="submit" class="admin-link-btn"><%= Number(p.is_highlight) === 1 ? 'Lepas highlight' : 'Highlight' %></button>
+              </form>
+              <% if (!p.is_primary) { %>
+                <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/photos/<%= p.id %>/primary">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn">Jadikan utama</button>
+                </form>
+              <% } %>
+              <% if (i > 0) { %>
+                <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/photos/<%= p.id %>/move">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="dir" value="up">
+                  <button type="submit" class="admin-link-btn" aria-label="Naikkan urutan foto #<%= p.code %>">&uarr;</button>
+                </form>
+              <% } %>
+              <% if (i < photos.length - 1) { %>
+                <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/photos/<%= p.id %>/move">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="dir" value="down">
+                  <button type="submit" class="admin-link-btn" aria-label="Turunkan urutan foto #<%= p.code %>">&darr;</button>
+                </form>
+              <% } %>
+              <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/photos/<%= p.id %>/delete"
+                    data-confirm="Hapus foto #<%= p.code %> dari portal?">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+              </form>
+            </div>
+          </figcaption>
+        </figure>
+      <% }); %>
+    </div>
+  <% } %>
+</section>
+
+<section class="admin-panel" id="hasil-seleksi">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Hasil seleksi klien</h2>
+      <p class="admin-muted">
+        Nama file di bawah ini yang dipakai tim editing.
+        <% if (portal.submitted_at) { %>Dikirim pada <%= String(portal.submitted_at).slice(0, 16) %>.<% } %>
+      </p>
+    </div>
+    <div class="cell-actions sel-result-actions">
+      <a class="admin-btn admin-btn--sm" href="<%= base %>/admin/selection/<%= portal.id %>/export.csv">Ekspor Daftar Foto (CSV)</a>
+      <a class="admin-btn admin-btn--sm" href="<%= base %>/admin/selection/<%= portal.id %>/download.zip">Unduh ZIP foto terpilih</a>
+      <% if (pickedCount) { %>
+        <button type="button" class="admin-btn admin-btn--sm" data-copy="<%= pickedFileList %>" title="Salin daftar nama file">
+          Salin Daftar Foto
+        </button>
+        <% if (driveLinks.length) { %>
+          <button type="button" class="admin-btn admin-btn--sm"
+                  data-copy="<%= driveLinks.join('\n') %>"
+                  title="Salin link Google Drive dari foto terpilih">
+            Salin Link Drive Foto Terpilih
+          </button>
+        <% } %>
+      <% } %>
+      <% if (clientWa && portal.status !== 'done') { %>
+        <a class="admin-btn admin-btn--sm bk-btn--wa" href="<%= clientWa %>" target="_blank" rel="noopener"
+           data-wa-reminder
+           title="Kirim pengingat: daftar foto yang sudah dipilih klien">
+          Kirim Pengingat / Daftar Foto
+        </a>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="sel-stat-row">
+    <div class="sel-stat"><span><%= availableCount %></span><small>Foto tersedia</small></div>
+    <div class="sel-stat"><span><%= pickedCount %></span><small>Foto terpilih</small></div>
+    <div class="sel-stat"><span><%= portal.quota %></span><small>Batas pilihan</small></div>
+    <div class="sel-stat"><span><%= statusLabel %></span><small>Status portal</small></div>
+  </div>
+
+  <% if (!pickedCount) { %>
+    <p class="admin-muted">Klien belum memilih foto.</p>
+  <% } else { %>
+    <div class="sel-picked">
+      <% pickedPhotos.forEach(function (p, i) { %>
+        <a class="sel-picked__item" href="<%= base %>/admin/selection/<%= portal.id %>/photo/<%= p.id %>"
+           target="_blank" rel="noopener" title="<%= p.file_name || ('#' + p.code) %>">
+          <img src="<%= base %>/admin/selection/<%= portal.id %>/photo/<%= p.id %>"
+               alt="<%= p.file_name || ('Foto #' + p.code) %>" loading="lazy">
+          <span><%= i + 1 %></span>
+        </a>
+      <% }); %>
+    </div>
+    <div class="table-wrap">
+      <table class="admin-table sel-pick-table">
+        <thead>
+          <tr>
+            <th>Urutan</th><th>Nama file</th><th>Kode</th><th>Google Drive File ID</th>
+            <th>Waktu pilih</th><th>Tersedia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% pickedPhotos.forEach(function (p, i) { %>
+            <tr>
+              <td><strong><%= i + 1 %></strong></td>
+              <td><%= p.file_name || ('#' + p.code) %></td>
+              <td><code class="sel-code"><%= p.code %></code></td>
+              <td>
+                <% if (p.drive_file_id) { %>
+                  <a class="admin-link" href="https://drive.google.com/file/d/<%= p.drive_file_id %>/view"
+                     target="_blank" rel="noopener"><code class="sel-code"><%= p.drive_file_id.slice(0, 12) %>…</code></a>
+                <% } else { %>—<% } %>
+              </td>
+              <td><%= p.picked_at ? String(p.picked_at).slice(0, 16) : '—' %></td>
+              <td>
+                <span class="admin-badge <%= Number(p.is_available) === 0 ? 'admin-badge--warn' : 'admin-badge--ok' %>">
+                  <%= Number(p.is_available) === 0 ? 'Tidak ada' : 'Ya' %>
+                </span>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/admin/selection/<%= portal.id %>/status" class="admin-form sel-status-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field">
+      <label for="status">Status pengerjaan</label>
+      <select id="status" name="status">
+        <% adminStatuses.forEach(function (v) { %>
+          <option value="<%= v %>" <%= portal.status === v ? 'selected' : '' %>>
+            <%= statuses.find(function (s) { return s.value === v; }).label %>
+          </option>
+        <% }); %>
+      </select>
+      <span class="admin-hint">Menunggu Pilihan / Sedang Memilih / Deadline Berakhir mengikuti data otomatis.</span>
+    </div>
+    <div class="admin-field admin-field--grow">
+      <label for="admin_note">Catatan internal</label>
+      <textarea id="admin_note" name="admin_note" rows="2" placeholder="Contoh: sudah masuk antrean editing 12 Nov."><%= portal.admin_note %></textarea>
+    </div>
+    <div class="admin-field" style="justify-content:flex-end">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan status</button>
+    </div>
+  </form>
+</section>

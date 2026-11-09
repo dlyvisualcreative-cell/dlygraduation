@@ -1,0 +1,210 @@
+<%
+  const fonts = (typeof fontOptions !== 'undefined' && fontOptions) ? fontOptions : [];
+  const ITEM_SECTIONS = ['services', 'advantages', 'process'];
+  const ITEM_HINT = {
+    services: 'Kartu layanan. Ganti foto, ubah judul/deskripsi, tambah atau hapus baris.',
+    advantages: 'Poin keunggulan. Boleh tanpa foto.',
+    process: 'Langkah pemesanan.'
+  };
+%>
+
+<div class="admin-note">
+  Setiap baris di homepage bisa diatur di sini: warna latar, warna teks, font, judul, isi, dan fotonya.
+  Perubahan disimpan sebagai <strong>draft</strong> — tekan <strong>Publish Changes</strong> untuk menampilkannya di website.
+</div>
+
+<form method="post" action="<%= base %>/admin/sections" enctype="multipart/form-data" class="admin-form" data-sections-form>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+  <% sections.forEach(function (s, idx) { %>
+    <section class="admin-panel sec-editor <%= Number(s.is_active) ? '' : 'is-off' %>" data-sec-card="<%= s.key %>">
+      <div class="sec-editor__head">
+        <div class="sec-editor__title">
+          <span class="sec-editor__badge"><%= String(idx + 1).padStart(2, '0') %></span>
+          <div>
+            <strong><%= s.label %></strong>
+            <small><code><%= s.key %></code></small>
+          </div>
+        </div>
+        <div class="sec-editor__toggles">
+          <label class="admin-check">
+            <input type="checkbox" name="active_<%= s.key %>" value="1" <%= Number(s.is_active) ? 'checked' : '' %>>
+            <span>Tampilkan</span>
+          </label>
+          <label class="admin-check" title="Urutan tampil">
+            <span class="sec-editor__order-label">Urutan</span>
+            <input type="number" class="input-compact" style="width:64px" name="sort_<%= s.key %>" value="<%= s.sort_order %>" min="0">
+          </label>
+        </div>
+      </div>
+
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="title_<%= s.key %>">Judul baris</label>
+          <input type="text" id="title_<%= s.key %>" name="title_<%= s.key %>" value="<%= s.title %>">
+        </div>
+        <div class="admin-field">
+          <label for="layout_<%= s.key %>">Layout</label>
+          <select id="layout_<%= s.key %>" name="layout_<%= s.key %>">
+            <% s.layouts.forEach(function (l) { %>
+              <option value="<%= l %>" <%= s.layout === l ? 'selected' : '' %>><%= l %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="admin-field admin-field--full">
+          <label for="description_<%= s.key %>">Deskripsi baris</label>
+          <textarea id="description_<%= s.key %>" name="description_<%= s.key %>" rows="2"><%= s.description %></textarea>
+        </div>
+      </div>
+
+      <fieldset class="admin-fieldset sec-editor__style">
+        <legend>Tampilan baris</legend>
+        <div class="admin-field-grid admin-field-grid--3">
+          <div class="admin-field">
+            <label for="bg_<%= s.key %>">Warna latar</label>
+            <div class="color-field">
+              <input type="color" id="bg_<%= s.key %>" name="bg_<%= s.key %>"
+                     value="<%= s.bg_color || '#FFFFFF' %>">
+              <input type="text" class="sec-color-text" value="<%= s.bg_color %>" placeholder="kosong = bawaan">
+            </div>
+            <span class="admin-hint">Kosongkan untuk memakai warna tema.</span>
+          </div>
+          <div class="admin-field">
+            <label for="text_<%= s.key %>">Warna teks</label>
+            <div class="color-field">
+              <input type="color" id="text_<%= s.key %>" name="text_<%= s.key %>"
+                     value="<%= s.text_color || '#252A30' %>">
+              <input type="text" class="sec-color-text" value="<%= s.text_color %>" placeholder="kosong = bawaan">
+            </div>
+          </div>
+          <div class="admin-field">
+            <label for="font_<%= s.key %>">Font baris</label>
+            <select id="font_<%= s.key %>" name="font_<%= s.key %>">
+              <option value="">Ikut tema</option>
+              <% fonts.forEach(function (f) { %>
+                <option value="<%= f.value %>" <%= s.font === f.value ? 'selected' : '' %>><%= f.label %></option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <% if (ITEM_SECTIONS.includes(s.key)) { %>
+        <fieldset class="admin-fieldset">
+          <legend>Isi baris (<%= s.items.length %> item)</legend>
+          <p class="admin-hint"><%= ITEM_HINT[s.key] %></p>
+
+          <div class="item-rows" data-item-rows="<%= s.key %>">
+            <% s.items.forEach(function (it, i) { %>
+              <div class="item-row" data-item-row>
+                <div class="item-row__thumb">
+                  <% if (it.image) { %>
+                    <img src="<%= imageUrl(it.image) %>" alt="">
+                  <% } else { %>
+                    <span>tanpa foto</span>
+                  <% } %>
+                </div>
+                <div class="item-row__fields">
+                  <label class="item-row__label">Judul</label>
+                  <input type="text" name="item_title_<%= s.key %>" value="<%= it.title %>" placeholder="Judul item">
+                  <label class="item-row__label">Deskripsi</label>
+                  <input type="text" name="item_desc_<%= s.key %>" value="<%= it.description %>" placeholder="Deskripsi singkat">
+                  <label class="item-row__label">Foto (URL/path)</label>
+                  <input type="text" name="item_image_<%= s.key %>" value="<%= it.image %>" placeholder="/uploads/foto.jpg">
+                  <input type="hidden" name="item_link_<%= s.key %>" value="<%= it.link || '' %>">
+                </div>
+                <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-remove-item>Hapus</button>
+              </div>
+            <% }); %>
+          </div>
+
+          <button type="button" class="admin-btn admin-btn--sm" data-add-item="<%= s.key %>">+ Tambah item</button>
+
+          <% if (s.key === 'services') { %>
+            <div class="admin-field" style="margin-top:14px">
+              <label for="upload_<%= s.key %>">Upload foto untuk item ke-…</label>
+              <div class="copy-row">
+                <input type="number" id="upload_<%= s.key %>" name="item_upload_index" min="1" value="1" class="input-compact" style="width:80px">
+                <input type="file" name="item_image" accept="image/*">
+                <input type="hidden" name="item_upload_section" value="<%= s.key %>">
+              </div>
+              <span class="admin-hint">Nomor item dihitung dari atas (1 = item pertama). Kosongkan file jika tidak mengunggah.</span>
+            </div>
+          <% } else { %>
+            <input type="hidden" name="item_upload_section" value="">
+          <% } %>
+        </fieldset>
+      <% } else { %>
+        <input type="hidden" name="item_upload_section" value="">
+      <% } %>
+
+      <p class="sec-editor__preview-link">
+        <a class="admin-link" href="<%= base %>/admin/preview?path=%2F" target="_blank" rel="noopener">Preview website &nearr;</a>
+      </p>
+    </section>
+  <% }); %>
+
+  <div class="admin-sticky-actions">
+    <button class="admin-btn admin-btn--primary" type="submit">Save Draft</button>
+    <a class="admin-btn" href="<%= base %>/admin/preview?path=%2F" target="_blank" rel="noopener">Preview Website</a>
+  </div>
+</form>
+
+<template id="item-row-template">
+  <div class="item-row" data-item-row>
+    <div class="item-row__thumb"><span>tanpa foto</span></div>
+    <div class="item-row__fields">
+      <label class="item-row__label">Judul</label>
+      <input type="text" data-name="item_title___KEY__" placeholder="Judul item">
+      <label class="item-row__label">Deskripsi</label>
+      <input type="text" data-name="item_desc___KEY__" placeholder="Deskripsi singkat">
+      <label class="item-row__label">Foto (URL/path)</label>
+      <input type="text" data-name="item_image___KEY__" placeholder="/uploads/foto.jpg">
+      <input type="hidden" data-name="item_link___KEY__" value="">
+    </div>
+    <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-remove-item>Hapus</button>
+  </div>
+</template>
+
+<script>
+(function () {
+  // Keep the colour swatch and its text field in sync.
+  document.querySelectorAll('.sec-editor__style .color-field').forEach(function (wrap) {
+    var color = wrap.querySelector('input[type="color"]');
+    var text = wrap.querySelector('.sec-color-text');
+    if (!color || !text) return;
+    color.addEventListener('input', function () { text.value = color.value; });
+    text.addEventListener('input', function () {
+      if (/^#[0-9a-f]{6}$/i.test(text.value.trim())) color.value = text.value.trim();
+    });
+  });
+
+  // Add / remove item rows.
+  var tpl = document.getElementById('item-row-template');
+  document.querySelectorAll('[data-add-item]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.dataset.addItem;
+      var rows = document.querySelector('[data-item-rows="' + key + '"]');
+      if (!rows || !tpl) return;
+      var html = tpl.innerHTML.replace(/__KEY__/g, key);
+      var wrap = document.createElement('div');
+      wrap.innerHTML = html.trim();
+      var row = wrap.firstElementChild;
+      row.querySelectorAll('[data-name]').forEach(function (el) {
+        el.setAttribute('name', el.getAttribute('data-name'));
+        el.removeAttribute('data-name');
+      });
+      rows.appendChild(row);
+      var first = row.querySelector('input[name="item_title_' + key + '"]');
+      if (first) first.focus();
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    var rm = e.target.closest('[data-remove-item]');
+    if (!rm) return;
+    var row = rm.closest('[data-item-row]');
+    if (row) row.remove();
+  });
+})();
+</script>

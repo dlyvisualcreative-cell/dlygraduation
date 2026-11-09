@@ -1,0 +1,194 @@
+<%
+  /**
+   * Tambah client manual (permintaan pemilik).
+   *
+   * Dipakai untuk memasukkan klien yang sudah booking lebih dulu — termasuk sesi yang
+   * SUDAH LEWAT supaya klien bisa melihat progresnya di portal. Karena itu:
+   *   - tanggal sesi bebas (tidak dibatasi ketersediaan / H-1 / hari tutup),
+   *   - link folder Google Drive diisi manual (tidak memanggil API Drive),
+   *   - tidak ada sinkronisasi Google Calendar otomatis.
+   */
+  const v = values || {};
+  const money = (n) => (rupiah ? rupiah(n) : String(n));
+  const minutesByPackage = {};
+  packages.forEach(function (p) {
+    minutesByPackage[p.id] = p.durations;
+  });
+  const selectedPkg = packages.find(function (p) { return String(p.id) === String(v.package_id); }) || null;
+%>
+
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Tambah client manual</h2>
+      <p class="admin-muted">
+        Untuk klien yang sudah booking di luar formulir website (WhatsApp, DM, atau data lama).
+        Tanggal sesi bebas — termasuk tanggal yang sudah lewat — supaya klien tetap bisa
+        memantau progres pesanannya di portal.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/bookings">&larr; Kembali ke Kelola Booking</a>
+  </div>
+
+  <% if (errors && errors.length) { %>
+    <div class="admin-flash admin-flash--err" role="alert">
+      <strong>Belum bisa disimpan:</strong>
+      <ul class="manual-err">
+        <% errors.forEach(function (e) { %><li><%= e %></li><% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/admin/bookings/new" class="admin-form" data-manual-booking>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <fieldset class="admin-fieldset">
+      <legend>Identitas client</legend>
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="client_name">Nama lengkap <span class="req">*</span></label>
+          <input type="text" id="client_name" name="client_name" required maxlength="120"
+                 value="<%= v.client_name || '' %>" placeholder="Nama sesuai ijazah">
+        </div>
+        <div class="admin-field">
+          <label for="client_phone">Nomor WhatsApp <span class="req">*</span></label>
+          <input type="text" id="client_phone" name="client_phone" required inputmode="numeric"
+                 value="<%= v.client_phone || '' %>" placeholder="08123456789">
+          <span class="admin-hint">Boleh 08… atau 62…, otomatis dirapikan.</span>
+        </div>
+        <div class="admin-field">
+          <label for="instagram">Instagram</label>
+          <input type="text" id="instagram" name="instagram" maxlength="60"
+                 value="<%= v.instagram || '' %>" placeholder="tanpa @ (opsional)">
+        </div>
+        <div class="admin-field">
+          <label for="campus">Kampus / Universitas</label>
+          <input type="text" id="campus" name="campus" maxlength="160"
+                 value="<%= v.campus || '' %>" placeholder="Opsional">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-fieldset">
+      <legend>Paket &amp; jadwal sesi</legend>
+      <div class="admin-field-grid">
+        <div class="admin-field admin-field--full">
+          <label for="package_id">Paket <span class="req">*</span></label>
+          <select id="package_id" name="package_id" required data-manual-package>
+            <option value="">— Pilih paket —</option>
+            <% packages.forEach(function (p) { %>
+              <option value="<%= p.id %>"
+                      data-durations='<%= JSON.stringify(p.durations) %>'
+                      <%= String(v.package_id) === String(p.id) ? 'selected' : '' %>>
+                <%= p.city_name %> · <%= p.name %><%= p.category_name ? ' (' + p.category_name + ')' : '' %>
+              </option>
+            <% }); %>
+          </select>
+          <span class="admin-hint">Kota layanan mengikuti paket yang dipilih.</span>
+        </div>
+
+        <div class="admin-field">
+          <label for="minutes">Durasi sesi <span class="req">*</span></label>
+          <select id="minutes" name="minutes" required data-manual-duration>
+            <option value="">— Pilih paket dulu —</option>
+            <% (selectedPkg ? selectedPkg.durations : []).forEach(function (d) { %>
+              <option value="<%= d.duration_minutes %>" data-price="<%= d.price || '' %>"
+                      <%= String(v.minutes) === String(d.duration_minutes) ? 'selected' : '' %>>
+                <%= d.duration_minutes %> menit<%= d.price ? ' — ' + money(d.price) : ' — harga belum diatur' %><%= d.edited_photos ? ' · ' + d.edited_photos + ' foto edit' : '' %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label for="price">Harga paket (Rp)</label>
+          <input type="text" id="price" name="price" inputmode="numeric"
+                 value="<%= v.price || '' %>" placeholder="Otomatis dari durasi">
+          <span class="admin-hint">Kosongkan untuk memakai harga durasi. Isi bila ada harga khusus.</span>
+        </div>
+
+        <div class="admin-field">
+          <label for="shooting_date">Tanggal sesi <span class="req">*</span></label>
+          <input type="date" id="shooting_date" name="shooting_date" required
+                 value="<%= v.shooting_date || '' %>">
+          <span class="admin-hint">Bebas: tanggal lampau, hari tutup, atau tanggal penuh tetap boleh.</span>
+        </div>
+
+        <div class="admin-field">
+          <label for="shooting_time">Jam sesi (WIB) <span class="req">*</span></label>
+          <input type="time" id="shooting_time" name="shooting_time" required
+                 value="<%= v.shooting_time || '' %>">
+        </div>
+
+        <div class="admin-field">
+          <label for="location">Lokasi sesi <span class="req">*</span></label>
+          <input type="text" id="location" name="location" required maxlength="160"
+                 value="<%= v.location || '' %>" placeholder="Studio / kampus / taman">
+        </div>
+
+        <div class="admin-field admin-field--full">
+          <label for="location_address">Alamat lokasi</label>
+          <input type="text" id="location_address" name="location_address" maxlength="300"
+                 value="<%= v.location_address || '' %>" placeholder="Opsional, membantu tim menemukan lokasi">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-fieldset">
+      <legend>Data order</legend>
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="status">Status booking</label>
+          <select id="status" name="status">
+            <% statuses.forEach(function (s) { %>
+              <option value="<%= s.value %>" <%= String(v.status || 'confirmed') === s.value ? 'selected' : '' %>><%= s.label %></option>
+            <% }); %>
+          </select>
+          <span class="admin-hint">“Terkonfirmasi” membuat portal &amp; timeline langsung aktif.</span>
+        </div>
+
+        <div class="admin-field">
+          <label for="booking_date">Tanggal booking dicatat</label>
+          <input type="date" id="booking_date" name="booking_date" value="<%= v.booking_date || today %>">
+          <span class="admin-hint">Tanggal klien sebenarnya booking (untuk data lama).</span>
+        </div>
+
+        <div class="admin-field admin-field--full">
+          <label for="drive_url">Link folder Google Drive (manual)</label>
+          <input type="text" id="drive_url" name="drive_url" maxlength="500"
+                 value="<%= v.drive_url || '' %>"
+                 placeholder="https://drive.google.com/drive/folders/…">
+          <span class="admin-hint">
+            Tempel link folder utama klien. Dipakai portal pilih foto &amp; link final.
+            Tidak ada folder/izin yang dibuat otomatis dari sini.
+          </span>
+        </div>
+
+        <div class="admin-field admin-field--full">
+          <label for="internal_notes">Catatan internal</label>
+          <textarea id="internal_notes" name="internal_notes" rows="2"
+                    placeholder="Hanya terlihat oleh admin"><%= v.internal_notes || '' %></textarea>
+        </div>
+
+        <div class="admin-field admin-field--full">
+          <label for="notes">Catatan untuk klien</label>
+          <textarea id="notes" name="notes" rows="2"
+                    placeholder="Opsional"><%= v.notes || '' %></textarea>
+        </div>
+
+        <div class="admin-field admin-field--full">
+          <label class="admin-check">
+            <input type="checkbox" name="terms_consent" value="1" <%= v.terms ? 'checked' : '' %>>
+            <span>Catat bahwa klien sudah menyetujui Syarat &amp; Ketentuan.</span>
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan client</button>
+      <a class="admin-btn" href="<%= base %>/admin/bookings">Batal</a>
+      <span class="admin-hint">Setelah disimpan, kode booking &amp; PIN portal tampil di halaman detail.</span>
+    </div>
+  </form>
+</div>

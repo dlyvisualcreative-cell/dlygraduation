@@ -1,0 +1,93 @@
+Fontconfig error: Cannot load default config file: No such file: (null)
+convert-im6.q16: unable to access configure file `colors.xml' @ warning/configure.c/GetConfigureOptions/685.
+Fontconfig error: Cannot load default config file: No such file: (null)
+convert-im6.q16: unable to access configure file `colors.xml' @ warning/configure.c/GetConfigureOptions/685.
+Fontconfig error: Cannot load default config file: No such file: (null)
+convert-im6.q16: unable to access configure file `colors.xml' @ warning/configure.c/GetConfigureOptions/685.
+Fontconfig error: Cannot load default config file: No such file: (null)
+convert-im6.q16: unable to access configure file `colors.xml' @ warning/configure.c/GetConfigureOptions/685.
+Fontconfig error: Cannot load default config file: No such file: (null)
+convert-im6.q16: unable to access configure file `colors.xml' @ warning/configure.c/GetConfigureOptions/685.
+Fontconfig error: Cannot load default config file: No such file: (null)
+convert-im6.q16: unable to access configure file `colors.xml' @ warning/configure.c/GetConfigureOptions/685.
+  ·  fixture bookings: 6 → 7 (tanpa portal: 1)
+  ok  Seleksi Foto menu lists bookings (Belum Dibuat rows present)
+  ok  Sidebar has Operasional → Seleksi Foto
+  ok  Booking card has a portal button
+  ok  Creating a portal redirects to its editor
+  ok  Portal link uses /selection/<token>
+  ok  6 photos uploaded
+  ok  Photos get stable codes #001…
+  ok  First upload becomes the main photo
+  ok  Admin thumbnail URL is app-scoped, not a file URL
+  ok  Quota saved = 3
+  ok  Reordering changes the first photo
+  ok  Setting a main photo is reflected
+  ok  Client sees the client name
+  ok  Client sees the booking id
+  ok  Client sees the instructions
+  ok  Gallery shows all 6 photos
+  ok  Counter starts at 0 / 3
+  ok  Submit button is disabled with no picks
+  ok  Every gallery image goes through the token-scoped photo route
+  ok  No master photo filename appears in the client portal HTML
+  ok  Portal is noindex
+  ok  Counter follows the quota (3 / 3)
+  ok  Selected tiles are marked
+  ok  4th pick is refused by the quota
+  ok  Quota message is shown
+  ok  Unpicking works
+  ok  Picked after freeing a slot
+  ok  Picks survive a reload
+  ok  Lightbox opens
+  ok  Lightbox counter covers the whole gallery
+  ok  Lightbox next works
+  ok  Confirmation modal lists the chosen count
+  ok  Confirmation modal lists one clean name per pick
+  ok  Names carry no leading number and no file extension
+  ok  Success screen after sending
+  ok  Sent state shows the picked photos
+  ok  Picking after submit is rejected (409)
+  ok  Admin portal page shows the sent status
+  ok  Admin sees 3 picked photos
+  ok  Admin sees the picked photo codes
+  ok  Admin page shows the submitted timestamp
+  ok  CSV export downloads
+  ok  CSV marks exactly 3 photos as picked
+  ok  ZIP export is a real ZIP
+  ok  ZIP contains data
+  ok  Unknown token → 404
+  ok  Foreign photo id through a valid token → 404
+  ok  Token rotation produces a new link
+  ok  Old token no longer opens the portal
+  ok  New token opens the portal (admin submitted view)
+  ok  Exactly one portal on/off control exists
+  ok  Closed portal shows the closed state
+  ok  Closed portal blocks photo requests (403)
+  ok  Admin can still preview a closed portal
+  ok  Portal can be reopened
+  ok  Preview is served as an image
+  ok  Preview is private-cached
+  ok  Mobile portal has no horizontal overflow
+  ok  Mobile gallery is 2 columns
+  ok  Portal hides the Drive block when no folder exists
+  ok  Custom Drive link overrides the booking folder
+  ok  Drive button opens in a new tab safely
+  ok  Bare folder id is normalised into a Drive URL
+  ok  Non-Drive link is rejected with a message
+  ok  Rejected link did not replace the stored one
+  ok  Unchecked "tampilkan" hides the Drive block
+  ok  WhatsApp button opens wa.me with the client number
+  ok  WhatsApp message greets the client by name
+  ok  WhatsApp emoji survive UTF-8 encoding
+  ok  WhatsApp message carries the portal link
+  ok  WhatsApp message states the quota
+  ok  WhatsApp template screen documents {{folder_drive}}
+  ok  List view shows the sent portal
+  ok  List view keeps "Belum Dibuat" filter
+  ok  Status filter narrows the list
+  ok  Search finds the client
+  ok  Second portal created for the cascade test
+  ok  Deleting a booking also removes its portal (no orphan rows)
+
+78 checks passed, 0 failed

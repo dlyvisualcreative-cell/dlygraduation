@@ -1,0 +1,60 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah kota baru' : 'Edit kota' %></h2>
+      <p class="admin-muted">Slug menentukan URL kota, misalnya <code>/city/bandung</code>.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/cities">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/cities/save" enctype="multipart/form-data" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (city.id) { %><input type="hidden" name="id" value="<%= city.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="name">Nama kota <span class="req">*</span></label>
+        <input type="text" id="name" name="name" required value="<%= city.name %>" placeholder="Bandung">
+      </div>
+      <div class="admin-field">
+        <label for="slug">Slug URL</label>
+        <input type="text" id="slug" name="slug" value="<%= city.slug %>" placeholder="bandung">
+        <span class="admin-hint">Kosongkan untuk dibuat otomatis.</span>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="description">Deskripsi layanan</label>
+        <textarea id="description" name="description" rows="4"><%= city.description || '' %></textarea>
+      </div>
+      <div class="admin-field">
+        <label for="cover_image">Cover image (URL / path)</label>
+        <input type="text" id="cover_image" name="cover_image" value="<%= city.cover_image || '' %>" placeholder="/ph/city-bandung.svg">
+      </div>
+      <div class="admin-field">
+        <label for="cover_file">Upload cover baru</label>
+        <input type="file" id="cover_file" name="cover_file" accept="image/*">
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan tampil</label>
+        <input type="number" id="sort_order" name="sort_order" value="<%= city.sort_order || 0 %>" min="0">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= city.is_active ? 'checked' : '' %>>
+          <span>Aktifkan kota ini di halaman publik</span>
+        </label>
+      </div>
+    </div>
+
+    <% if (city.cover_image) { %>
+      <div class="admin-preview">
+        <span class="admin-hint">Cover saat ini</span>
+        <img src="<%= imageUrl(city.cover_image) %>" alt="">
+      </div>
+    <% } %>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan kota</button>
+      <a class="admin-btn" href="<%= base %>/admin/cities">Batal</a>
+    </div>
+  </form>
+</div>

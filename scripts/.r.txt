@@ -1,0 +1,46 @@
+PASS  [desktop] no horizontal overflow (booking) — overflow=0
+PASS  [desktop] duration card stays compact — height=53
+PASS  [desktop] duration card fits the screen — width=275
+PASS  [desktop] duration card is rounded — radius=12
+PASS  [desktop] price is not clipped
+PASS  [desktop] calendar cell stays tappable — cell=55x55
+PASS  [desktop] time field fits — width=280
+PASS  [desktop] no horizontal overflow (TnC) — overflow=0
+PASS  [desktop] no horizontal overflow (admin bookings) — overflow=0
+PASS  [desktop] navy card fits — width=1074
+PASS  [desktop] navy card colour — rgb(11, 35, 64)
+PASS  [desktop] booking info grid adapts — cols=6
+PASS  [desktop] no horizontal overflow (payment) — overflow=0
+PASS  [desktop] chat preview wraps inside the panel — width=1074
+PASS  [desktop] pages screen renders toggles
+PASS  [tablet] no horizontal overflow (booking) — overflow=0
+PASS  [tablet] duration card stays compact — height=53
+PASS  [tablet] duration card fits the screen — width=275
+PASS  [tablet] duration card is rounded — radius=12
+PASS  [tablet] price is not clipped
+PASS  [tablet] calendar cell stays tappable — cell=55x55
+PASS  [tablet] time field fits — width=280
+PASS  [tablet] no horizontal overflow (TnC) — overflow=0
+PASS  [tablet] no horizontal overflow (admin bookings) — overflow=0
+PASS  [tablet] navy card fits — width=674
+PASS  [tablet] navy card colour — rgb(11, 35, 64)
+PASS  [tablet] booking info grid adapts — cols=3
+PASS  [tablet] no horizontal overflow (payment) — overflow=0
+PASS  [tablet] chat preview wraps inside the panel — width=674
+PASS  [tablet] pages screen renders toggles
+PASS  [mobile] no horizontal overflow (booking) — overflow=0
+PASS  [mobile] duration card stays compact — height=48
+PASS  [mobile] duration card fits the screen — width=253
+PASS  [mobile] duration card is rounded — radius=12
+PASS  [mobile] price is not clipped
+PASS  [mobile] calendar cell stays tappable — cell=42x42
+PASS  [mobile] time field fits — width=280
+PASS  [mobile] no horizontal overflow (TnC) — overflow=0
+PASS  [mobile] no horizontal overflow (admin bookings) — overflow=0
+PASS  [mobile] navy card fits — width=312
+PASS  [mobile] navy card colour — rgb(11, 35, 64)
+PASS  [mobile] booking info grid adapts — cols=2
+PASS  [mobile] no horizontal overflow (payment) — overflow=0
+PASS  [mobile] chat preview wraps inside the panel — width=312
+PASS  [mobile] pages screen renders toggles
+ALL PASSED

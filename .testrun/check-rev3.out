@@ -1,0 +1,50 @@
+PASS  Tahap 03 belum aktif 1 detik sebelum jadwal
+PASS  Tahap 03 aktif TEPAT saat jadwal sesi (04.23 WIB)
+PASS  Transisi tidak dobel saat dipanggil berulang (idempotent)
+PASS  Waktu transisi tersimpan = jam sesi di booking (04:23 WIB)
+PASS  nextSessionAt tersedia untuk penyegaran otomatis halaman
+PASS  Gallery publik = carousel horizontal satu jalur (bukan grid/masonry)
+PASS  Semua kartu pada satu baris + masih bisa digeser
+PASS  Carousel punya dots sejumlah karya
+PASS  Jarak antar kartu lega (≥16px)
+PASS  Kartu memakai crop portrait konsisten (4:5)
+PASS  Nama client tampil di SETIAP kartu (data masing-masing)
+PASS  Baris kedua "Kampus • Tanggal" di setiap kartu
+PASS  Keterangan TERLIHAT di atas foto (tidak tertutup gambar)
+PASS  Keterangan menyatu dengan foto (gradient, bukan panel solid)
+PASS  Tipografi caption Montserrat (nama Bold, meta Medium/SemiBold)
+PASS  Tidak ada overflow horizontal pada halaman gallery
+PASS  Indikator jumlah sesi ada di baris judul paket (bukan di bawah judul)
+PASS  Badge punya soft blue glow + dot pulse lembut
+PASS  Harga panel "Harga" Bold (700), sama tebal dengan sticky booking bar
+PASS  Judul paket tegas (700)
+PASS  Tidak ada error JavaScript di halaman yang diuji
+PASS  Mobile: SATU kartu per slide (peek kartu berikutnya)
+PASS  Mobile tidak overflow horizontal + jarak antar kartu wajar
+PASS  "Portfolio klien lain" mobile = carousel satu jalur (bukan grid 2 kolom)
+PASS  Kartu "klien lain" tidak turun ke baris kedua + bisa digeser
+PASS  Login Client Portal tidak lagi memakai placeholder kotak "DLY"
+PASS  Logo resmi tampil dengan ukuran seragam (40px) di login
+PASS  Login tidak overflow di HP
+PASS  Status otomatis pindah ke tahap 03 saat jam sesi tiba
+PASS  Pesan pengingat tampil di bawah deskripsi tahap 03
+PASS  Badge "Sedang Berlangsung" punya dot hijau pulse + soft glow
+PASS  Judul kartu status + badge dalam satu baris
+PASS  Tahap selesai memakai ikon centang sederhana (bukan teks entity)
+FAIL  Tahap aktif tetap punya indikator sendiri + label "Sedang Berlangsung" — 03 Sesi foto dimulai Sedang berlangsung Waktu sesi foto kamu sudah tiba dan sedang berlangsung. Harap datang tepat waktu. Jika terlambat, durasi sesi akan tetap dihitung sesuai jadwal. 9 November 2026, 13:59 WIB · otomatis
+PASS  Indikator tahap aktif memakai soft glow (hanya tahap aktif)
+FAIL  Timeline memuat tahap 03 + pengingat saat aktif — Booking Terkonfirmasi | Sesi foto dimulai
+PASS  Endpoint /portal/status mengembalikan tahap tanpa data pribadi
+PASS  Navigasi utama TIDAK lagi punya dropdown Lokasi & Paket
+PASS  Menu yang dipertahankan tetap ada (Home, Gallery, Pricelist, Cara Order, Ulasan)
+PASS  Menu Syarat & Ketentuan tetap tampil di navigasi
+PASS  Halaman /city masih hidup walau menunya dihapus
+PASS  Header putih memakai logo gelap (warna asli), bukan logo putih
+PASS  Header di atas foto gelap memakai logo putih
+PASS  Dua varian logo benar-benar berbeda (adaptif, bukan file yang sama)
+PASS  File logo yang dirender bisa diambil (200)
+PASS  Sebelum jam sesi tiba, tahap terakhir bukan sesi (DP Terkonfirmasi/belum ada)
+FAIL  Halaman menyegarkan sendiri saat jam sesi tiba (tanpa refresh manual) — session_done/reload
+
+44 checks passed, 3 failed
+Gagal: Tahap aktif tetap punya indikator sendiri + label "Sedang Berlangsung" | Timeline memuat tahap 03 + pengingat saat aktif | Halaman menyegarkan sendiri saat jam sesi tiba (tanpa refresh manual)

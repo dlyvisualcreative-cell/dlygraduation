@@ -1,0 +1,157 @@
+<%
+  /**
+   * Halaman portfolio satu klien (Tahap 6) — /portfolio/<slug>
+   *
+   * Sumber data HANYA tabel portfolio (cover + portfolio_images) yang sudah
+   * dipublikasikan admin. Tidak ada foto dari portal seleksi pribadi, tidak ada data
+   * booking, pembayaran, atau catatan internal.
+   */
+  const pDate = item.taken_at ? formatDateID(item.taken_at, true) : '';
+  const pTime = String(item.session_time || '').trim();
+  const pCampus = String(item.campus || '').trim();
+  const pCity = showCity ? (item.city_name || '') : '';
+  const cover = photos.length ? photos[0].src : '';
+  const rest = photos.slice(1);
+  const total = photos.length;
+%>
+
+<section class="pf-head">
+  <div class="container pf-head__inner">
+    <a class="pf-back" href="<%= base %>/gallery">
+      <span aria-hidden="true">&larr;</span> Semua portfolio
+    </a>
+
+    <div class="pf-head__grid">
+      <div class="pf-head__copy">
+        <span class="pf-eyebrow"><%= categoryLabel %></span>
+        <h1 class="pf-name"><%= clientTitle %></h1>
+
+        <dl class="pf-meta">
+          <% if (pCampus) { %>
+            <div><dt>Kampus</dt><dd><%= pCampus %></dd></div>
+          <% } %>
+          <% if (pDate) { %>
+            <div><dt>Pemotretan</dt><dd><%= pDate %><%= pTime ? ' · ' + pTime + ' WIB' : '' %></dd></div>
+          <% } %>
+          <% if (pCity) { %>
+            <div><dt>Kota</dt><dd><%= pCity %></dd></div>
+          <% } %>
+          <div><dt>Foto</dt><dd><%= total %> foto</dd></div>
+        </dl>
+
+        <% if (item.description) { %>
+          <p class="pf-desc"><%= item.description %></p>
+        <% } %>
+
+        <div class="pf-head__actions">
+          <a class="btn btn--primary" href="<%= base %>/booking">Book Your Session</a>
+          <a class="btn btn--outline" href="<%= base %>/gallery">Lihat portfolio lain</a>
+        </div>
+      </div>
+
+      <% if (cover) { %>
+        <figure class="pf-cover">
+          <button type="button" class="pf-cover__btn" data-lightbox
+                  data-src="<%= lightboxUrl(cover) %>"
+                  data-more="<%= rest.map(function (p) { return lightboxUrl(p.src); }).join('|') %>"
+                  data-title="<%= clientTitle %>"
+                  data-meta="<%= [pCampus, pDate].filter(Boolean).join(' · ') %>"
+                  aria-label="Perbesar foto <%= clientTitle %>">
+            <%- picture(cover, {
+                  alt: item.alt_text || (clientTitle + (pCampus ? ' — ' + pCampus : '')),
+                  className: 'pf-cover__img',
+                  widths: [480, 800, 1200],
+                  sizes: '(max-width: 899px) 92vw, 44vw',
+                  priority: true
+                }) %>
+            <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+            <% if (total > 1) { %>
+              <span class="pf-cover__count">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="6" width="14" height="14" rx="2.5"/><path d="M17 3H5.5A2.5 2.5 0 0 0 3 5.5V17"/></svg>
+                <%= total %>
+              </span>
+            <% } %>
+            <span class="pf-cover__hint">Klik untuk memperbesar</span>
+          </button>
+        </figure>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<% if (rest.length) { %>
+  <section class="section section--tight pf-gallery-section">
+    <div class="container">
+      <div class="pf-gallery__head">
+        <h2>Galeri <%= String(item.client_name || '').trim().split(' ')[0] || 'klien' %></h2>
+        <span class="pf-gallery__count"><%= total %> foto dalam sesi ini</span>
+      </div>
+
+      <div class="pf-gallery" data-gallery>
+        <% rest.forEach(function (p, i) { %>
+          <figure class="pf-tile">
+            <button type="button" class="pf-tile__btn" data-lightbox
+                    data-src="<%= lightboxUrl(p.src) %>"
+                    data-more="<%= photos.filter(function (x) { return x.src !== p.src; }).map(function (x) { return lightboxUrl(x.src); }).join('|') %>"
+                    data-title="<%= clientTitle %>"
+                    data-meta="<%= [pCampus, pDate].filter(Boolean).join(' · ') %>"
+                    aria-label="Foto <%= i + 2 %> dari <%= total %>">
+              <%- picture(p.src, {
+                    alt: p.alt,
+                    className: 'pf-tile__img',
+                    widths: [320, 480, 800, 1200],
+                    sizes: '(max-width: 599px) 92vw, (max-width: 899px) 46vw, 31vw',
+                    eager: i < 2
+                  }) %>
+            </button>
+          </figure>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<% if (others.length) { %>
+  <section class="section section--alt pf-others">
+    <div class="container">
+      <div class="pf-gallery__head">
+        <h2>Portfolio klien lain</h2>
+        <div class="pf-others__actions">
+          <div class="pf-carousel__nav">
+            <button type="button" class="pf-carousel__arrow" data-pf-prev aria-label="Karya sebelumnya">&#8249;</button>
+            <button type="button" class="pf-carousel__arrow" data-pf-next aria-label="Karya berikutnya">&#8250;</button>
+          </div>
+          <a class="link-arrow" href="<%= base %>/gallery">Lihat semua <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+      <div class="pf-carousel pf-carousel--others" data-pf-carousel data-interval="7000">
+        <div class="pf-carousel__viewport" data-pf-viewport tabindex="0"
+             aria-label="Portfolio klien lain, geser untuk melihat karya lain">
+          <div class="pf-carousel__track" data-pf-track>
+            <% others.forEach(function (o, i) { %>
+              <div class="pf-carousel__slide">
+                <%- include('partials/portfolio-card', { item: o, showCity: showPortfolioCity, eager: i < 2 }) %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+        <div class="pf-carousel__dots" data-pf-dots role="tablist" aria-label="Posisi portfolio klien lain"></div>
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<script src="<%= base %>/assets/portfolio-carousel.js?v=<%= assetVersion.portfolioCarousel %>" defer></script>
+
+<section class="cta-band cta-band--compact">
+  <div class="container cta-band__inner">
+    <div>
+      <h2>Ingin sesi seperti ini?</h2>
+      <p>Pilih kota, kategori, paket, dan durasi — lalu kirim detail booking Anda.</p>
+    </div>
+    <div class="cta-band__actions">
+      <a class="btn btn--light" href="<%= base %>/booking">Book Your Session</a>
+      <a class="btn btn--outline-light" href="<%= base %>/pricelist">Lihat Pricelist</a>
+    </div>
+  </div>
+</section>

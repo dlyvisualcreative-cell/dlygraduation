@@ -1,0 +1,85 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Paket &amp; harga</h2>
+      <p class="admin-muted">Harga di website publik diambil langsung dari tabel durasi di bawah. Kosongkan harga jika belum ditentukan — pengunjung akan melihat “Harga belum tersedia”.</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/packages/new">+ Tambah paket</a>
+  </div>
+
+  <form method="get" action="<%= base %>/admin/packages" class="admin-filter">
+    <label for="filter-city">Kota</label>
+    <select id="filter-city" name="kota">
+      <option value="">Semua kota</option>
+      <% cities.forEach(function (c) { %><option value="<%= c.id %>" <%= String(filterCity) === String(c.id) ? 'selected' : '' %>><%= c.name %></option><% }); %>
+    </select>
+    <label for="filter-cat">Kategori</label>
+    <select id="filter-cat" name="kategori">
+      <option value="">Semua kategori</option>
+      <% categories.forEach(function (k) { %><option value="<%= k.id %>" <%= String(filterCategory) === String(k.id) ? 'selected' : '' %>><%= k.name %></option><% }); %>
+    </select>
+    <button class="admin-btn admin-btn--sm" type="submit">Terapkan</button>
+  </form>
+
+  <%
+    const visible = packages.filter(function (p) {
+      if (filterCity && String(p.city_id) !== String(filterCity)) return false;
+      if (filterCategory && String(p.category_id) !== String(filterCategory)) return false;
+      return true;
+    });
+  %>
+
+  <% if (!visible.length) { %>
+    <p class="admin-muted">Tidak ada paket pada filter ini.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table admin-table--prices">
+        <thead>
+          <tr><th>Paket</th><th>Kota / Kategori</th><th>Durasi · harga · foto edit</th><th>Status</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+          <% visible.forEach(function (p) { %>
+            <tr>
+              <td>
+                <strong><%= p.name %></strong>
+                <% if (p.label) { %><small class="cell-sub"><%= p.label %></small><% } %>
+              </td>
+              <td>
+                <%= p.city_name %>
+                <small class="cell-sub"><%= p.category_name || 'Tanpa kategori' %></small>
+              </td>
+              <td>
+                <% if (!p.durations.length) { %>
+                  <span class="admin-badge admin-badge--warn">belum ada durasi</span>
+                <% } else { %>
+                  <div class="price-pills">
+                    <% p.durations.forEach(function (d) { %>
+                      <span class="price-pill <%= (d.price && d.price > 0) ? '' : 'is-empty' %><%= d.is_active ? '' : ' is-off' %>">
+                        <%= d.duration_minutes %> mnt
+                        <strong><%= d.price && d.price > 0 ? rupiah(d.price) : 'harga —' %></strong>
+                        <em><%= d.edited_photos ? d.edited_photos + ' foto' : 'foto —' %></em>
+                      </span>
+                    <% }); %>
+                  </div>
+                <% } %>
+                <a class="admin-link" href="<%= base %>/admin/packages/<%= p.id %>/edit">Ubah durasi, harga &amp; foto</a>
+              </td>
+              <td><span class="admin-badge <%= p.is_active ? 'admin-badge--ok' : 'admin-badge--muted' %>"><%= p.is_active ? 'Aktif' : 'Nonaktif' %></span></td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/packages/<%= p.id %>/edit">Edit</a>
+                <form method="post" action="<%= base %>/admin/packages/<%= p.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= p.is_active ? 'Nonaktifkan' : 'Aktifkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/packages/<%= p.id %>/delete" data-confirm="Hapus paket <%= p.name %>?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

@@ -1,0 +1,40 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span>FAQ</span>
+    </nav>
+    <span class="eyebrow">Help</span>
+    <h1><%= site['faq.title'] %></h1>
+    <p class="page-head__lede"><%= site['faq.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container container--narrow">
+    <% if (!faqs.length) { %>
+      <div class="empty-state">
+        <h2>Belum ada pertanyaan</h2>
+        <p>Admin belum menambahkan FAQ. Hubungi kami via WhatsApp bila ada yang ingin ditanyakan.</p>
+      </div>
+    <% } else { %>
+      <div class="faq-list">
+        <% faqs.forEach(function (f) { %>
+          <details class="faq-item">
+            <summary><span><%= f.question %></span><span class="faq-item__icon" aria-hidden="true">+</span></summary>
+            <div class="faq-item__body"><%= f.answer %></div>
+          </details>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <div class="faq-cta">
+      <h2>Masih ada pertanyaan?</h2>
+      <p>Admin kami siap membantu memilih sesi, durasi, dan tanggal yang paling sesuai.</p>
+      <div class="order-cta__actions">
+        <a class="btn btn--primary" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai sesi foto wisuda.') %>" target="_blank" rel="noopener">Tanya via WhatsApp</a>
+        <a class="btn btn--outline" href="<%= base %>/booking">Book Your Session</a>
+      </div>
+    </div>
+  </div>
+</section>

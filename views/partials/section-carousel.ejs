@@ -1,0 +1,52 @@
+<section class="<%= sectionClass(s, 'section section--alt section--carousel layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <span class="eyebrow">Portfolio Carousel</span>
+        <h2><%= s.title || site['carousel.title'] %></h2>
+        <% if (s.description || site['carousel.description']) { %>
+          <p class="section-sub"><%= s.description || site['carousel.description'] %></p>
+        <% } %>
+      </div>
+      <div class="carousel-nav">
+        <button type="button" class="carousel-arrow" data-carousel-prev aria-label="Geser ke kiri">&#8249;</button>
+        <button type="button" class="carousel-arrow" data-carousel-next aria-label="Geser ke kanan">&#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="carousel" data-carousel
+       data-autoplay="<%= site['carousel.autoplay'] === '1' ? '1' : '0' %>"
+       data-interval="<%= Number(site['carousel.autoplay_ms']) || 5000 %>">
+    <div class="carousel__viewport" data-carousel-viewport>
+      <div class="carousel__track" data-carousel-track>
+        <% carousel.forEach(function (item, i) { %>
+          <figure class="carousel__item">
+            <button class="carousel__btn" type="button"
+                    data-lightbox
+                    data-src="<%= lightboxUrl(item.image_src) %>"
+                    data-more="<%= (item.extra_photos || []).map(function (p) { return lightboxUrl(p.image); }).join('|') %>"
+                    data-title="<%= portfolioTitle(item) %>"
+                    data-meta="<%= [portfolioTitle(item), item.campus, item.taken_at ? formatDateID(item.taken_at) : null].filter(Boolean).join(' · ') %>"
+                    data-desc="<%= item.description || '' %>">
+              <%- picture(item.image_src, {
+                    alt: item.alt_text || portfolioTitle(item),
+                    className: 'carousel__img',
+                    widths: [320, 480, 800],
+                    sizes: '(max-width: 720px) 70vw, 320px'
+                  }) %>
+              <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+            </button>
+            <figcaption>
+              <strong><%= portfolioTitle(item) %></strong>
+              <span><%= item.campus || '' %><%= item.taken_at ? (item.campus ? ' · ' : '') + formatDateID(item.taken_at) : '' %></span>
+            </figcaption>
+          </figure>
+        <% }); %>
+      </div>
+    </div>
+    <div class="container">
+      <div class="carousel__dots" data-carousel-dots role="tablist" aria-label="Halaman carousel"></div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,38 @@
+<%
+  const fallback = [
+    { title: 'Pilih kota, kategori & paket', description: 'Tentukan kota layanan, kategori, paket, lalu durasi. Harga muncul otomatis dari data resmi.' },
+    { title: 'Kirim detail booking', description: 'Isi data diri dan tanggal. Detail booking tersimpan dan diteruskan ke WhatsApp kami.' },
+    { title: 'Konfirmasi admin', description: 'Admin menghubungi Anda untuk memastikan ketersediaan jadwal dan detail teknis.' }
+  ];
+  let rows = (s.items && s.items.length) ? s.items : [];
+  if (!rows.length && s.content) {
+    rows = s.content.split('\n').map(function (line) {
+      const p = line.split('|');
+      return { title: (p[0] || '').trim(), description: (p[1] || '').trim() };
+    }).filter(function (r) { return r.title; });
+  }
+  if (!rows.length) rows = SECTION_ITEM_DEFAULTS['process'] || [];
+%>
+<section class="<%= sectionClass(s, 'section section--process layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Alur Pemesanan</span>
+      <h2><%= s.title || site['process.title'] %></h2>
+      <% if (s.description || site['process.description']) { %>
+        <p class="section-sub"><%= s.description || site['process.description'] %></p>
+      <% } %>
+    </div>
+    <ol class="steps layout-<%= s.layout %>">
+      <% rows.forEach(function (step, i) { %>
+        <li class="step">
+          <span class="step__num"><%= i + 1 %></span>
+          <h3><%= step.title %></h3>
+          <% if (step.description) { %><p><%= step.description %></p><% } %>
+          <% if (step.image) { %>
+            <%- picture(step.image, { alt: step.title, className: 'step__img', widths: [320, 480, 800], sizes: '(max-width: 720px) 92vw, 30vw' }) %>
+          <% } %>
+        </li>
+      <% }); %>
+    </ol>
+  </div>
+</section>

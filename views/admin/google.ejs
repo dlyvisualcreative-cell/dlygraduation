@@ -1,0 +1,347 @@
+<%
+  const statusClass = !hasCredentials ? 'gcal-status--off'
+    : (connected ? (cfg.enabled ? 'gcal-status--ok' : 'gcal-status--off') : 'gcal-status--warn');
+  const statusLabel = !hasCredentials ? 'Belum dikonfigurasi'
+    : (!connected ? 'Token dihapus — perlu dihubungkan ulang'
+      : (cfg.enabled ? 'Aktif — event dibuat otomatis' : 'Terhubung, tetapi integrasi dimatikan'));
+%>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Google Calendar</h2>
+      <p class="admin-muted">
+        Saat Anda mengubah status booking menjadi <strong>Confirmed</strong>, event otomatis dibuat di Google Calendar
+        <strong>dan</strong> folder Google Drive dibuat untuk klien tersebut. Tautan folder otomatis ditulis ke deskripsi event.
+        Jika status dikembalikan ke Pending atau Cancelled, event-nya dihapus (folder Drive tetap tersimpan).
+        Menghapus booking juga menghapus event-nya.
+      </p>
+    </div>
+  </div>
+
+  <div class="gcal-two">
+    <div class="gcal-status <%= statusClass %>" data-gcal-main>
+      <span class="gcal-status__label">Google Calendar</span>
+      <strong><%= statusLabel %></strong>
+      <% if (connected && cfg.account && cfg.account.indexOf('@') !== -1) { %>
+        <span class="admin-muted">Akun: <strong><%= cfg.account %></strong></span>
+      <% } %>
+      <% if (connected && cfg.connectedAt) { %>
+        <span class="admin-muted">Terhubung sejak <%= new Date(cfg.connectedAt).toLocaleString('id-ID') %></span>
+      <% } %>
+    </div>
+
+    <div class="gcal-status <%= driveConnected ? (cfg.driveEnabled ? 'gcal-status--ok' : 'gcal-status--off') : 'gcal-status--off' %>" data-gdrive-main>
+      <span class="gcal-status__label">Google Drive</span>
+      <strong><%= !hasCredentials ? 'Belum dikonfigurasi'
+        : (!driveConnected ? 'Belum terhubung'
+          : (cfg.driveEnabled
+            ? (driveOwnAccount ? 'Terhubung — akun Drive terpisah' : 'Terhubung — memakai akun Calendar')
+            : 'Terhubung, fitur dimatikan')) %></strong>
+      <% if (driveConnected && cfg.driveAccount && cfg.driveAccount.indexOf('@') !== -1) { %>
+        <span class="admin-muted">Akun: <strong><%= cfg.driveAccount %></strong></span>
+      <% } %>
+      <% if (driveOwnAccount && cfg.driveConnectedAt) { %>
+        <span class="admin-muted">Dihubungkan <%= new Date(cfg.driveConnectedAt).toLocaleString('id-ID') %></span>
+      <% } %>
+      <span class="admin-muted">
+        OAuth client: <%= driveOwnClient ? 'terpisah (khusus Drive)' : 'sama dengan Calendar' %>
+      </span>
+    </div>
+  </div>
+
+  <% if (hasCredentials && !connected) { %>
+    <div class="gcal-status gcal-status--warn">
+      <strong>Google Calendar belum terhubung</strong>
+      <span class="admin-muted">
+        Client ID/Secret sudah tersimpan, tetapi belum ada token akses (token lama terhapus saat kredensial berubah).
+        Klik <em>Hubungkan ulang Calendar</em> di bawah, pilih akun Google, lalu setujui semua izin.
+      </span>
+    </div>
+  <% } %>
+
+  <% if (cfg.lastError) { %>
+    <div class="gcal-error">
+      <span class="gcal-badge gcal-badge--error">Calendar</span>
+      <p><%= cfg.lastError %></p>
+    </div>
+  <% } %>
+  <% if (cfg.driveError) { %>
+    <div class="gcal-error">
+      <span class="gcal-badge gcal-badge--error">Drive</span>
+      <p><%= cfg.driveError %></p>
+      <p style="margin-top:6px;font-size:0.76rem">
+        Sudah memperbaiki penyebabnya? Klik <strong>Tes koneksi</strong> di bawah untuk memperbarui status ini.
+      </p>
+    </div>
+  <% } %>
+  <% if (connected && !driveConnected) { %>
+    <div class="gcal-status gcal-status--warn">
+      <strong>Akun Drive belum terhubung</strong>
+      <span class="admin-muted">
+        <% if (driveOwnClient) { %>
+          Kredensial Drive sudah tersimpan di client terpisah, jadi akun Drive perlu diotorisasi sendiri.
+          Klik <em>Hubungkan akun Drive</em> di bawah.
+        <% } else { %>
+          Klik <em>Hubungkan akun Drive</em> di bawah, lalu login dengan Gmail yang akan menyimpan folder foto.
+        <% } %>
+      </span>
+    </div>
+  <% } else if (driveConnected && !driveOwnAccount) { %>
+    <div class="gcal-status gcal-status--off">
+      <strong>Drive memakai akun Calendar</strong>
+      <span class="admin-muted">
+        Folder akan dibuat di akun <strong><%= cfg.driveAccount || 'Calendar' %></strong>.
+        Kalau ingin memakai Gmail lain (mis. akun yang punya storage), klik <em>Hubungkan akun Drive</em> —
+        Calendar tidak akan berubah.
+      </span>
+    </div>
+  <% } %>
+
+  <% if (!hasCredentials) { %>
+    <div class="admin-note" style="margin:0 0 18px">
+      Integrasi ini memerlukan kredensial OAuth dari Google Cloud Console. Ikuti langkah berikut
+      (sekali saja, ±5 menit). Tidak ada biaya untuk pemakaian normal.
+    </div>
+    <ol class="gcal-steps">
+      <li>Buka <strong>console.cloud.google.com</strong> → buat project baru (nama bebas, mis. <em>DLY Graduation</em>).</li>
+      <li>Menu <strong>APIs &amp; Services → Library</strong> → aktifkan <strong>Google Calendar API</strong>.</li>
+      <li>Masih di Library → aktifkan juga <strong>Google Drive API</strong> (wajib untuk pembuatan folder Drive).</li>
+      <li>Menu <strong>APIs &amp; Services → OAuth consent screen</strong> → pilih <strong>External</strong> → isi nama aplikasi &amp; email Anda.
+        Pada bagian <em>Test users</em>, tambahkan alamat Gmail yang akan dipakai untuk kalender.</li>
+      <li>Menu <strong>APIs &amp; Services → Credentials → Create Credentials → OAuth client ID</strong> →
+        Application type: <strong>Web application</strong>.</li>
+      <li>Di <em>Authorized redirect URIs</em>, tempel alamat di bawah ini (harus sama persis):</li>
+    </ol>
+    <div class="copy-row" style="margin-bottom:18px">
+      <input type="text" readonly value="<%= redirectUri %>" id="redirect-uri" aria-label="Redirect URI">
+      <button type="button" class="admin-btn admin-btn--sm" data-copy="redirect-uri">Salin</button>
+    </div>
+    <p class="admin-hint" style="margin-bottom:6px">
+      Setelah dibuat, salin <strong>Client ID</strong> dan <strong>Client Secret</strong> ke formulir di bawah, simpan, lalu klik
+      <strong>Hubungkan Google Calendar</strong>.
+    </p>
+  <% } else { %>
+    <p class="admin-hint" style="margin-bottom:6px">Redirect URI yang harus terdaftar di Google Console:</p>
+    <div class="copy-row" style="margin-bottom:18px">
+      <input type="text" readonly value="<%= redirectUri %>" id="redirect-uri" aria-label="Redirect URI">
+      <button type="button" class="admin-btn admin-btn--sm" data-copy="redirect-uri">Salin</button>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/admin/google/save" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="gcal-field-row">
+      <div class="admin-field">
+        <label for="client_id">Client ID — Calendar</label>
+        <input type="text" id="client_id" name="client_id" autocomplete="off"
+               placeholder="<%= hasCredentials ? (cfg.clientId ? cfg.clientId.slice(0, 18) + '…' : 'tersimpan') : 'xxxxx.apps.googleusercontent.com' %>">
+        <span class="admin-hint">Kosongkan jika tidak ingin mengubah nilai yang tersimpan.</span>
+      </div>
+      <div class="admin-field">
+        <label for="client_secret">Client Secret — Calendar</label>
+        <input type="password" id="client_secret" name="client_secret" autocomplete="new-password"
+               placeholder="<%= hasCredentials ? '•••••••• (tersimpan)' : 'GOCSPX-…' %>">
+        <span class="admin-hint">Disimpan di server dan tidak pernah dikirim ke browser pengunjung.</span>
+      </div>
+      <div class="admin-field">
+        <label for="calendar_id">Calendar ID</label>
+        <input type="text" id="calendar_id" name="calendar_id" value="<%= cfg.calendarId %>" placeholder="primary">
+        <span class="admin-hint"><code>primary</code> = kalender utama akun Google yang terhubung.</span>
+      </div>
+      <div class="admin-field">
+        <label for="default_time">Jam mulai default</label>
+        <input type="time" id="default_time" name="default_time" value="<%= cfg.defaultTime %>">
+        <span class="admin-hint">Booking hanya menyimpan tanggal, jadi jam ini dipakai untuk semua event.</span>
+      </div>
+      <div class="admin-field">
+        <label for="duration_fallback">Durasi cadangan (menit)</label>
+        <input type="number" id="duration_fallback" name="duration_fallback" min="15" max="600" step="15" value="<%= cfg.durationFallback %>">
+        <span class="admin-hint">Dipakai hanya bila booking tidak punya durasi. Normalnya durasi mengikuti paket.</span>
+      </div>
+      <div class="admin-field">
+        <label for="team">Tim yang bertugas (default)</label>
+        <input type="text" id="team" name="team" value="<%= cfg.team %>" placeholder="contoh: Fadhli">
+        <span class="admin-hint">Dipakai pada baris <em>Tim yang bertugas</em> dan template chat H-1 di deskripsi kalender.</span>
+      </div>
+      <div class="admin-field">
+        <label for="timezone">Zona waktu</label>
+        <input type="text" id="timezone" name="timezone" value="<%= cfg.timezone %>" placeholder="Asia/Jakarta">
+        <span class="admin-hint">Contoh: <code>Asia/Jakarta</code> (WIB), <code>Asia/Makassar</code> (WITA).</span>
+      </div>
+    </div>
+
+    <fieldset class="admin-fieldset" style="margin-top:4px">
+      <legend>Kredensial Google Drive (opsional)</legend>
+      <p class="admin-hint">
+        Isi bagian ini jika Drive memakai <strong>Google Cloud project yang berbeda</strong> dari Calendar.
+        Kosongkan bila ingin memakai Client ID Calendar yang sama.
+        <% if (driveOwnClient) { %><br><strong style="color:var(--ok-fg)">Saat ini Drive memakai client terpisah.</strong><% } %>
+      </p>
+
+      <div class="gcal-field-row">
+        <div class="admin-field">
+          <label for="drive_client_id">Client ID — Drive</label>
+          <input type="text" id="drive_client_id" name="drive_client_id" autocomplete="off"
+                 placeholder="<%= cfg.driveClientId ? cfg.driveClientId.slice(0, 18) + '…' : 'kosong = pakai client Calendar' %>">
+          <span class="admin-hint">Kosongkan jika tidak ingin mengubah nilai yang tersimpan.</span>
+        </div>
+        <div class="admin-field">
+          <label for="drive_client_secret">Client Secret — Drive</label>
+          <input type="password" id="drive_client_secret" name="drive_client_secret" autocomplete="new-password"
+                 placeholder="<%= cfg.driveClientSecret ? '•••••••• (tersimpan)' : 'kosong = pakai client Calendar' %>">
+          <span class="admin-hint">Harus berpasangan dengan Client ID di atas.</span>
+        </div>
+      </div>
+
+      <p class="admin-hint" style="margin-top:10px">
+        Tambahkan redirect URI ini sebagai <em>Authorized redirect URI</em> pada OAuth client di project Drive:
+      </p>
+      <div class="copy-row" style="margin-bottom:12px">
+        <input type="text" readonly value="<%= redirectUri %>" id="redirect-uri-drive" aria-label="Redirect URI untuk Drive">
+        <button type="button" class="admin-btn admin-btn--sm" data-copy="redirect-uri-drive">Salin</button>
+      </div>
+
+      <% if (driveOwnClient) { %>
+        <label class="admin-check">
+          <input type="checkbox" name="clear_drive_client" value="1">
+          <span>Hapus kredensial Drive dan kembali memakai client Calendar</span>
+        </label>
+        <p class="admin-hint" style="margin-top:6px">
+          Menyimpan dengan centang ini (atau mengganti Client ID/Secret Drive) akan memutus koneksi akun Drive saja —
+          Google Calendar tetap terhubung.
+        </p>
+      <% } %>
+    </fieldset>
+
+    <div class="admin-field" style="margin-top:6px">
+      <label class="admin-check">
+        <input type="checkbox" name="enabled" value="1" <%= cfg.enabled ? 'checked' : '' %>>
+        <span>Aktifkan pembuatan event otomatis ke Google Calendar</span>
+      </label>
+      <label class="admin-check">
+        <input type="checkbox" name="drive_enabled" value="1" <%= cfg.driveEnabled ? 'checked' : '' %>>
+        <span>Buat folder Google Drive otomatis &amp; tulis tautannya ke deskripsi event</span>
+      </label>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan</button>
+    </div>
+  </form>
+
+  <div class="gcal-actions">
+    <% if (hasCredentials) { %>
+      <form method="post" action="<%= base %>/admin/google/connect">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn <%= connected ? '' : 'admin-btn--primary' %>" type="submit">
+          <%= connected ? 'Hubungkan ulang Calendar' : 'Hubungkan Google Calendar' %>
+        </button>
+      </form>
+      <% if (hasDriveCredentials) { %>
+        <form method="post" action="<%= base %>/admin/google/connect-drive">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="admin-btn <%= driveConnected ? '' : 'admin-btn--primary' %>" type="submit">
+            <%= driveConnected ? 'Hubungkan ulang Drive' : 'Hubungkan akun Drive' %>
+          </button>
+        </form>
+      <% } else { %>
+        <button class="admin-btn" type="button" disabled>Hubungkan akun Drive</button>
+        <span class="admin-hint">Isi Client ID &amp; Secret Drive (atau Calendar) terlebih dahulu.</span>
+      <% } %>
+    <% } else { %>
+      <button class="admin-btn admin-btn--primary" type="button" disabled>Hubungkan Google</button>
+      <span class="admin-hint">Simpan Client ID &amp; Client Secret terlebih dahulu.</span>
+    <% } %>
+
+    <% if (connected || driveConnected) { %>
+      <form method="post" action="<%= base %>/admin/google/test">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn" type="submit">Tes koneksi</button>
+      </form>
+    <% } %>
+    <form method="post" action="<%= base %>/admin/google/verify">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="admin-btn" type="submit"
+              title="Cek apakah Client ID dan Client Secret benar-benar berpasangan (tanpa perlu login Google)">
+        Tes kredensial
+      </button>
+    </form>
+    <% if (connected) { %>
+      <form method="post" action="<%= base %>/admin/google/sync-all">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn" type="submit">Sinkronkan semua booking terkonfirmasi</button>
+      </form>
+      <form method="post" action="<%= base %>/admin/google/disconnect" data-confirm="Putuskan koneksi Google Calendar?">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn admin-btn--danger" type="submit">Putuskan Calendar</button>
+      </form>
+    <% } %>
+    <% if (driveOwnAccount) { %>
+      <form method="post" action="<%= base %>/admin/google/disconnect-drive" data-confirm="Putuskan koneksi akun Google Drive?">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="admin-btn admin-btn--danger" type="submit">Putuskan akun Drive</button>
+      </form>
+    <% } %>
+  </div>
+
+  <div class="gcal-diag">
+    <h3>Diagnostik koneksi</h3>
+    <dl>
+      <div><dt>Akun Calendar</dt><dd><%= cfg.account && cfg.account.indexOf('@') !== -1 ? cfg.account : (connected ? 'terhubung (akun belum terbaca — klik Tes koneksi)' : 'belum terhubung') %></dd></div>
+      <div><dt>Akun Drive</dt><dd><%= cfg.driveAccount && cfg.driveAccount.indexOf('@') !== -1 ? cfg.driveAccount : (driveConnected ? 'terhubung' : 'belum terhubung') %></dd></div>
+      <div><dt>Refresh token Calendar</dt><dd><%= cfg.refreshToken ? 'ada' : 'tidak ada' %></dd></div>
+      <div><dt>Refresh token Drive</dt><dd><%= cfg.driveRefreshToken ? 'ada' : (driveConnected ? 'memakai token Calendar' : 'tidak ada') %></dd></div>
+      <div><dt>OAuth client Drive</dt><dd><%= driveOwnClient ? 'terpisah dari Calendar' : 'sama dengan Calendar' %></dd></div>
+      <div><dt>Tes terakhir</dt><dd><%= checkedAt ? new Date(checkedAt).toLocaleString('id-ID') : 'belum pernah' %></dd></div>
+      <div><dt>Zona waktu</dt><dd><%= cfg.timezone %></dd></div>
+      <div><dt>Jam default (fallback)</dt><dd><%= cfg.defaultTime %> — booking baru memakai jam pilihan klien</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Cara kerja</h2>
+    </div>
+  </div>
+  <ul class="admin-muted" style="display:grid;gap:8px;padding-left:18px;list-style:disc;max-width:760px">
+    <li><strong>Confirmed</strong> → event dibuat (atau diperbarui bila pernah dibuat) + folder Drive disiapkan.</li>
+    <li>Struktur folder Drive: <code>Bulan Tahun</code> → <code>Graduation Nama Klien - Nama Kampus</code>.
+      Contoh: <code>November 2026 / Graduation Muhammad Fadhli - Unpad</code>.</li>
+    <li>Tahun disertakan pada nama bulan agar booking tahun berikutnya tidak tercampur di folder yang sama.</li>
+    <li>Tombol <strong>Buat folder Drive</strong> di halaman Booking membuat folder tanpa mengubah status booking.</li>
+    <li><strong>Akun Drive boleh berbeda dari akun Calendar.</strong> Kalau akun Calendar tidak punya langganan
+      penyimpanan, hubungkan akun Google lain pada bagian <em>Akun Google Drive</em> — folder akan dibuat di akun itu.</li>
+    <li><strong>Completed</strong> → event tetap ada, detailnya diperbarui.</li>
+    <li><strong>Pending</strong> atau <strong>Cancelled</strong> → event dihapus dari kalender.
+      Jadi booking yang masih <em>Pending</em> memang belum muncul di Google Calendar.</li>
+    <li>Menghapus booking → event ikut dihapus.</li>
+    <li>Jika Google sedang tidak dapat dihubungi, status booking <strong>tetap tersimpan</strong>; pesan kegagalan muncul di halaman Booking dan bisa dicoba ulang dengan tombol sinkron.</li>
+    <li>Jam mulai memakai <em>Jam mulai default</em> di atas; jam selesai = jam mulai + durasi booking.</li>
+  </ul>
+</section>
+
+<script>
+(function () {
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var input = document.getElementById(btn.dataset.copy);
+      if (!input) return;
+      input.select();
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = 'Tersalin';
+        setTimeout(function () { btn.textContent = old; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(done, function () { document.execCommand('copy'); done(); });
+      } else {
+        document.execCommand('copy');
+        done();
+      }
+    });
+  });
+})();
+</script>

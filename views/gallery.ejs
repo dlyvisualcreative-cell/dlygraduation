@@ -1,0 +1,119 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span><%= site['gallery.title'] %></span>
+    </nav>
+    <span class="eyebrow">Gallery</span>
+    <h1><%= site['gallery.title'] %></h1>
+    <p class="page-head__lede"><%= site['gallery.description'] %></p>
+  </div>
+</section>
+
+<%
+  // Portfolio Highlights = SATU jalur carousel horizontal berisi cover tiap karya
+  // (revisi 11 & 12). Strip carousel lama di atas halaman ini DIHAPUS karena isinya
+  // foto-foto dari karya yang sama → sebelumnya halaman menampilkan karya dua kali.
+%>
+<section class="section section--tight section--pfcarousel">
+  <div class="container">
+    <%# Filter Gallery = dua dropdown: KATEGORI dan LOKASI.
+        Kategori berasal dari tabel `portfolio_categories` (dikelola admin di
+        Dashboard → Kategori Gallery), lokasi dari kota aktif. Bisa digabung. %>
+    <form class="gallery-filter" method="get" action="<%= base %>/gallery" data-gallery-filter>
+      <div class="gallery-filter__selects">
+        <label class="gf-select">
+          <span class="gf-select__label">Kategori</span>
+          <span class="gf-select__field">
+            <select name="kategori" data-gf-auto aria-label="Filter kategori">
+              <option value="">Semua Kategori</option>
+              <% categories.forEach(function (c) { %>
+                <option value="<%= c.value %>" <%= activeCategory === c.value ? 'selected' : '' %>><%= c.label %> (<%= c.total %>)</option>
+              <% }); %>
+            </select>
+            <svg class="gf-select__chev" viewBox="0 0 24 24" width="12" height="12" fill="none"
+                 stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </label>
+
+        <label class="gf-select">
+          <span class="gf-select__label">Lokasi</span>
+          <span class="gf-select__field">
+            <select name="kota" data-gf-auto aria-label="Filter lokasi">
+              <option value="">Semua Lokasi</option>
+              <% cities.forEach(function (c) { %>
+                <option value="<%= c.slug %>" <%= activeCity === c.slug ? 'selected' : '' %>><%= c.name %></option>
+              <% }); %>
+            </select>
+            <svg class="gf-select__chev" viewBox="0 0 24 24" width="12" height="12" fill="none"
+                 stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </label>
+
+        <% if (activeCategory || activeCity) { %>
+          <a class="gallery-filter__reset" href="<%= base %>/gallery">Reset filter</a>
+        <% } %>
+      </div>
+
+      <p class="gallery-filter__count">
+        <%= items.length %> karya
+        <% if (activeCategory) { %> · <%= ((categories.find(function (c) { return c.value === activeCategory; }) || {}).label || activeCategory) %><% } %>
+        <% if (activeCity) { %> · <%= ((cities.find(function (c) { return c.slug === activeCity; }) || {}).name || activeCity) %><% } %>
+      </p>
+      <% if (items.length > 1) { %>
+        <div class="pf-carousel__nav gallery-filter__nav">
+          <button type="button" class="pf-carousel__arrow" data-pf-prev aria-label="Karya sebelumnya">&#8249;</button>
+          <button type="button" class="pf-carousel__arrow" data-pf-next aria-label="Karya berikutnya">&#8250;</button>
+        </div>
+      <% } %>
+    </form>
+
+    <% if (!items.length) { %>
+      <div class="empty-state">
+        <h2>Belum ada karya pada filter ini</h2>
+        <p>Kombinasi Kategori dan Lokasi yang kamu pilih belum punya karya. Coba pilihan lain, atau lihat seluruh gallery kami.</p>
+        <a class="btn btn--primary" href="<%= base %>/gallery">Lihat semua karya</a>
+      </div>
+    <% } else { %>
+      <% if (items.some(function (i) { return i.is_placeholder; })) { %>
+        <p class="note-inline">Foto bertanda <span class="badge-sample badge-sample--inline">Contoh</span> adalah gambar sementara. Foto asli akan tampil setelah admin mengunggahnya melalui dashboard.</p>
+      <% } %>
+
+      <%# Setiap kartu memakai overlay Nama Client + "Kampus • Tanggal" dari data
+          portfolio masing-masing (lihat partials/portfolio-card.ejs). %>
+      <div class="pf-carousel pf-carousel--gallery" data-pf-carousel data-interval="5200">
+        <div class="pf-carousel__viewport" data-pf-viewport tabindex="0"
+             aria-label="Karya portfolio, geser ke kiri atau kanan untuk melihat karya lain">
+          <div class="pf-carousel__track" data-pf-track>
+            <% items.forEach(function (item, i) { %>
+              <div class="pf-carousel__slide">
+                <%- include('partials/portfolio-card', {
+                      item: item,
+                      showCity: showPortfolioCity,
+                      natural: false,
+                      eager: i < 3
+                    }) %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+        <div class="pf-carousel__dots" data-pf-dots role="tablist" aria-label="Posisi karya portfolio"></div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="cta-band cta-band--compact">
+  <div class="container cta-band__inner">
+    <div>
+      <h2>Ingin sesi seperti ini?</h2>
+      <p>Pilih kota, kategori, dan durasi — lalu kirim permintaan booking Anda.</p>
+    </div>
+    <div class="cta-band__actions">
+      <a class="btn btn--light" href="<%= base %>/booking">Book Your Session</a>
+      <a class="btn btn--outline-light" href="<%= base %>/pricelist">Lihat Pricelist</a>
+    </div>
+  </div>
+</section>

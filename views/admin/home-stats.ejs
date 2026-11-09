@@ -1,0 +1,75 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Statistik homepage</h2>
+      <p class="admin-muted">
+        Angka yang tampil dengan animasi count-up di homepage. Nilai awal (800+ Client, 50+ Kampus,
+        10+ Kota) adalah contoh dari brief — silakan sesuaikan dengan data Anda yang sebenarnya.
+      </p>
+    </div>
+    <form method="post" action="<%= base %>/admin/home-stats/visibility" class="inline-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label class="admin-check">
+        <input type="checkbox" name="home_stats_visible" value="1" <%= visible ? 'checked' : '' %>>
+        <span>Tampilkan section statistik</span>
+      </label>
+      <button class="admin-btn admin-btn--sm" type="submit">Simpan</button>
+    </form>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/home-stats/save" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <div class="table-wrap">
+      <table class="admin-table admin-table--stats">
+        <thead>
+          <tr><th>Angka</th><th>Suffix</th><th>Label</th><th>Urutan</th><th>Tampil</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% stats.forEach(function (s, i) { %>
+            <tr>
+              <td><input type="number" name="value_<%= s.id %>" min="0" value="<%= s.value_num %>" class="input-compact" style="width:110px"></td>
+              <td><input type="text" name="suffix_<%= s.id %>" maxlength="6" value="<%= s.suffix %>" class="input-compact" style="width:70px"></td>
+              <td><input type="text" name="label_<%= s.id %>" maxlength="60" value="<%= s.label %>" class="input-compact" style="width:100%"></td>
+              <td><input type="number" name="sort_<%= s.id %>" min="0" value="<%= s.sort_order %>" class="input-compact" style="width:80px"></td>
+              <td>
+                <label class="admin-check">
+                  <input type="checkbox" name="active_<%= s.id %>" value="1" <%= s.is_active ? 'checked' : '' %>>
+                  <span></span>
+                </label>
+              </td>
+              <td>
+                <button type="submit" formaction="<%= base %>/admin/home-stats/<%= s.id %>/delete"
+                        class="admin-link-btn admin-link-btn--danger"
+                        onclick="return confirm('Hapus statistik ini?')">Hapus</button>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <fieldset class="admin-fieldset" style="margin-top:16px">
+      <legend>Tambah statistik baru</legend>
+      <div class="admin-field-grid admin-field-grid--3">
+        <div class="admin-field">
+          <label for="new_value">Angka</label>
+          <input type="number" id="new_value" name="new_value" min="0" placeholder="contoh 120">
+        </div>
+        <div class="admin-field">
+          <label for="new_suffix">Suffix</label>
+          <input type="text" id="new_suffix" name="new_suffix" maxlength="6" value="+">
+        </div>
+        <div class="admin-field">
+          <label for="new_label">Label</label>
+          <input type="text" id="new_label" name="new_label" maxlength="60" placeholder="contoh: Sesi Terlaksana">
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan statistik</button>
+      <a class="admin-btn" href="<%= base %>/#statistik" target="_blank" rel="noopener">Lihat di homepage &nearr;</a>
+    </div>
+  </form>
+</section>

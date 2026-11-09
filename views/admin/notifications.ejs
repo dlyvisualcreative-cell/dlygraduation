@@ -1,0 +1,101 @@
+<%
+  /**
+   * Pusat notifikasi (Tahap 4).
+   *
+   * Semua item DIHITUNG dari database (src/notify.js) — tidak ada tabel notifikasi, jadi
+   * notifikasi tidak bisa basi: booking yang dihapus langsung hilang dari daftar.
+   * Sumber: booking baru, pembayaran tercatat, pilihan foto masuk, deadline seleksi,
+   * dan job besok (H-1).
+   */
+  const qs = (patch) => {
+    const q = new URLSearchParams();
+    const merged = { tipe: filterType, baca: onlyUnread ? 'belum' : '', ...patch };
+    Object.entries(merged).forEach(([k, v]) => { if (v) q.set(k, String(v)); });
+    const s = q.toString();
+    return `${base}/admin/notifications${s ? '?' + s : ''}`;
+  };
+  const ICONS = {
+    booking: 'M4 6h16v14H4zM8 3v4M16 3v4M4 11h16',
+    wallet: 'M3 7h18v12H3zM3 11h18M16 15h2',
+    select: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8.3 12.4l2.6 2.6 4.8-5.1',
+    clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l4 2',
+    job: 'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5M14 20c0-3 3-5 6-5'
+  };
+%>
+
+<section class="admin-panel nt-head">
+  <div class="nt-head__text">
+    <h2><%= unread %> notifikasi belum dibaca</h2>
+    <p class="admin-muted">
+      <%= total %> pemberitahuan aktif dari data booking, pembayaran, seleksi foto, dan jadwal.
+      <% if (seenAt) { %>
+        Terakhir ditandai dibaca: <strong><%= String(seenAt).slice(0, 16) %></strong>.
+      <% } else { %>
+        Belum pernah ditandai dibaca.
+      <% } %>
+    </p>
+  </div>
+  <div class="cell-actions">
+    <% if (unread) { %>
+      <form method="post" action="<%= base %>/admin/notifications/read" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="back" value="<%= onlyUnread ? 'unread' : '' %>">
+        <button class="admin-btn admin-btn--primary" type="submit">Tandai semua sudah dibaca</button>
+      </form>
+    <% } else { %>
+      <span class="admin-badge admin-badge--ok">Semua sudah dibaca</span>
+    <% } %>
+  </div>
+</section>
+
+<nav class="nt-tabs" aria-label="Filter notifikasi">
+  <a class="nt-tab <%= !filterType && !onlyUnread ? 'is-active' : '' %>" href="<%= qs({ tipe: '', baca: '' }) %>">Semua</a>
+  <a class="nt-tab <%= onlyUnread ? 'is-active' : '' %>" href="<%= qs({ baca: 'belum' }) %>">
+    Belum dibaca<% if (unread) { %> <span class="nt-tab__n"><%= unread %></span><% } %>
+  </a>
+  <% types.forEach(function (t) { %>
+    <a class="nt-tab <%= filterType === t.value ? 'is-active' : '' %>" href="<%= qs({ tipe: t.value, baca: '' }) %>">
+      <%= t.label %><% if (counts[t.value]) { %> <span class="nt-tab__n"><%= counts[t.value] %></span><% } %>
+    </a>
+  <% }); %>
+</nav>
+
+<% if (!items.length) { %>
+  <section class="admin-panel">
+    <p class="admin-muted">
+      <% if (onlyUnread) { %>
+        Tidak ada notifikasi yang belum dibaca. Semua sudah ditinjau.
+      <% } else if (filterType) { %>
+        Belum ada notifikasi untuk kategori ini.
+      <% } else { %>
+        Belum ada notifikasi. Pemberitahuan muncul saat ada booking baru, pembayaran dicatat,
+        pilihan foto masuk, deadline seleksi mendekat, atau job besok.
+      <% } %>
+    </p>
+  </section>
+<% } else { %>
+  <ul class="nt-list">
+    <% items.forEach(function (it) { %>
+      <li class="nt-item <%= it.unread ? 'is-unread' : '' %> <%= it.urgent ? 'is-urgent' : '' %>">
+        <span class="nt-item__icon nt-item__icon--<%= it.type %>" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="<%= ICONS[it.type] || ICONS.booking %>"/></svg>
+        </span>
+        <div class="nt-item__main">
+          <a class="nt-item__title" href="<%= base %><%= it.url %>"><%= it.title %></a>
+          <span class="nt-item__detail"><%= it.detail %></span>
+          <span class="nt-item__meta">
+            <span class="nt-badge nt-badge--<%= it.type %>"><%= it.meta.label %></span>
+            <%= it.when %>
+          </span>
+        </div>
+        <a class="admin-link nt-item__open" href="<%= base %><%= it.url %>">Buka</a>
+      </li>
+    <% }); %>
+  </ul>
+<% } %>
+
+<p class="admin-hint">
+  Notifikasi dihitung langsung dari data yang tersimpan, bukan dari pesan yang dikirim.
+  Menandai sudah dibaca hanya menyimpan waktu terakhir Anda memeriksa — tidak menghapus data apa pun.
+</p>

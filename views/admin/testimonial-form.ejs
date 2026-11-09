@@ -1,0 +1,82 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah testimoni' : 'Edit testimoni' %></h2>
+      <p class="admin-muted">Gunakan ulasan asli dari klien. Matikan opsi “contoh” agar label Contoh tidak muncul.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/testimonials">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/testimonials/save" enctype="multipart/form-data" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (item.id) { %><input type="hidden" name="id" value="<%= item.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="client_name">Nama klien <span class="req">*</span></label>
+        <input type="text" id="client_name" name="client_name" required value="<%= item.client_name %>">
+      </div>
+      <div class="admin-field">
+        <label for="campus">Nama kampus</label>
+        <input type="text" id="campus" name="campus" value="<%= item.campus || '' %>" placeholder="Universitas Padjadjaran">
+      </div>
+      <div class="admin-field">
+        <label for="photo_file">Foto klien (opsional)</label>
+        <input type="file" id="photo_file" name="photo_file" accept="image/*">
+        <span class="admin-hint">Kosongkan jika tidak ingin mengganti foto.</span>
+      </div>
+      <div class="admin-field">
+        <label for="photo">atau URL/path foto</label>
+        <input type="text" id="photo" name="photo" value="<%= item.photo || '' %>" placeholder="/uploads/... atau https://...">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="quote">Isi testimoni <span class="req">*</span></label>
+        <textarea id="quote" name="quote" rows="4" required><%= item.quote %></textarea>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label>Rating bintang <span class="req">*</span></label>
+        <%# Urutan selalu 1 → 5 dari kiri. Baris dibalik lewat CSS agar semua bintang
+            di kiri bintang terpilih ikut terisi (tanpa JavaScript). %>
+        <div class="star-picker" data-admin-stars>
+          <% [5,4,3,2,1].forEach(function (r) { %>
+            <label class="star-picker__item" title="<%= r %> bintang">
+              <input type="radio" name="rating" value="<%= r %>"
+                     <%= Number(item.rating) === r ? 'checked' : '' %> required>
+              <span aria-hidden="true">★</span>
+              <span class="visually-hidden"><%= r %> bintang</span>
+            </label>
+          <% }); %>
+        </div>
+        <span class="admin-hint" data-admin-stars-readout>
+          <%= Number(item.rating) || 5 %> dari 5 bintang
+        </span>
+      </div>
+      <div class="admin-field">
+        <label for="display_date">Tanggal testimoni (opsional)</label>
+        <input type="date" id="display_date" name="display_date" value="<%= item.display_date || '' %>">
+        <span class="admin-hint">Kosongkan untuk memakai tanggal input data.</span>
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= item.sort_order || 0 %>">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= item.is_active ? 'checked' : '' %>>
+          <span>Tampilkan di website</span>
+        </label>
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_placeholder" value="1" <%= item.is_placeholder ? 'checked' : '' %>>
+          <span>Masih contoh (label “Contoh”)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan testimoni</button>
+      <a class="admin-btn" href="<%= base %>/admin/testimonials">Batal</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,80 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span><%= site['pricelist.title'] %></span>
+    </nav>
+    <span class="eyebrow">Pricelist</span>
+    <h1><%= site['pricelist.title'] %></h1>
+    <p class="page-head__lede"><%= site['pricelist.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <% if (!city) { %>
+      <div class="empty-state">
+        <h2>Belum ada kota layanan aktif</h2>
+        <p>Admin belum mengaktifkan kota layanan. Silakan hubungi kami via WhatsApp.</p>
+      </div>
+    <% } else { %>
+      <div class="pricelist-toolbar">
+        <div class="city-picker">
+          <span class="filter-label">Kota layanan</span>
+          <div class="city-pills" role="group" aria-label="Pilih kota layanan">
+            <% cities.forEach(function (c) { %>
+              <a class="city-pill <%= city.id === c.id ? 'is-active' : '' %>"
+                 href="<%= base %>/pricelist?kota=<%= c.slug %>"
+                 <%= city.id === c.id ? 'aria-current="true"' : '' %>>
+                <span class="city-pill__pin" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+                </span>
+                <span class="city-pill__name"><%= c.name %></span>
+              </a>
+            <% }); %>
+          </div>
+        </div>
+        <p class="pricelist-toolbar__note">
+          Semua harga berasal dari data resmi DLY Graduation di kota <strong><%= city.name %></strong>.
+          Durasi yang belum diisi admin ditandai “Harga belum tersedia”.
+        </p>
+      </div>
+
+      <% if (!catalogCity.categories.length) { %>
+        <div class="empty-state">
+          <h2>Paket belum tersedia di <%= city.name %></h2>
+          <p>Admin belum menambahkan paket aktif untuk kota ini.</p>
+          <a class="btn btn--primary" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai paket foto wisuda di ' + city.name + '.') %>" target="_blank" rel="noopener">Tanya via WhatsApp</a>
+        </div>
+      <% } else { %>
+        <%- include('partials/package-browser', { catalogCity: catalogCity, alternating: true }) %>
+      <% } %>
+
+      <% if (notes.length) { %>
+        <div class="service-notes">
+          <h2>Catatan layanan</h2>
+          <ul><% notes.forEach(function (n) { %><li><%= n %></li><% }); %></ul>
+          <p class="service-notes__rule">
+            Harga bertanda “Harga belum tersedia” berarti admin belum mengisi harga resmi untuk kombinasi kategori dan durasi tersebut —
+            permintaan booking untuk kombinasi itu belum dapat diproses.
+          </p>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-band__inner">
+    <div>
+      <h2>Sudah menemukan sesi yang cocok?</h2>
+      <p>Lanjutkan ke form booking, pilih tanggal, lalu kirim permintaan Anda.</p>
+    </div>
+    <div class="cta-band__actions">
+      <a class="btn btn--light" href="<%= base %>/booking<%= city ? '?kota=' + city.slug : '' %>">Book Your Session</a>
+      <a class="btn btn--outline-light" href="<%= base %>/cara-order">Cara Order</a>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" id="catalog-data"><%- catalogJson %></script>

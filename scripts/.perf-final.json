@@ -1,0 +1,279 @@
+[
+  {
+    "name": "Home desktop (no throttle)",
+    "url": "http://127.0.0.1:4460/",
+    "viewport": "1440x900",
+    "throttle": "none",
+    "requests": 16,
+    "kb": 774,
+    "loadMs": 2123,
+    "lcp": 772,
+    "cls": 0.005,
+    "dcl": 508,
+    "fcp": 520,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 54
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 122
+      },
+      "image": {
+        "n": 9,
+        "kb": 439
+      },
+      "script": {
+        "n": 1,
+        "kb": 54
+      },
+      "font": {
+        "n": 3,
+        "kb": 106
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "86570e17-192.webp",
+        "natural": "179x144",
+        "shown": "47x38"
+      },
+      {
+        "src": "4365b9b5-192.webp",
+        "natural": "179x144",
+        "shown": "47x38"
+      }
+    ]
+  },
+  {
+    "name": "Home mobile (no throttle)",
+    "url": "http://127.0.0.1:4460/",
+    "viewport": "390x844",
+    "throttle": "none",
+    "requests": 16,
+    "kb": 837,
+    "loadMs": 884,
+    "lcp": 376,
+    "cls": 0,
+    "dcl": 258,
+    "fcp": 376,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 54
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 122
+      },
+      "image": {
+        "n": 9,
+        "kb": 502
+      },
+      "script": {
+        "n": 1,
+        "kb": 54
+      },
+      "font": {
+        "n": 3,
+        "kb": 106
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "86570e17-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      },
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Home mobile (Slow 3G)",
+    "url": "http://127.0.0.1:4460/",
+    "viewport": "390x844",
+    "throttle": "slow",
+    "requests": 18,
+    "kb": 974,
+    "loadMs": 16642,
+    "lcp": 2872,
+    "cls": 0.031,
+    "dcl": 3479,
+    "fcp": 2872,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 54
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 122
+      },
+      "image": {
+        "n": 11,
+        "kb": 639
+      },
+      "script": {
+        "n": 1,
+        "kb": 54
+      },
+      "font": {
+        "n": 3,
+        "kb": 106
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "86570e17-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      },
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Gallery mobile (Slow 3G)",
+    "url": "http://127.0.0.1:4460/gallery",
+    "viewport": "390x844",
+    "throttle": "slow",
+    "requests": 12,
+    "kb": 459,
+    "loadMs": 6894,
+    "lcp": 0,
+    "cls": 0.007,
+    "dcl": 4026,
+    "fcp": 2936,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 22
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 122
+      },
+      "image": {
+        "n": 6,
+        "kb": 176
+      },
+      "script": {
+        "n": 1,
+        "kb": 54
+      },
+      "font": {
+        "n": 2,
+        "kb": 85
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      },
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Pricelist mobile",
+    "url": "http://127.0.0.1:4460/pricelist",
+    "viewport": "390x844",
+    "throttle": "none",
+    "requests": 9,
+    "kb": 431,
+    "loadMs": 295,
+    "lcp": 220,
+    "cls": 0,
+    "dcl": 193,
+    "fcp": 220,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 35
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 122
+      },
+      "image": {
+        "n": 3,
+        "kb": 136
+      },
+      "script": {
+        "n": 1,
+        "kb": 54
+      },
+      "font": {
+        "n": 2,
+        "kb": 85
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      },
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "180x144",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Portal mobile (Slow 3G, 45 photos)",
+    "url": "http://127.0.0.1:4460/selection/7be90d1e30749860ae31cdcc76ac0839a9f0c1f178408084",
+    "viewport": "390x844",
+    "throttle": "slow",
+    "requests": 15,
+    "kb": 1000,
+    "loadMs": 4172,
+    "lcp": 2032,
+    "cls": 0.006,
+    "dcl": 1997,
+    "fcp": 2032,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 52
+      },
+      "stylesheet": {
+        "n": 3,
+        "kb": 142
+      },
+      "script": {
+        "n": 2,
+        "kb": 67
+      },
+      "image": {
+        "n": 7,
+        "kb": 654
+      },
+      "font": {
+        "n": 2,
+        "kb": 85
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "4365b9b5-320.webp",
+        "natural": "200x160",
+        "shown": "43x34"
+      }
+    ]
+  }
+]

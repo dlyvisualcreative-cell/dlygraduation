@@ -1,0 +1,272 @@
+<section class="page-head page-head--narrow">
+  <div class="container">
+    <span class="eyebrow">Booking</span>
+    <h1><%= site['booking.title'] %></h1>
+    <p class="page-head__lede"><%= site['booking.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="booking-shell" data-booking-wizard>
+      <header class="booking-shell__head">
+        <div>
+          <span class="booking-shell__eyebrow">Permintaan Booking</span>
+          <strong data-wizard-service>Pilih sesi Anda</strong>
+        </div>
+        <span class="booking-shell__status">Status awal: <b>Pending</b></span>
+      </header>
+
+      <ol class="wizard-steps" data-wizard-steps>
+        <li class="wizard-step is-active" data-step-dot="1"><span>1</span> Identitas</li>
+        <li class="wizard-step" data-step-dot="2"><span>2</span> Detail Sesi</li>
+        <li class="wizard-step" data-step-dot="3"><span>3</span> Review</li>
+      </ol>
+
+      <form method="post" action="<%= base %>/booking" novalidate data-booking-form>
+        <input type="hidden" name="terms_consent" value="0" data-terms-hidden>
+
+        <% if (errors && errors.length) { %>
+          <div class="alert alert--error" role="alert">
+            <strong>Permintaan booking belum dapat diproses:</strong>
+            <ul><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul>
+          </div>
+        <% } %>
+
+        <!-- ============ STEP 1 ============ -->
+        <section class="wizard-panel is-active" data-step="1" aria-labelledby="step1-title">
+          <h2 class="wizard-panel__title" id="step1-title">Identitas klien</h2>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="client_name">Nama lengkap <span class="req">*</span></label>
+              <input type="text" id="client_name" name="client_name" required autocomplete="name"
+                     value="<%= values.client_name || '' %>" placeholder="Nama sesuai ijazah">
+              <span class="field__error" data-error-for="client_name"></span>
+            </div>
+            <div class="field">
+              <label for="client_phone">Nomor WhatsApp <span class="req">*</span></label>
+              <input type="tel" id="client_phone" name="client_phone" required autocomplete="tel" inputmode="tel"
+                     value="<%= values.client_phone || '' %>" placeholder="08xxxxxxxxxx">
+              <span class="field__error" data-error-for="client_phone"></span>
+            </div>
+            <div class="field">
+              <label for="instagram">Instagram <span class="req">*</span></label>
+              <input type="text" id="instagram" name="instagram" required value="<%= values.instagram || '' %>"
+                     placeholder="username tanpa @" autocomplete="off">
+              <span class="field__hint">Contoh: dly.graduation (tanpa tanda @).</span>
+              <span class="field__error" data-error-for="instagram"></span>
+            </div>
+            <div class="field">
+              <label for="campus">Kampus / universitas <span class="req">*</span></label>
+              <input type="text" id="campus" name="campus" required value="<%= values.campus || '' %>" placeholder="Contoh: Universitas Padjadjaran">
+              <span class="field__error" data-error-for="campus"></span>
+            </div>
+            <div class="field">
+              <label for="faculty">Fakultas <span class="opt">(opsional)</span></label>
+              <input type="text" id="faculty" name="faculty" value="<%= values.faculty || '' %>" placeholder="Contoh: Fakultas Teknik">
+            </div>
+            <div class="field">
+              <label for="major">Jurusan <span class="opt">(opsional)</span></label>
+              <input type="text" id="major" name="major" value="<%= values.major || '' %>" placeholder="Contoh: Teknik Informatika">
+            </div>
+            <div class="field field--full">
+              <label for="notes">Catatan tambahan</label>
+              <textarea id="notes" name="notes" rows="3" placeholder="Kebutuhan khusus, referensi pose, atau properti tambahan."><%= values.notes || '' %></textarea>
+            </div>
+          </div>
+
+          <div class="consent-list">
+            <label class="consent">
+              <input type="checkbox" name="terms_consent" value="1" required data-terms-check
+                     <%= values.terms ? 'checked' : '' %>>
+              <span>
+                Saya telah menyetujui ketentuan booking dan sudah membaca
+                Syarat &amp; Ketentuan yang berlaku.
+                <a class="consent__link" href="<%= base %>/syarat-ketentuan" target="_blank" rel="noopener">Baca TnC di sini</a>
+                <span class="req">*</span>
+              </span>
+            </label>
+            <span class="field__error" data-error-for="terms"></span>
+          </div>
+          <div class="wizard-actions">
+            <span class="wizard-actions__spacer"></span>
+            <button type="button" class="btn btn--primary" data-next="2">Continue</button>
+          </div>
+        </section>
+
+        <!-- ============ STEP 3 ============ -->
+
+        <section class="wizard-panel" data-step="2" aria-labelledby="step2-title" hidden>
+          <h2 class="wizard-panel__title" id="step2-title">Detail sesi foto</h2>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="city">Kota layanan <span class="req">*</span></label>
+              <select id="city" name="city" required data-city-select>
+                <% catalog.forEach(function (c) { %>
+                  <option value="<%= c.slug %>" <%= c.slug === presetCity ? 'selected' : '' %>><%= c.name %></option>
+                <% }); %>
+              </select>
+              <span class="field__error" data-error-for="city"></span>
+            </div>
+            <div class="field">
+              <label for="category">Kategori layanan <span class="req">*</span></label>
+              <select id="category" name="category" required data-category-select></select>
+              <span class="field__hint">Kategori menentukan paket dan durasi yang tersedia.</span>
+            </div>
+            <div class="field field--full">
+              <label for="package_id">Paket / sesi <span class="req">*</span></label>
+              <select id="package_id" name="package_id" required data-package-select></select>
+              <span class="field__error" data-error-for="package_id"></span>
+            </div>
+          </div>
+
+          <div class="wizard-block">
+            <h3 class="wizard-block__title">Durasi &amp; harga</h3>
+            <div class="duration-options duration-options--cards" data-duration-options></div>
+            <span class="field__error" data-error-for="duration"></span>
+          </div>
+
+          <div class="wizard-block">
+            <h3 class="wizard-block__title">Tanggal pemotretan <span class="req">*</span></h3>
+            <p class="wizard-block__hint">
+              Tanggal yang tidak dapat dipilih berarti sudah lewat, ditutup admin, atau sudah penuh.
+              Ketersediaan akhir tetap dikonfirmasi admin via WhatsApp.
+            </p>
+            <div class="calendar" data-calendar>
+              <div class="calendar__head">
+                <button type="button" class="calendar__nav" data-cal-prev aria-label="Bulan sebelumnya">&lsaquo;</button>
+                <strong data-cal-label>—</strong>
+                <button type="button" class="calendar__nav" data-cal-next aria-label="Bulan berikutnya">&rsaquo;</button>
+              </div>
+              <div class="calendar__weekdays" aria-hidden="true">
+                <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+              </div>
+              <div class="calendar__grid" data-cal-grid role="grid" aria-label="Pilih tanggal pemotretan"></div>
+              <p class="calendar__legend">
+                <span class="dot dot--free"></span> tersedia
+                <span class="dot dot--full"></span> tidak tersedia
+                <span class="dot dot--picked"></span> dipilih
+              </p>
+            </div>
+            <input type="hidden" id="shooting_date" name="shooting_date"
+                   value="<%= values.shooting_date || '' %>" data-date-input>
+            <p class="calendar__selected" data-cal-selected>Tanggal belum dipilih.</p>
+            <span class="field__error" data-error-for="shooting_date"></span>
+
+            <div class="field field--time">
+              <label for="shooting_time">Jam pemotretan <span class="req">*</span></label>
+              <input type="time" id="shooting_time" name="shooting_time" required
+                     min="00:00" max="23:59" step="300"
+                     value="<%= values.shooting_time || '' %>" data-time-input>
+              <span class="field__hint">Waktu Indonesia Barat (WIB). Tersedia 24 jam (00:00–23:59) — ketersediaan tanggal tetap dicek sistem.</span>
+              <span class="field__error" data-error-for="shooting_time"></span>
+            </div>
+          </div>
+
+          <div class="wizard-block">
+            <h3 class="wizard-block__title">Lokasi pemotretan</h3>
+            <div class="field-grid">
+              <div class="field field--full">
+                <label for="location">Lokasi <span class="req">*</span></label>
+                <input type="text" id="location" name="location" required maxlength="160"
+                       value="<%= values.location || '' %>" placeholder="Unpad - Dipatiukur">
+                <span class="field__hint">Cukup nama tempat dan area — contoh: Unpad - Dipatiukur.</span>
+                <span class="field__error" data-error-for="location"></span>
+              </div>
+            </div>
+          </div>
+
+          <% if (addons.length) { %>
+            <div class="wizard-block">
+              <h3 class="wizard-block__title">Add-on opsional</h3>
+              <p class="wizard-block__hint">Add-on hanya tampil jika tersedia untuk kategori yang Anda pilih.</p>
+              <div class="addon-list" data-addon-list>
+                <% addons.forEach(function (a) { %>
+                  <label class="addon-item" data-addon data-addon-id="<%= a.id %>"
+                         data-applies="<%= a.applies_to || 'all' %>" data-price="<%= a.price || '' %>" hidden>
+                    <input type="checkbox" name="addons" value="<%= a.id %>" <%= a.price ? '' : 'disabled' %>>
+                    <span class="addon-item__body">
+                      <strong><%= a.name %></strong>
+                      <% if (a.description) { %><span><%= a.description %></span><% } %>
+                    </span>
+                    <span class="addon-item__price"><%= a.price ? rupieh(a.price) : 'Harga belum diatur' %></span>
+                  </label>
+                <% }); %>
+                <p class="addon-empty" data-addon-empty>Belum ada add-on aktif untuk kategori ini.</p>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="estimate" data-estimate>
+            <div class="estimate__row"><span>Harga paket</span><strong data-est-package>—</strong></div>
+            <div class="estimate__row"><span>Add-on</span><strong data-est-addons>Rp 0</strong></div>
+            <div class="estimate__row estimate__row--total"><span>Total estimasi</span><strong data-est-total>—</strong></div>
+            <p class="estimate__note">Total estimasi dihitung dari harga resmi paket + add-on yang dipilih.</p>
+          </div>
+          <div class="wizard-actions">
+            <button type="button" class="btn btn--outline" data-back="1">Back</button>
+            <span class="wizard-actions__spacer"></span>
+            <button type="button" class="btn btn--primary" data-next="3">Continue</button>
+          </div>
+        </section>
+
+        <!-- ============ STEP 2 ============ -->
+        <section class="wizard-panel" data-step="3" aria-labelledby="step3-title" hidden>
+          <h2 class="wizard-panel__title" id="step3-title">Review booking</h2>
+          <p class="wizard-block__hint">Periksa kembali detail Anda. Anda masih bisa kembali untuk mengubah data.</p>
+
+          <div class="review-grid" data-review>
+            <div class="review-block">
+              <h3>Sesi</h3>
+              <dl>
+                <div><dt>Kota</dt><dd data-rv-city>—</dd></div>
+                <div><dt>Kategori</dt><dd data-rv-category>—</dd></div>
+                <div><dt>Paket</dt><dd data-rv-package>—</dd></div>
+                <div><dt>Durasi</dt><dd data-rv-duration>—</dd></div>
+                <div><dt>Tanggal</dt><dd data-rv-date>—</dd></div>
+                <div><dt>Jam</dt><dd data-rv-time>—</dd></div>
+                <div><dt>Lokasi</dt><dd data-rv-location>—</dd></div>
+                <div><dt>Add-on</dt><dd data-rv-addons>—</dd></div>
+              </dl>
+            </div>
+            <div class="review-block">
+              <h3>Data diri</h3>
+              <dl>
+                <div><dt>Nama</dt><dd data-rv-name>—</dd></div>
+                <div><dt>WhatsApp</dt><dd data-rv-phone>—</dd></div>
+                <div><dt>Instagram</dt><dd data-rv-ig>—</dd></div>
+                <div><dt>Kampus</dt><dd data-rv-campus>—</dd></div>
+                <div><dt>Fakultas / Jurusan</dt><dd data-rv-faculty>—</dd></div>
+                <div><dt>Catatan</dt><dd data-rv-notes>—</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="estimate estimate--review">
+            <div class="estimate__row"><span>Harga paket</span><strong data-rv-package-price>—</strong></div>
+            <div class="estimate__row"><span>Add-on</span><strong data-rv-addon-price>Rp 0</strong></div>
+            <div class="estimate__row estimate__row--total"><span>Total estimasi</span><strong data-rv-total>—</strong></div>
+          </div>
+
+          <div class="wizard-actions">
+            <button type="button" class="btn btn--outline" data-back="2">Back</button>
+            <button type="submit" class="btn btn--primary btn--lg" data-submit-btn>
+              Lanjut
+            </button>
+          </div>
+          <p class="wizard-notes">
+            Setelah menekan <strong>Lanjut</strong>, permintaan booking tersimpan dengan status <strong>Pending</strong>
+            dan Anda diarahkan ke halaman konfirmasi untuk mengirim detail ke admin melalui WhatsApp.
+          </p>
+        </section>
+      </form>
+    </div>
+
+    <script type="application/json" id="catalog-data"><%- catalogJson %></script>
+    <script type="application/json" id="booking-preset"><%- JSON.stringify({ city: presetCity, packageId: presetPackage, duration: presetDuration }) %></script>
+    <script type="application/json" id="availability-data"><%- availabilityJson %></script>
+    <script type="application/json" id="booking-rules"><%- JSON.stringify(rules) %></script>
+  </div>
+</section>

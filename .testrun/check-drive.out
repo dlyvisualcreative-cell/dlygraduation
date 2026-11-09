@@ -1,0 +1,53 @@
+  ok  Settings page renders the Drive panel
+  ok  API key mode is reported as active
+  ok  "Tes akses" reports a working credential
+  ok  Wizard opens for a booking without a portal
+  ok  Non-Drive link is rejected with a readable message
+  ok  Folder not found shows an actionable error
+  ok  No dummy photos were created on failure
+  ok  Missing permission is explained (not a silent failure)
+  ok  Quota exceeded is explained
+  ok  Empty folder reports 0 photos
+  ok  Preview counts every photo across pagination pages
+  ok  Preview sample lists Drive file names
+  ok  Portal creation lands on the portal editor
+  ok  All 5 Drive photos were imported
+  ok  Photos come from Drive (no local re-upload)
+  ok  Drive file names are shown to the admin
+  ok  Every row is linked to a Drive file id
+  ok  Folder id is stored on the portal
+  ok  Quota from the wizard is applied
+  ok  Existing portal is not re-created (redirects to the editor)
+  ok  Client portal shows the Drive photos
+  ok  Header states the limit
+  ok  Filter tabs exist
+  ok  Search + sort controls exist
+  ok  Preview goes through the token-scoped route
+  ok  Preview is an image served by the app
+  ok  Search narrows the grid
+  ok  Sort Z→A moves the last file first
+  ok  Counter follows the quota
+  ok  Picked photos show their order number
+  ok  A 4th photo is refused
+  ok  "Foto Terpilih" tab filters the grid
+  ok  Modal lists the real Drive file names
+  ok  Modal shows the number of saved photos
+  ok  Modal has Salin Daftar Foto
+  ok  Modal has the WhatsApp action
+  ok  Copy puts the file list on the clipboard
+  ok  Submission lands on the sent state
+  ok  Picks store Drive file id + file name + order
+  ok  Selection is marked as submitted with a timestamp
+  ok  Admin page offers a WhatsApp reminder with the picked files
+  ok  Admin sees the picked file names
+  ok  Admin sees the Drive file id column
+  ok  Admin sees pick order numbers
+  ok  CSV export contains file names and drive ids
+  ok  Sync adds the new Drive file
+  ok  Removed Drive file is marked unavailable (not deleted)
+  ok  No duplicate photos after sync
+  ok  Client picks survive the sync
+  ok  Sync result is reported in words
+  ok  Closed portal still answers (state screen)
+
+51 checks passed, 0 failed

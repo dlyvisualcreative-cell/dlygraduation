@@ -1,0 +1,102 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Pengaturan pembayaran</h2>
+      <p class="admin-muted">
+        Data ini dipakai otomatis oleh template <strong>Chat Klien</strong> di halaman Booking
+        (nama bank, nomor rekening, pemilik rekening, dan nominal DP). Tidak ada yang ditulis di dalam kode.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/bookings">Ke halaman Booking &rarr;</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/payment" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="bank_name">Nama bank</label>
+        <input type="text" id="bank_name" name="bank_name" maxlength="80"
+               value="<%= values.bankName %>" placeholder="Contoh: BCA / Mandiri / BNI">
+      </div>
+      <div class="admin-field">
+        <label for="account_number">Nomor rekening</label>
+        <input type="text" id="account_number" name="account_number" maxlength="60" inputmode="numeric"
+               value="<%= values.accountNumber %>" placeholder="Contoh: 1234567890">
+      </div>
+      <div class="admin-field">
+        <label for="account_holder">Nama pemilik rekening</label>
+        <input type="text" id="account_holder" name="account_holder" maxlength="120"
+               value="<%= values.accountHolder %>" placeholder="Contoh: DLY Visual Creative">
+      </div>
+      <div class="admin-field">
+        <label for="dp_amount">Nominal DP (Rp)</label>
+        <div class="price-input">
+          <span>Rp</span>
+          <input type="text" inputmode="numeric" id="dp_amount" name="dp_amount"
+                 value="<%= values.dpAmount %>" placeholder="100000">
+        </div>
+        <span class="admin-hint">Default Rp100.000. Dipakai pada template Chat Klien.</span>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="notes">Instruksi pembayaran tambahan (opsional)</label>
+        <textarea id="notes" name="notes" rows="3" maxlength="500"
+                  placeholder="Contoh: Mohon cantumkan kode booking pada berita transfer."><%= values.notes %></textarea>
+        <span class="admin-hint">Ditambahkan ke pesan Chat Klien setelah detail rekening.</span>
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan pembayaran</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Pratinjau template Chat Klien</h2>
+      <p class="admin-muted">Teks di bawah memakai data pembayaran yang tersimpan saat ini.</p>
+    </div>
+  </div>
+
+  <%
+    const dp = values.dpAmount ? Number(values.dpAmount) : 100000;
+    const money = function (n) { return 'Rp' + Number(n).toLocaleString('id-ID'); };
+    const preview = [
+      'Halo Kak Nama Klien! 👋😊',
+      '',
+      'Terima kasih sudah booking sesi foto di DLY Graduation! Kami senang bisa menjadi bagian dari momen spesial Kakak. 📸✨',
+      '',
+      'Kami ingin mengonfirmasi jadwal sesi foto Kakak:',
+      '',
+      '📅 Tanggal: Sabtu, 7 November 2026',
+      '',
+      '⏰ Jam: 09:00 WIB',
+      '',
+      'Apakah jadwal tersebut sudah benar, Kak? 😊',
+      '',
+      'Jika sudah sesuai, Kakak bisa melanjutkan ke tahap berikutnya dengan melakukan pembayaran DP terlebih dahulu yaa.',
+      '',
+      '💳 Pembayaran DP: ' + money(dp),
+      '',
+      'Dapat ditransfer melalui rekening berikut:',
+      '',
+      '🏦 Bank: ' + (values.bankName || '-'),
+      '',
+      '🔢 Nomor Rekening: ' + (values.accountNumber || '-'),
+      '',
+      '👤 Atas Nama: ' + (values.accountHolder || '-'),
+      ''
+    ];
+    if (values.notes) { preview.push('📝 ' + values.notes, ''); }
+    preview.push('Setelah melakukan transfer, jangan lupa kirimkan bukti pembayarannya kepada kami ya, Kak, agar booking bisa segera kami proses. 😊🙏🏻');
+  %>
+  <pre class="preview-msg"><%= preview.join('\n') %></pre>
+
+  <% if (!values.bankName || !values.accountNumber || !values.accountHolder) { %>
+    <div class="gcal-error" style="margin-top:16px">
+      <span class="gcal-badge gcal-badge--error">Belum lengkap</span>
+      <p>Lengkapi nama bank, nomor rekening, dan nama pemilik rekening agar template Chat Klien tidak menampilkan tanda “-”.</p>
+    </div>
+  <% } %>
+</section>

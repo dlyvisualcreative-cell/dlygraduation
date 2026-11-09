@@ -1,0 +1,50 @@
+<section class="page-head page-head--breadcrumb">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="<%= base %>/">Home</a><span aria-hidden="true">/</span>
+      <span><%= site['tnc.title'] %></span>
+    </nav>
+    <span class="eyebrow">Terms &amp; Conditions</span>
+    <h1><%= site['tnc.title'] %></h1>
+    <p class="page-head__lede"><%= site['tnc.description'] %></p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container container--narrow">
+    <article class="tnc">
+      <%# Revisi pemilik: syarat & ketentuan bertingkat — judul bagian (A/B/C…) dengan
+          poin-poin, dan poin bisa punya sub-poin. Struktur diurai oleh util.tncStructure;
+          data lama (satu poin per baris) tetap tampil sebagai poin biasa. %>
+      <% sections.forEach(function (node) { %>
+        <% if (node.type === 'section') { %>
+          <h2 class="tnc__section">
+            <% if (node.marker) { %><span class="tnc__section-no"><%= node.marker %>.</span><% } %>
+            <span><%= node.label %></span>
+          </h2>
+        <% } else { %>
+          <div class="tnc__point">
+            <p class="tnc__point-text"><%= node.text %></p>
+            <% if (node.subs.length) { %>
+              <ul class="tnc__subs">
+                <% node.subs.forEach(function (sub) { %><li><%= sub %></li><% }); %>
+              </ul>
+            <% } %>
+          </div>
+        <% } %>
+      <% }); %>
+
+      <div class="tnc__footer">
+        <p class="tnc__updated">
+          <% if (lastPublishedAt) { %>Diperbarui <%= formatDateID(String(lastPublishedAt).slice(0, 10)) %><% } %>
+        </p>
+        <div class="tnc__actions">
+          <a class="btn btn--primary" href="<%= base %>/booking">Book Your Session</a>
+          <a class="link-arrow" href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai syarat dan ketentuan booking.') %>" target="_blank" rel="noopener">
+            Tanya via WhatsApp <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

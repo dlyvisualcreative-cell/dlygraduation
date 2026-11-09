@@ -1,0 +1,43 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Halaman &amp; navigasi publik</h2>
+      <p class="admin-muted">
+        Matikan sebuah halaman untuk menyembunyikannya dari menu navigasi dan footer.
+        Halaman serta datanya <strong>tidak dihapus</strong> dan tetap bisa dibuka lewat URL langsung,
+        sehingga Anda bisa mengaktifkannya kembali kapan saja.
+      </p>
+    </div>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/pages" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <div class="page-toggle-list">
+      <% pages.forEach(function (p) { %>
+        <div class="page-toggle <%= p.visible ? '' : 'is-hidden' %>">
+          <div class="page-toggle__text">
+            <strong><%= p.label %></strong>
+            <small><%= p.note %> · <code><%= p.path %></code></small>
+          </div>
+          <div class="page-toggle__actions">
+            <a class="admin-link" href="<%= base %><%= p.path %>" target="_blank" rel="noopener">Lihat halaman</a>
+            <label class="admin-check">
+              <input type="checkbox" name="<%= p.key %>" value="1" <%= p.visible ? 'checked' : '' %>>
+              <span>Tampil di menu</span>
+            </label>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan pengaturan navigasi</button>
+    </div>
+  </form>
+
+  <p class="admin-hint" style="margin-top:14px">
+    Menu <strong>Home</strong>, <strong>Pricelist</strong>, dan tombol <strong>Book Your Session</strong> selalu aktif
+    karena merupakan bagian inti alur booking.
+  </p>
+</section>

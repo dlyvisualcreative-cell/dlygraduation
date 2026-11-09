@@ -1,0 +1,44 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Kategori paket</h2>
+      <p class="admin-muted">Kategori menjadi langkah pertama pengunjung saat memilih paket (Individual, Couple, Group, dan kategori tambahan Anda).</p>
+    </div>
+    <a class="admin-btn admin-btn--primary" href="<%= base %>/admin/categories/new">+ Tambah kategori</a>
+  </div>
+
+  <% if (!categories.length) { %>
+    <p class="admin-muted">Belum ada kategori. Tambahkan kategori pertama.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Kategori</th><th>Slug</th><th>Paket</th><th>Urutan</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% categories.forEach(function (c) { %>
+            <tr>
+              <td>
+                <strong><%= c.name %></strong>
+                <small class="cell-sub"><%= (c.description || '').slice(0, 80) %></small>
+              </td>
+              <td><code><%= c.slug %></code></td>
+              <td><%= c.package_count %></td>
+              <td><%= c.sort_order %></td>
+              <td><span class="admin-badge <%= c.is_active ? 'admin-badge--ok' : 'admin-badge--muted' %>"><%= c.is_active ? 'Aktif' : 'Nonaktif' %></span></td>
+              <td class="cell-actions">
+                <a class="admin-link" href="<%= base %>/admin/categories/<%= c.id %>/edit">Edit</a>
+                <form method="post" action="<%= base %>/admin/categories/<%= c.id %>/toggle">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn"><%= c.is_active ? 'Nonaktifkan' : 'Aktifkan' %></button>
+                </form>
+                <form method="post" action="<%= base %>/admin/categories/<%= c.id %>/delete" data-confirm="Hapus kategori <%= c.name %>?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

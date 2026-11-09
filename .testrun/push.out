@@ -1,0 +1,51 @@
+  ok  VAPID pair exists on first boot
+  ok  VAPID public key is a base64url P-256 point (87 chars)
+  ok  The key pair is stable (not regenerated on each call)
+  ok  A device subscription is stored
+  ok  Re-subscribing the same endpoint does not create a second row
+  ok  A second device is stored separately
+  ok  An incomplete/insecure subscription is rejected
+  ok  A booking push is delivered to every active device
+  ok  The payload carries a title, a body, a tag and an admin URL
+  ok  No phone number or payment amount leaks into the notification
+  ok  Client name + campus appear in the agreed format
+  ok  The same event is never pushed twice (dedupe key)
+  ok  …and no further request is made
+  ok  A different event still goes out
+  ok  A disabled notification type is not sent
+  ok  Re-enabling the type sends it again
+  ok  The global switch stops everything
+  ok  A 410 endpoint is counted as gone
+  ok  A dead endpoint is deactivated automatically
+  ok  …and the reason is recorded
+  ok  The healthy device is still active
+  ok  Only active devices are counted
+  ok  A transient failure is reported, not silently swallowed
+  ok  A transient failure does NOT deactivate the device
+  ok  A device can be switched off
+  ok  A device can be switched back on
+  ok  A device can be removed
+  ok  Unsubscribe-by-endpoint removes the row
+  ok  With no device the send is a clean no-op
+  ok  The hourly scheduler never sends the same day twice
+  ok  runScheduled returns a result object
+  ok  The scheduler records when it last ran
+  ok  Booking creation triggers a push
+  ok  Payment recording triggers a push
+  ok  Client selection submit triggers a push
+  ok  Editing stage change can trigger a push
+  ok  Deadline + tomorrow shoot run on a schedule
+  ok  The existing service worker handles push (no second worker)
+  ok  The existing service worker handles notification clicks
+  ok  A click opens an admin URL
+  ok  A click URL is re-prefixed with the app scope (works on the published subpath)
+  ok  Click URLs resolve against the registration scope, not the origin
+  ok  Admin and the client portal stay out of the cache
+  ok  The settings page explains the iPhone Home Screen requirement
+  ok  The settings page has an activate button
+  ok  The settings page lists devices with delete/toggle controls
+  ok  The settings page offers a test notification
+  ok  Permission is requested on click, not on load
+  ok  The client registers the EXISTING service worker
+
+49 checks passed, 0 failed

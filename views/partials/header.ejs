@@ -1,0 +1,103 @@
+<%
+  // Built from admin visibility settings — hidden pages keep working if visited directly.
+  const navItems = [
+    { href: '/', label: 'Home' },
+    { href: '/gallery', label: 'Gallery', key: 'gallery' },
+    { href: '/pricelist', label: 'Pricelist' },
+    { href: '/cara-order', label: 'Cara Order', key: 'caraorder' },
+    { href: '/artikel', label: 'Artikel', key: 'artikel' },
+    { href: '/ulasan', label: 'Ulasan', key: 'ulasan' },
+    { href: '/faq', label: 'FAQ', key: 'faq' },
+    { href: '/tentang', label: 'Tentang Kami', key: 'tentang' },
+    { href: '/syarat-ketentuan', label: 'Syarat & Ketentuan', key: 'tnc' }
+  ];
+  const visibleNav = navItems.filter(function (item) {
+    if (!item.key) return true;
+    return typeof pages === 'undefined' ? true : pages[item.key] !== false;
+  });
+  const isActive = (item) => {
+    if (item.href === '/') return currentPath === '/';
+    return currentPath === item.href || currentPath.indexOf(item.href + '/') === 0
+      || (item.href === '/gallery' && currentPath.indexOf('/portfolio') === 0);
+  };
+
+  // Revisi 2 (04): menu "Lokasi" & "Paket" DIHAPUS dari navigasi utama (desktop maupun
+  // mobile). Data kota & paket TIDAK dihapus — halaman /city, /paket/<slug> dan
+  // /pricelist tetap hidup dan tetap dipakai backend/booking/admin.
+%>
+<header class="site-header<%= bodyClass === 'page-home' ? ' site-header--over' : '' %><%= brand.sticky ? '' : ' site-header--static' %>" data-header>
+  <div class="site-header__inner">
+    <a class="logo" href="<%= base %>/" aria-label="<%= brand.name %> — Home">
+      <% if (brand.logos.hasFile) { %>
+        <%# Logo beradaptasi dengan latarnya: putih di atas foto gelap, navy di header putih. %>
+        <%- picture(brand.logos.onDark || brand.logos.onLight, {
+              alt: brand.name, className: 'logo__img logo__img--over',
+              widths: [96, 192, 320], sizes: '96px', eager: true
+            }) %>
+        <%- picture(brand.logos.onLight || brand.logos.onDark, {
+              alt: brand.name, className: 'logo__img logo__img--solid',
+              widths: [96, 192, 320], sizes: '96px', eager: true
+            }) %>
+      <% } else { %>
+        <span class="logo__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="30" height="30" fill="none">
+            <rect x="1" y="1" width="30" height="30" rx="4" stroke="currentColor" stroke-width="1.1"/>
+            <path d="M16 9l7 3.2-7 3.2-7-3.2L16 9z" fill="currentColor"/>
+            <path d="M11.5 14.6v3.6c0 1.9 2 3.4 4.5 3.4s4.5-1.5 4.5-3.4v-3.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M23 12.4v5.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+        </span>
+      <% } %>
+      <%# Tahap 6: teks nama studio di samping logo dihilangkan — logo sudah menjadi
+          identitas visual. Nama tetap ada sebagai alt text + aria-label untuk SEO &
+          aksesibilitas. Teks hanya muncul bila BELUM ada file logo (fallback tanda SVG),
+          supaya header tidak pernah kosong tanpa identitas. %>
+      <% if (brand.showIdentity && !brand.logos.hasFile) { %>
+        <span class="logo__text">
+          <span class="logo__name"><%= brand.name %></span>
+        </span>
+      <% } %>
+    </a>
+
+    <nav class="site-nav" aria-label="Navigasi utama">
+      <% visibleNav.forEach(function (item) { %>
+        <a href="<%= base %><%= item.href %>" class="<%= isActive(item) ? 'is-active' : '' %>"
+           <%= isActive(item) ? 'aria-current="page"' : '' %>><%= item.label %></a>
+      <% }); %>
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="btn btn--primary btn--sm" href="<%= base %>/booking">Book Your Session</a>
+      <button class="nav-toggle" type="button" aria-label="Buka menu" aria-expanded="false"
+              aria-controls="mobile-nav" data-nav-toggle>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <%# Dropdown menu (tombol hamburger). Panel mengapung di bawah header dengan animasi
+      halus; bisa ditutup lewat tautan, tombol Esc, atau klik di luar. %>
+  <div class="mobile-nav__backdrop" data-mobile-backdrop hidden></div>
+  <div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+    <nav class="mobile-nav__list" aria-label="Navigasi mobile">
+      <% visibleNav.forEach(function (item) { %>
+        <a href="<%= base %><%= item.href %>" class="mobile-nav__item <%= isActive(item) ? 'is-active' : '' %>"
+           <%= isActive(item) ? 'aria-current="page"' : '' %>>
+          <span class="mobile-nav__label"><%= item.label %></span>
+          <span class="mobile-nav__chev" aria-hidden="true">&rsaquo;</span>
+        </a>
+      <% }); %>
+    </nav>
+    <a class="btn btn--primary btn--block mobile-nav__cta" href="<%= base %>/booking">Book Your Session</a>
+    <div class="mobile-nav__contact">
+      <a href="https://instagram.com/<%= brand.instagram %>" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17 7h.01"/></svg>
+        @<%= brand.instagram %>
+      </a>
+      <a href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai sesi foto wisuda.') %>" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2.2A9.8 9.8 0 0 0 3.5 17l-1.3 4.8 4.9-1.3A9.8 9.8 0 1 0 12 2.2zm0 17.9c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3a8.1 8.1 0 1 1 7 3.8z"/><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.5-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.6-1.6-.9-2.2-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 1.8 2.8 4.3 3.9 2.1.9 2.6.8 3.1.7.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.4z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,64 @@
+<%
+  /**
+   * Testimoni klien — carousel kartu premium.
+   * 1 kartu (mobile) / 2 (tablet) / 3 (desktop) per halaman, geser + tombol.
+   * Tanggal: display_date bila admin mengisinya, kalau tidak created_at.
+   */
+  const tstDate = (t) => formatDateID(t.display_date || t.created_at);
+  const initials = (name) => String(name || '?').trim().charAt(0).toUpperCase();
+%>
+<% if (testimonials.length) { %>
+<section class="<%= sectionClass(s, 'section section--testimonials layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Testimoni Klien</span>
+      <h2><%= s.title || site['testimonials.title'] %></h2>
+      <% if (s.description || site['testimonials.description']) { %>
+        <p class="section-sub"><%= s.description || site['testimonials.description'] %></p>
+      <% } %>
+    </div>
+
+    <div class="tst-carousel" data-tst-carousel>
+      <div class="tst-carousel__viewport" data-tst-viewport>
+        <div class="tst-carousel__track">
+          <% testimonials.forEach(function (t) { %>
+            <figure class="testimonial">
+              <div class="testimonial__head">
+                <span class="testimonial__avatar">
+                  <% if (t.photo) { %>
+                    <%- picture(t.photo, { alt: 'Foto ' + t.client_name, widths: [96, 192, 320], sizes: '72px' }) %>
+                  <% } else { %>
+                    <span aria-hidden="true"><%= initials(t.client_name) %></span>
+                  <% } %>
+                </span>
+                <div class="testimonial__who">
+                  <span class="testimonial__name"><%= t.client_name %></span>
+                  <% if (t.campus || t.client_meta) { %>
+                    <span class="testimonial__campus"><%= t.campus || t.client_meta %></span>
+                  <% } %>
+                </div>
+              </div>
+
+              <div class="testimonial__rating">
+                <%- include('stars', { rating: t.rating }) %>
+              </div>
+
+              <blockquote><%= t.quote %></blockquote>
+
+              <div class="testimonial__foot">
+                <% if (t.is_placeholder) { %><span class="badge-sample badge-sample--inline">Contoh</span><% } %>
+                <% if (tstDate(t)) { %><span class="testimonial__date"><%= tstDate(t) %></span><% } %>
+              </div>
+            </figure>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="tst-carousel__nav" data-tst-nav hidden>
+        <button type="button" class="carousel-arrow" data-tst-prev aria-label="Testimoni sebelumnya">&#8249;</button>
+        <button type="button" class="carousel-arrow" data-tst-next aria-label="Testimoni berikutnya">&#8250;</button>
+      </div>
+    </div>
+  </div>
+</section>
+<% } %>

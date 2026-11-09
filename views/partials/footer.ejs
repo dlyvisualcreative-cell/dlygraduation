@@ -1,0 +1,58 @@
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="logo logo--light" href="<%= base %>/">
+        <% if (brand.logos.onDark) { %>
+          <%- picture(brand.logos.onDark, {
+                alt: brand.name, className: 'logo__img',
+                widths: [96, 192, 320], sizes: '96px'
+              }) %>
+        <% } else { %>
+          <span class="logo__mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26" fill="none">
+              <rect x="1" y="1" width="30" height="30" rx="3" stroke="currentColor" stroke-width="1.1"/>
+              <path d="M16 9l7 3.2-7 3.2-7-3.2L16 9z" fill="currentColor"/>
+              <path d="M11.5 14.6v3.6c0 1.9 2 3.4 4.5 3.4s4.5-1.5 4.5-3.4v-3.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              <path d="M23 12.4v5.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="logo__text"><span class="logo__name"><%= brand.name %></span></span>
+        <% } %>
+      </a>
+      <p class="site-footer__tagline"><%= brand.tagline %></p>
+      <p class="site-footer__about"><%= site['footer.about'] %></p>
+    </div>
+
+    <div class="site-footer__col">
+      <h3>Jelajahi</h3>
+      <% if (pages.gallery) { %><a href="<%= base %>/gallery">Gallery</a><% } %>
+      <a href="<%= base %>/pricelist">Pricelist</a>
+      <a href="<%= base %>/city">Kota Layanan</a>
+      <a href="<%= base %>/booking">Booking</a>
+    </div>
+
+    <div class="site-footer__col">
+      <h3>Informasi</h3>
+      <% if (pages.caraorder) { %><a href="<%= base %>/cara-order">Cara Order</a><% } %>
+      <% if (pages.artikel) { %><a href="<%= base %>/artikel">Artikel</a><% } %>
+      <% if (pages.ulasan) { %><a href="<%= base %>/ulasan">Ulasan</a><% } %>
+      <% if (pages.faq) { %><a href="<%= base %>/faq">FAQ</a><% } %>
+      <% if (pages.tentang) { %><a href="<%= base %>/tentang">Tentang Kami</a><% } %>
+      <% if (pages.tnc) { %><a href="<%= base %>/syarat-ketentuan">Syarat &amp; Ketentuan</a><% } %>
+    </div>
+
+    <div class="site-footer__col">
+      <h3>Kontak</h3>
+      <a href="<%= waLink(brand.whatsapp, 'Halo ' + brand.name + ', saya ingin bertanya mengenai sesi foto wisuda.') %>" target="_blank" rel="noopener">WhatsApp Bisnis</a>
+      <a href="https://instagram.com/<%= brand.instagram %>" target="_blank" rel="noopener">@<%= brand.instagram %></a>
+      <% if (brand.email) { %><a href="mailto:<%= brand.email %>"><%= brand.email %></a><% } %>
+      <span><%= settings.planned_domain || 'dlygraduation.com' %></span>
+      <span class="site-footer__note"><%= site['footer.hours_1'] %> · <%= site['footer.hours_2'] %></span>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <span>&copy; <%= year %> <%= brand.name %>. <%= site['footer.copyright'] %></span>
+    <a href="<%= base %>/admin" class="site-footer__admin">Admin</a>
+  </div>
+</footer>

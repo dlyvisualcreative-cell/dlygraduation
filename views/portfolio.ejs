@@ -1,0 +1,96 @@
+<section class="page-head">
+  <div class="container">
+    <span class="eyebrow">Portfolio</span>
+    <h1><%= site['portfolio.title'] %></h1>
+    <p class="page-head__lede"><%= site['portfolio.description'] %></p>
+  </div>
+</section>
+
+<% if (carousel && carousel.length > 1) { %>
+  <%- include('partials/section-carousel', { s: sectionMap.carousel || { title: 'Portfolio pilihan', description: '', layout: 'carousel' }, carousel: carousel }) %>
+<% } %>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">Kategori</span>
+        <div class="filter-pills">
+          <a class="pill <%= !activeCategory ? 'is-active' : '' %>"
+             href="<%= base %>/portfolio<%= activeCity ? '?kota=' + activeCity : '' %>">Semua</a>
+          <% categories.forEach(function (c) { %>
+            <a class="pill <%= activeCategory === c.value ? 'is-active' : '' %>"
+               href="<%= base %>/portfolio?kategori=<%= c.value %><%= activeCity ? '&kota=' + activeCity : '' %>"><%= c.label %></a>
+          <% }); %>
+        </div>
+      </div>
+      <% if (cities.length > 1) { %>
+        <div class="filter-group">
+          <span class="filter-label">Kota</span>
+          <div class="filter-pills">
+            <a class="pill <%= !activeCity ? 'is-active' : '' %>"
+               href="<%= base %>/portfolio<%= activeCategory ? '?kategori=' + activeCategory : '' %>">Semua kota</a>
+            <% cities.forEach(function (c) { %>
+              <a class="pill <%= activeCity === c.slug ? 'is-active' : '' %>"
+                 href="<%= base %>/portfolio?kota=<%= c.slug %><%= activeCategory ? '&kategori=' + activeCategory : '' %>"><%= c.name %></a>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <% if (!items.length) { %>
+      <div class="empty-state">
+        <h2>Belum ada foto pada filter ini</h2>
+        <p>Coba pilih kategori atau kota lain, atau lihat seluruh portfolio kami.</p>
+        <a class="btn btn--primary" href="<%= base %>/portfolio">Lihat semua foto</a>
+      </div>
+    <% } else { %>
+      <% if (items.some(function (i) { return i.is_placeholder; })) { %>
+        <p class="note-inline">Foto bertanda <span class="badge-sample badge-sample--inline">Contoh</span> adalah gambar sementara. Foto asli akan tampil setelah admin mengunggahnya melalui dashboard.</p>
+      <% } %>
+      <div class="masonry-grid" data-gallery data-load-more="9">
+        <% items.forEach(function (item, i) { %>
+          <figure class="masonry-item <%= i >= 9 ? 'is-hidden' : '' %>" data-grid-item>
+            <button class="masonry-item__btn" type="button"
+                    data-lightbox
+                    data-src="<%= lightboxUrl(item.image_src) %>"
+                    data-title="<%= item.title %>"
+                    data-meta="<%= [(PORTFOLIO_CATEGORIES.find(function(c){return c.value===item.category;})||{}).label || item.category, item.city_name, item.taken_at ? formatDateID(item.taken_at) : null].filter(Boolean).join(' · ') %>"
+                    data-desc="<%= item.description || '' %>">
+              <%- picture(item.image_src, {
+                    alt: item.alt_text || item.title,
+                    widths: [320, 480, 800, 1200],
+                    sizes: '(max-width: 560px) 92vw, (max-width: 900px) 46vw, 31vw',
+                    eager: i < 4
+                  }) %>
+              <% if (item.is_placeholder) { %><span class="badge-sample">Contoh</span><% } %>
+              <span class="masonry-item__caption">
+                <strong><%= item.title %></strong>
+                <span><%= item.city_name || '' %><%= item.is_featured ? ' · Unggulan' : '' %></span>
+              </span>
+            </button>
+          </figure>
+        <% }); %>
+      </div>
+      <% if (items.length > 9) { %>
+        <div class="load-more-wrap">
+          <button type="button" class="btn btn--outline" data-load-more-btn>Muat lebih banyak (<span data-remaining><%= items.length - 9 %></span>)</button>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</section>
+
+<section class="cta-band cta-band--compact">
+  <div class="container cta-band__inner">
+    <div>
+      <h2>Ingin sesi seperti ini?</h2>
+      <p>Pilih kota, kategori, paket, dan durasi — lalu kirim detail booking Anda.</p>
+    </div>
+    <div class="cta-band__actions">
+      <a class="btn btn--light" href="<%= base %>/booking">Book Your Session</a>
+      <a class="btn btn--outline-light" href="<%= base %>/pricelist">Lihat Pricelist</a>
+    </div>
+  </div>
+</section>

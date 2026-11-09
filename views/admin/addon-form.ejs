@@ -1,0 +1,87 @@
+<%
+  const scope = String(addon.applies_to || 'all').split(',').map(function (s) { return s.trim(); });
+  const isAll = scope.indexOf('all') !== -1 || !addon.applies_to;
+%>
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah add-on' : 'Edit add-on' %></h2>
+      <p class="admin-muted">Isi harga resmi agar add-on bisa dipilih pengunjung. Tanpa harga, add-on tetap tersimpan tetapi tidak tampil di form booking.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/addons">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/addons/save" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (addon.id) { %><input type="hidden" name="id" value="<%= addon.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="name">Nama add-on <span class="req">*</span></label>
+        <input type="text" id="name" name="name" required value="<%= addon.name %>" placeholder="Extra 30 Minutes">
+      </div>
+      <div class="admin-field">
+        <label for="price">Harga (Rp)</label>
+        <div class="price-input">
+          <span>Rp</span>
+          <input type="text" inputmode="numeric" id="price" name="price" value="<%= addon.price || '' %>" placeholder="belum diatur">
+        </div>
+        <span class="admin-hint">Kosongkan jika harga belum ditentukan.</span>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="description">Deskripsi</label>
+        <textarea id="description" name="description" rows="2" placeholder="Penjelasan singkat add-on."><%= addon.description || '' %></textarea>
+      </div>
+      <div class="admin-field">
+        <label for="slug">Slug</label>
+        <input type="text" id="slug" name="slug" value="<%= addon.slug || '' %>" placeholder="extra-30-minutes">
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= addon.sort_order || 0 %>">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label>Berlaku untuk kategori</label>
+        <label class="admin-check">
+          <input type="checkbox" name="applies_to" value="all" <%= isAll ? 'checked' : '' %> data-scope-all>
+          <span>Semua kategori</span>
+        </label>
+        <div class="scope-grid">
+          <% categories.forEach(function (c) { %>
+            <label class="admin-check">
+              <input type="checkbox" name="applies_to" value="<%= c.slug %>" data-scope-cat
+                     <%= scope.indexOf(c.slug) !== -1 && !isAll ? 'checked' : '' %>>
+              <span><%= c.name %></span>
+            </label>
+          <% }); %>
+        </div>
+        <span class="admin-hint">Centang “Semua kategori” atau pilih kategori tertentu (tidak keduanya).</span>
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= Number(addon.is_active) ? 'checked' : '' %>>
+          <span>Aktifkan add-on ini</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan add-on</button>
+      <a class="admin-btn" href="<%= base %>/admin/addons">Batal</a>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  const all = document.querySelector('[data-scope-all]');
+  const cats = Array.from(document.querySelectorAll('[data-scope-cat]'));
+  if (!all) return;
+  all.addEventListener('change', () => {
+    if (all.checked) cats.forEach((c) => { c.checked = false; });
+  });
+  cats.forEach((c) => c.addEventListener('change', () => {
+    if (c.checked) all.checked = false;
+  }));
+})();
+</script>

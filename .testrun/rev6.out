@@ -1,0 +1,52 @@
+  ok  Favicon memakai turunan logo (/favicon/)
+  ok  Favicon 200 & PNG 256x256
+  ok  Halaman masuk menjelaskan batas 24 jam untuk booking yang belum dikonfirmasi
+  ok  Booking pending > 24 jam DITOLAK masuk portal
+  ok  Booking pending BARU (dalam 24 jam) masih bisa masuk
+  ok  Data booking pending tidak diubah oleh aturan masa akses
+  ok  Sebelum sesi: keterangan "Menunggu sesi foto" + jadwal
+  ok  Sebelum sesi: menyebut tanggal & jam booking
+  ok  Sebelum sesi: ada pengingat "jangan telat"
+  ok  Tahap yang belum mulai tidak dicentang (ring kosong)
+  ok  Extra Time TERKUNCI bila sesi foto belum selesai
+  ok  Setelah sesi: keterangan "Sesimu sudah selesai" + centang
+  ok  Sidebar portal punya menu "Upgrade Paket"
+  ok  Halaman upgrade memakai kartu gaya pricelist (judul + harga)
+  ok  Paket lebih mahal bisa diajukan, paket lebih murah DIKUNCI
+  ok  Extra Time tampil 2 pilihan (30 & 60 menit)
+  ok  Harga Extra Time di portal mengikuti pengaturan admin (angka atau "belum diatur")
+  ok  Login admin berhasil
+  ok  Admin bisa mengubah harga Extra Time
+  ok  Harga Extra Time dari admin tampil di portal
+  ok  Sesi sudah selesai → Extra Time terbuka (tombol pengajuan muncul)
+  ok  Pengajuan Extra Time tersimpan sebagai pending (tidak langsung menagih)
+  ok  Tagihan booking belum berubah sebelum disetujui
+  ok  Extra Time DITOLAK server bila sesi foto belum dimulai
+  ok  Halaman admin menampilkan pengajuan upgrade
+  ok  Setelah disetujui: durasi +30 menit & total bertambah
+  ok  Status pengajuan menjadi approved
+  ok  Server MENOLAK downgrade (paket lebih murah)
+  ok  Upgrade ke paket lebih mahal diterima (redirect sukses)
+  ok  Pengajuan upgrade paket tersimpan dengan harga paket tujuan
+  ok  Filter Gallery bernama KATEGORI & LOKASI
+  ok  Tidak ada lagi filter bernama "Paket"
+  ok  Kategori "Graduation Event" sudah dihapus dari pilihan
+  ok  Halaman admin Kategori Gallery tersedia
+  ok  Kategori baru dari admin langsung muncul di filter Gallery
+  ok  Kategori yang dipakai karya tidak hilang (data aman)
+  ok  Form paket punya opsi "Recommended"
+  ok  Form paket terkirim tanpa error
+  ok  Pilihan Recommended tersimpan di database
+  ok  Badge Recommended tampil di pricelist
+  ok  Badge Recommended memakai ikon bintang vector (SVG), bukan emoji
+  ok  TnC punya judul bagian (A/B/C)
+  ok  TnC punya poin-poin di bawah bagian
+  ok  Teks ketentuan asli tidak hilang
+  ok  Poin di dalam poin dirender sebagai sub-poin
+  ok  Menu Template Chat memuat template chat klien, konfirmasi, portal, seleksi
+  ok  Template reschedule, daftar foto klien, dan H-1 juga bisa diubah admin
+  ok  Setiap template punya daftar placeholder
+  ok  Isi template daftar foto tersimpan dari dashboard
+  ok  Tidak ada error JavaScript di halaman yang diuji
+
+50 checks passed, 0 failed

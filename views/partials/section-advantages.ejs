@@ -1,0 +1,41 @@
+<%
+  const fallback = [
+    { title: 'Arahan yang ramah', description: 'Tidak perlu pandai berpose. Kami memandu setiap gerakan dengan santai, termasuk untuk sesi group.' },
+    { title: 'Harga transparan', description: 'Setiap paket menampilkan harga sesuai durasi. Tidak ada biaya tersembunyi yang muncul belakangan.' },
+    { title: 'Editing profesional', description: 'Warna dan retouch dikerjakan satu per satu agar hasilnya konsisten dan tetap natural.' },
+    { title: 'Fleksibel pilih durasi', description: 'Durasi tersedia mengikuti paket yang Anda pilih — harga menyesuaikan secara otomatis.' }
+  ];
+  let rows = (s.items && s.items.length) ? s.items : [];
+  // Backwards compatible with the old "Judul | Deskripsi" textarea.
+  if (!rows.length && s.content) {
+    rows = s.content.split('\n').map(function (line) {
+      const p = line.split('|');
+      return { title: (p[0] || '').trim(), description: (p[1] || '').trim() };
+    }).filter(function (r) { return r.title; });
+  }
+  if (!rows.length) rows = SECTION_ITEM_DEFAULTS['advantages'] || [];
+%>
+<section class="<%= sectionClass(s, 'section section--advantages layout-' + s.layout) %>" style="<%- sectionStyle(s) %>">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Mengapa DLY Graduation</span>
+      <h2><%= s.title || site['advantages.title'] %></h2>
+      <% if (s.description || site['advantages.description']) { %>
+        <p class="section-sub"><%= s.description || site['advantages.description'] %></p>
+      <% } %>
+    </div>
+    <div class="advantage-grid layout-<%= s.layout %>">
+      <% rows.forEach(function (it, i) { %>
+        <article class="advantage">
+          <% if (it.image) { %>
+            <span class="advantage__media"><%- picture(it.image, { alt: it.title, widths: [320, 480, 800], sizes: '(max-width: 720px) 92vw, 40vw' }) %></span>
+          <% } else { %>
+            <span class="advantage__num"><%= String(i + 1).padStart(2, '0') %></span>
+          <% } %>
+          <h3><%= it.title %></h3>
+          <% if (it.description) { %><p><%= it.description %></p><% } %>
+        </article>
+      <% }); %>
+    </div>
+  </div>
+</section>

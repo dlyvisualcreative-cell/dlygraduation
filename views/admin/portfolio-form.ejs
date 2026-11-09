@@ -1,0 +1,252 @@
+<%
+  /**
+   * Form Edit Portfolio (Tahap 7) — disusun ulang menjadi 3 bagian yang jelas:
+   *   1. Informasi Client   2. Pengaturan Tampilan   3. Galeri Foto
+   *
+   * Galeri punya dua jalur yang dipisah tegas: unggah dari perangkat (banyak file sekaligus,
+   * dengan pratinjau + progres) dan tambah lewat URL. Urutan foto bisa diubah lewat
+   * drag & drop MAUPUN tombol naik/turun (agar tetap bisa dipakai di layar sentuh).
+   */
+%>
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah portfolio' : 'Edit portfolio' %></h2>
+      <p class="admin-muted">
+        Cover publik menampilkan nama klien + gelar (utama), kampus, dan tanggal.
+        Halaman publik: <code>/portfolio/&lt;slug&gt;</code>.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/portfolio">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/portfolio/save" enctype="multipart/form-data" class="admin-form pf-form"
+        data-upload-form>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (item.id) { %><input type="hidden" name="id" value="<%= item.id %>"><% } %>
+
+    <fieldset class="admin-fieldset">
+      <legend><span class="pf-legend__num">1</span> Informasi Client</legend>
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="client_name">Nama lengkap <span class="req">*</span></label>
+          <input type="text" id="client_name" name="client_name" required maxlength="80"
+                 value="<%= item.client_name || item.title || '' %>" placeholder="Vieke Melani">
+        </div>
+        <div class="admin-field">
+          <label for="client_degree">Gelar</label>
+          <input type="text" id="client_degree" name="client_degree" maxlength="40"
+                 value="<%= item.client_degree || '' %>" placeholder="S.Kom.">
+          <span class="admin-hint">Ditulis setelah nama: “Vieke Melani, S.Kom.”</span>
+        </div>
+        <div class="admin-field">
+          <label for="campus">Nama kampus</label>
+          <input type="text" id="campus" name="campus" maxlength="120"
+                 value="<%= item.campus || '' %>" placeholder="Institut Teknologi Bandung">
+        </div>
+        <div class="admin-field">
+          <label for="taken_at">Tanggal pemotretan</label>
+          <input type="date" id="taken_at" name="taken_at" value="<%= item.taken_at || '' %>">
+        </div>
+        <div class="admin-field">
+          <label for="session_time">Jam sesi</label>
+          <input type="time" id="session_time" name="session_time" value="<%= item.session_time || '' %>">
+          <span class="admin-hint">Tampil di header halaman klien (opsional).</span>
+        </div>
+        <div class="admin-field">
+          <label for="slug">Alamat halaman publik</label>
+          <div class="slug-field">
+            <span class="slug-field__prefix"><%= base %>/portfolio/</span>
+            <input type="text" id="slug" name="slug" maxlength="70"
+                   value="<%= item.slug || '' %>" placeholder="vieke-melani">
+          </div>
+          <span class="admin-hint">
+            Kosongkan untuk dibuat otomatis.
+            <% if (item.slug) { %>
+              <a href="<%= base %>/portfolio/<%= item.slug %>" target="_blank" rel="noopener">Lihat halaman publik &nearr;</a>
+            <% } %>
+          </span>
+        </div>
+        <div class="admin-field admin-field--full">
+          <label for="description">Deskripsi singkat</label>
+          <textarea id="description" name="description" rows="2"
+                    placeholder="Sesi foto wisuda di kampus, suasana pagi."><%= item.description || '' %></textarea>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="admin-fieldset">
+      <legend><span class="pf-legend__num">2</span> Foto cover &amp; pengaturan tampilan</legend>
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label for="image_file">Ganti foto cover (dari perangkat)</label>
+          <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/gif">
+          <span class="admin-hint">Kosongkan jika tidak ingin mengganti cover.</span>
+        </div>
+        <div class="admin-field">
+          <label for="image">atau URL / path cover</label>
+          <input type="text" id="image" name="image" value="<%= item.image %>" placeholder="/uploads/foto.jpg">
+        </div>
+        <div class="admin-field">
+          <label for="alt_text">Alt text (SEO)</label>
+          <input type="text" id="alt_text" name="alt_text" value="<%= item.alt_text || '' %>">
+        </div>
+        <div class="admin-field">
+          <label for="category">Kategori</label>
+          <select id="category" name="category">
+            <% categories.forEach(function (c) { %>
+              <option value="<%= c.value %>" <%= item.category === c.value ? 'selected' : '' %>><%= c.label %><%= c.active === false ? ' (nonaktif)' : '' %></option>
+            <% }); %>
+          </select>
+          <span class="admin-hint">Daftar kategori diatur di
+            <a href="<%= base %>/admin/portfolio-categories">Kategori Gallery</a>.</span>
+        </div>
+        <div class="admin-field">
+          <label for="city_id">Kota (filter internal)</label>
+          <select id="city_id" name="city_id">
+            <option value="">— tanpa kota —</option>
+            <% cities.forEach(function (c) { %>
+              <option value="<%= c.id %>" <%= Number(item.city_id) === c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="admin-field">
+          <label for="collection">Tampil di</label>
+          <select id="collection" name="collection">
+            <% collections.forEach(function (c) { %>
+              <option value="<%= c.value %>" <%= item.collection === c.value ? 'selected' : '' %>><%= c.label %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="admin-field">
+          <label for="sort_order">Urutan kartu di Gallery</label>
+          <input type="number" id="sort_order" name="sort_order" min="0" value="<%= item.sort_order || 0 %>">
+        </div>
+        <div class="admin-field admin-field--full pf-checks">
+          <label class="admin-check">
+            <input type="checkbox" name="is_active" value="1" <%= item.is_active || mode === 'create' ? 'checked' : '' %>>
+            <span><strong>Tampilkan di website</strong> (Gallery &amp; Homepage)</span>
+          </label>
+          <label class="admin-check">
+            <input type="checkbox" name="is_featured" value="1" <%= item.is_featured ? 'checked' : '' %>>
+            <span>Portfolio unggulan (tampil di bagian Featured Homepage)</span>
+          </label>
+          <label class="admin-check">
+            <input type="checkbox" name="show_city" value="1" <%= item.show_city ? 'checked' : '' %>>
+            <span>Tampilkan nama kota di cover</span>
+          </label>
+          <label class="admin-check">
+            <input type="checkbox" name="is_placeholder" value="1" <%= item.is_placeholder ? 'checked' : '' %>>
+            <span>Masih foto contoh (label “Contoh”)</span>
+          </label>
+        </div>
+      </div>
+
+      <% if (item.image) { %>
+        <div class="admin-preview">
+          <span class="admin-hint">Cover saat ini</span>
+          <img src="<%= imageUrl(item.image) %>" alt="">
+        </div>
+      <% } %>
+
+      <div class="admin-form__actions pf-save-row">
+        <button class="admin-btn admin-btn--primary" type="submit">
+          <%= mode === 'create' ? 'Simpan & lanjut tambah foto' : 'Simpan portfolio' %>
+        </button>
+        <a class="admin-btn" href="<%= base %>/admin/portfolio">Batal</a>
+      </div>
+    </fieldset>
+  </form>
+
+  <% if (item.id) { %>
+    <fieldset class="admin-fieldset" id="galeri">
+      <legend><span class="pf-legend__num">3</span> Galeri foto (<%= (photos || []).length %> foto)</legend>
+      <p class="admin-hint">
+        Urutan di bawah = urutan foto di halaman publik klien. Seret kartu untuk memindahkan,
+        atau pakai tombol ↑/↓ (nyaman di HP).
+      </p>
+
+      <% if ((photos || []).length) { %>
+        <div class="pf-photo-grid" data-photo-order data-portfolio="<%= item.id %>" data-csrf="<%= csrf %>">
+          <% (photos || []).forEach(function (ph, i) { %>
+            <figure class="pf-photo" draggable="true" data-photo-id="<%= ph.id %>">
+              <span class="pf-photo__num"><%= i + 1 %></span>
+              <img src="<%= imageUrl(ph.image) %>" alt="" loading="lazy">
+              <figcaption>
+                <span class="pf-photo__name"><%= String(ph.image || '').split('/').pop() %></span>
+                <% if (ph.caption) { %><span class="pf-photo__cap"><%= ph.caption %></span><% } %>
+              </figcaption>
+              <div class="pf-photo__actions">
+                <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/photos/<%= ph.id %>/cover">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn">Jadikan cover</button>
+                </form>
+                <button type="button" class="admin-link-btn" data-move="-1" aria-label="Naikkan">&uarr;</button>
+                <button type="button" class="admin-link-btn" data-move="1" aria-label="Turunkan">&darr;</button>
+                <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/photos/<%= ph.id %>/delete"
+                      data-confirm="Hapus foto ini dari galeri?">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </div>
+            </figure>
+          <% }); %>
+        </div>
+        <p class="admin-hint pf-order-status" data-order-status>Urutan tersimpan otomatis setelah dipindahkan.</p>
+      <% } else { %>
+        <p class="admin-hint">Belum ada foto galeri.</p>
+      <% } %>
+
+      <div class="pf-upload">
+        <div class="pf-upload__col">
+          <h3 class="pf-upload__title">Unggah dari perangkat</h3>
+          <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/photos"
+                enctype="multipart/form-data" data-multi-upload>
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <label class="pf-drop" data-drop>
+              <input type="file" id="photo_files" name="photo_files"
+                     accept="image/jpeg,image/png,image/webp,image/gif" multiple data-file-input>
+              <span class="pf-drop__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+              </span>
+              <span class="pf-drop__text"><strong>Pilih beberapa foto sekaligus</strong>
+                <small>JPG/PNG/WebP/GIF · maks 10MB per file · sampai 12 file sekali unggah</small></span>
+            </label>
+            <ul class="pf-preview" data-preview></ul>
+            <div class="pf-progress" data-progress hidden>
+              <div class="pf-progress__bar" data-progress-bar></div>
+            </div>
+            <p class="pf-upload__status" data-upload-status></p>
+            <div class="admin-form__actions">
+              <button class="admin-btn admin-btn--primary" type="submit" data-upload-submit disabled>
+                Unggah ke galeri
+              </button>
+              <button class="admin-btn" type="button" data-upload-clear hidden>Bersihkan pilihan</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="pf-upload__col">
+          <h3 class="pf-upload__title">Tambah lewat URL</h3>
+          <form method="post" action="<%= base %>/admin/portfolio/<%= item.id %>/photos">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <div class="admin-field">
+              <label for="photo_urls">URL gambar (satu per baris)</label>
+              <textarea id="photo_urls" name="photo_urls" rows="3" placeholder="https://... atau /uploads/foto-2.jpg"></textarea>
+              <span class="admin-hint">URL harus bisa diakses publik dan berakhiran .jpg/.png/.webp.</span>
+            </div>
+            <div class="admin-field">
+              <label for="photo_caption">Keterangan (opsional)</label>
+              <input type="text" id="photo_caption" name="caption" maxlength="160">
+            </div>
+            <div class="admin-form__actions">
+              <button class="admin-btn" type="submit">+ Tambah dari URL</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </fieldset>
+  <% } else { %>
+    <p class="admin-hint" style="margin:12px 0">Simpan portfolio terlebih dahulu untuk menambahkan foto galeri.</p>
+  <% } %>
+</div>

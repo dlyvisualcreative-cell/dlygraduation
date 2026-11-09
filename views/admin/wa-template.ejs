@@ -1,0 +1,266 @@
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Template 1 — Chat Klien</h2>
+      <p class="admin-muted">
+        Pesan yang terbuka saat Anda menekan tombol <strong>Chat Klien</strong> pada kartu booking.
+        Gunakan <em>teks biasa</em> sebagai format utama agar tidak ada karakter rusak di WhatsApp.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/bookings">Ke halaman Booking &rarr;</a>
+  </div>
+
+  <div class="admin-note" style="margin-bottom:16px">
+    Tentang emoji: karakter emoji sudah di-encode UTF-8 dengan benar oleh sistem, tetapi tampilan akhir
+    bergantung pada aplikasi WhatsApp di perangkat penerima. Jika Anda melihat karakter aneh (�),
+    gunakan template tanpa emoji seperti contoh di bawah.
+  </div>
+
+  <form method="post" action="<%= base %>/admin/wa-template" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="action" value="save">
+
+    <div class="admin-field">
+      <label for="template">Isi pesan</label>
+      <textarea id="template" name="template" rows="18" spellcheck="false"
+                data-template-custom="<%= isDefault ? '0' : '1' %>"><%= template %></textarea>
+      <span class="admin-hint">
+        Gunakan placeholder berikut — akan diganti otomatis dengan data booking.
+      </span>
+    </div>
+
+    <div class="ph-grid">
+      <% placeholders.forEach(function (p) { %>
+        <code class="ph-chip"><%= p[0] %> <span><%= p[1] %></span></code>
+      <% }); %>
+    </div>
+
+    <div class="admin-field" style="margin-top:14px">
+      <label class="admin-check">
+        <input type="checkbox" name="use_emoji" value="1" <%= useEmoji ? 'checked' : '' %>>
+        <span>Tambahkan emoji otomatis pada template bawaan (opsional)</span>
+      </label>
+      <span class="admin-hint">Disarankan tidak dicentang demi kompatibilitas maksimum.</span>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan template</button>
+      <button class="admin-btn" type="submit" formnovalidate
+              onclick="this.form.action.value='reset';"
+              data-reset-template>Kembalikan ke template bawaan</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Pratinjau</h2>
+      <p class="admin-muted">Contoh dengan data booking fiktif, memakai template yang tersimpan sekarang.</p>
+    </div>
+  </div>
+  <pre class="preview-msg"><%= preview %></pre>
+</section>
+
+<script>
+(function () {
+  var form = document.querySelector('form[action$="/admin/wa-template"]');
+  var actionInput = form && form.querySelector('input[name="action"]');
+  document.querySelectorAll('[data-reset-template]').forEach(function (btn) {
+    btn.addEventListener('click', function () { if (actionInput) actionInput.value = 'reset'; });
+  });
+})();
+</script>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Template 2 — Konfirmasi Booking &amp; DP</h2>
+      <p class="admin-muted">
+        Dipakai oleh tombol <strong>Konfirmasi Booking &amp; DP</strong> di halaman Booking.
+        Nominal DP, nama bank, nomor rekening, dan atas nama diambil dari
+        <a href="<%= base %>/admin/payment">Pengaturan Pembayaran</a>.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/payment">Atur DP &amp; rekening &rarr;</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/wa-template/confirm" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="action" value="save">
+    <div class="admin-field">
+      <label for="confirm_template">Isi pesan konfirmasi booking &amp; DP</label>
+      <textarea id="confirm_template" name="template" rows="18" spellcheck="false"><%= confirmTemplate %></textarea>
+      <span class="admin-hint">Placeholder: semua placeholder booking di bawah, plus
+        <code>{{dp}}</code>, <code>{{bank}}</code>, <code>{{rekening}}</code>, <code>{{atas_nama}}</code>,
+        dan akses Client Portal: <code>{{kode}}</code>, <code>{{pin}}</code>, <code>{{portal}}</code>.
+        Bila template tidak memuat blok portal, sistem menambahkannya otomatis di akhir pesan.</span>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan template konfirmasi</button>
+      <button class="admin-btn" type="submit" name="action" value="reset" formnovalidate>
+        Kembalikan ke template bawaan
+      </button>
+    </div>
+  </form>
+
+  <div class="admin-panel__head" style="margin-top:20px"><div><h2>Pratinjau</h2></div></div>
+  <pre class="preview-msg"><%= confirmPreview %></pre>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Template 3 — Kirim Link Portal Seleksi Foto</h2>
+      <p class="admin-muted">
+        Dipakai oleh tombol <strong>Kirim Link Portal Seleksi Foto</strong>. Tombol itu hanya aktif bila
+        portal sudah dibuat dan sudah ada fotonya.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/selection">Ke Seleksi Foto &rarr;</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/wa-template/portal" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="action" value="save">
+    <div class="admin-field">
+      <label for="portal_template">Isi pesan link portal</label>
+      <textarea id="portal_template" name="template" rows="16" spellcheck="false"><%= portalTemplate %></textarea>
+      <span class="admin-hint">Placeholder: <code>{{nama}}</code>, <code>{{link}}</code>, <code>{{kuota}}</code>,
+        <code>{{deadline}}</code>, <code>{{tanggal}}</code>, <code>{{jam}}</code>, <code>{{booking_id}}</code>,
+        <code>{{folder_drive}}</code>.</span>
+    </div>
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan template link portal</button>
+      <button class="admin-btn" type="submit" name="action" value="reset" formnovalidate>
+        Kembalikan ke template bawaan
+      </button>
+    </div>
+  </form>
+
+  <div class="admin-panel__head" style="margin-top:20px"><div><h2>Pratinjau</h2></div></div>
+  <pre class="preview-msg"><%= portalPreview %></pre>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Template 4 — Undangan Portal Seleksi Foto</h2>
+      <p class="admin-muted">
+        Pesan yang terbuka saat Anda menekan <strong>Kirim via WhatsApp</strong> di halaman portal
+        seleksi foto. Pesan hanya disiapkan, tidak dikirim otomatis.
+      </p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/selection">Ke halaman Seleksi Foto &rarr;</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/wa-template/selection" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="action" value="save">
+
+    <div class="admin-field">
+      <label for="selection_template">Isi pesan seleksi foto</label>
+      <textarea id="selection_template" name="template" rows="14" spellcheck="false"
+                data-template-custom="<%= selectionIsDefault ? '0' : '1' %>"><%= selectionTemplate %></textarea>
+      <span class="admin-hint">
+        Emoji sudah di-encode UTF-8 dengan benar. Tampilan akhirnya bergantung pada aplikasi WhatsApp
+        di perangkat klien.
+      </span>
+    </div>
+
+    <div class="ph-grid">
+      <% selectionPlaceholders.forEach(function (p) { %>
+        <code class="ph-chip"><%= p[0] %> <span><%= p[1] %></span></code>
+      <% }); %>
+    </div>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan template seleksi</button>
+      <button class="admin-btn" type="submit" formaction="<%= base %>/admin/wa-template/selection"
+              name="action" value="reset" formnovalidate>Kembalikan ke template bawaan</button>
+    </div>
+  </form>
+</section>
+
+<section class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2>Pratinjau pesan seleksi</h2>
+      <p class="admin-muted">Contoh dengan data klien fiktif dan link portal contoh.</p>
+    </div>
+  </div>
+  <pre class="preview-msg"><%= selectionPreview %></pre>
+</section>
+
+<%# ------------------------------------------------------------------
+    Template chat tambahan (revisi pemilik): SEMUA pesan WhatsApp yang dikirim
+    sistem bisa diubah admin di sini. Satu handler generik di server
+    (POST /admin/wa-template/:kind) dengan whitelist key.
+    ------------------------------------------------------------------ %>
+<%
+  const extraTemplates = [
+    {
+      kind: 'reschedule',
+      title: 'Template 5 — Konfirmasi Reschedule',
+      desc: 'Dipakai tombol "Kirim Konfirmasi Reschedule via WhatsApp" di Detail Booking (Workflow).',
+      action: base + '/admin/wa-template/reschedule',
+      value: rescheduleTemplate,
+      preview: reschedulePreview,
+      placeholders: reschedulePlaceholders,
+      isDefault: rescheduleIsDefault
+    },
+    {
+      kind: 'submit',
+      title: 'Template 6 — Daftar Foto dari Klien',
+      desc: 'Pesan yang disiapkan sistem setelah klien menekan "Kirim Pilihan": berisi daftar nama file yang klien pilih.',
+      action: base + '/admin/wa-template/submit',
+      value: submitTemplate,
+      preview: submitPreview,
+      placeholders: submitPlaceholders,
+      isDefault: submitIsDefault
+    },
+    {
+      kind: 'h1',
+      title: 'Template 7 — Pengingat H-1',
+      desc: 'Disalin ke deskripsi event Google Calendar sebagai "Template Chat Client H-1" untuk dikirim ke klien sehari sebelum sesi.',
+      action: base + '/admin/wa-template/h1',
+      value: h1Template,
+      preview: h1Preview,
+      placeholders: h1Placeholders,
+      isDefault: h1IsDefault
+    }
+  ];
+%>
+
+<% extraTemplates.forEach(function (tpl) { %>
+  <section class="admin-panel" id="tpl-<%= tpl.kind %>">
+    <div class="admin-panel__head">
+      <div>
+        <h2><%= tpl.title %></h2>
+        <p class="admin-muted"><%= tpl.desc %></p>
+      </div>
+      <% if (!tpl.isDefault) { %><span class="admin-badge admin-badge--ok">Dikustomisasi</span><% } %>
+    </div>
+
+    <form method="post" action="<%= tpl.action %>" class="admin-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="action" value="save">
+      <div class="admin-field">
+        <label for="tpl_<%= tpl.kind %>">Isi pesan</label>
+        <textarea id="tpl_<%= tpl.kind %>" name="template" rows="16" spellcheck="false"><%= tpl.value %></textarea>
+      </div>
+      <div class="ph-grid">
+        <% tpl.placeholders.forEach(function (p) { %>
+          <code class="ph-chip"><%= p[0] %> <span><%= p[1] %></span></code>
+        <% }); %>
+      </div>
+      <div class="admin-form__actions">
+        <button class="admin-btn admin-btn--primary" type="submit">Simpan</button>
+        <button class="admin-btn" type="submit" name="action" value="reset" formnovalidate>Kembalikan ke bawaan</button>
+      </div>
+    </form>
+
+    <div class="admin-panel__head" style="margin-top:18px"><div><h2>Pratinjau</h2></div></div>
+    <pre class="preview-msg"><%= tpl.preview %></pre>
+  </section>
+<% }); %>

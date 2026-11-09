@@ -1,0 +1,379 @@
+<div class="admin-panel">
+  <div class="admin-panel__head">
+    <div>
+      <h2><%= mode === 'create' ? 'Tambah paket' : 'Edit paket & harga' %></h2>
+      <p class="admin-muted">Setiap paket punya daftar durasinya sendiri. Harga di sini langsung dipakai halaman pricelist dan form booking setelah disimpan.</p>
+    </div>
+    <a class="admin-link" href="<%= base %>/admin/packages">&larr; Kembali</a>
+  </div>
+
+  <form method="post" action="<%= base %>/admin/packages/save" enctype="multipart/form-data" class="admin-form" data-duration-form data-upload-form>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (pkg.id) { %><input type="hidden" name="id" value="<%= pkg.id %>"><% } %>
+
+    <div class="admin-field-grid">
+      <div class="admin-field">
+        <label for="city_id">Kota <span class="req">*</span></label>
+        <select id="city_id" name="city_id" required>
+          <% cities.forEach(function (c) { %>
+            <option value="<%= c.id %>" <%= Number(pkg.city_id) === c.id ? 'selected' : '' %>><%= c.name %><%= c.is_active ? '' : ' (nonaktif)' %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label for="category_id">Kategori <span class="req">*</span></label>
+        <select id="category_id" name="category_id" required>
+          <% categories.forEach(function (k) { %>
+            <option value="<%= k.id %>" <%= Number(pkg.category_id) === k.id ? 'selected' : '' %>><%= k.name %><%= k.is_active ? '' : ' (nonaktif)' %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="admin-field">
+        <label for="name">Nama paket <span class="req">*</span></label>
+        <input type="text" id="name" name="name" required value="<%= pkg.name %>" placeholder="Basic">
+      </div>
+      <div class="admin-field">
+        <label for="label">Label kecil (opsional)</label>
+        <input type="text" id="label" name="label" value="<%= pkg.label || '' %>" placeholder="Paling dipilih">
+      </div>
+      <div class="admin-field">
+        <label for="tagline">Tagline singkat (halaman detail)</label>
+        <input type="text" id="tagline" name="tagline" maxlength="160" value="<%= pkg.tagline || '' %>" placeholder="Cocok untuk foto formal di satu lokasi">
+      </div>
+      <div class="admin-field">
+        <label for="slug">Slug</label>
+        <input type="text" id="slug" name="slug" value="<%= pkg.slug || '' %>" placeholder="basic">
+        <span class="admin-hint">Kosongkan untuk otomatis dari nama.</span>
+      </div>
+      <div class="admin-field">
+        <label for="image_file">Foto paket (untuk kartu pricelist)</label>
+        <input type="file" id="image_file" name="image_file" accept="image/*">
+        <span class="admin-hint">Rasio landscape 4:3, minimal 1400px lebar.</span>
+      </div>
+      <div class="admin-field">
+        <label for="image">atau URL/path foto</label>
+        <input type="text" id="image" name="image" value="<%= pkg.image || '' %>" placeholder="/ph/portfolio-portrait-1.svg">
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="description">Deskripsi paket</label>
+        <textarea id="description" name="description" rows="3"><%= pkg.description || '' %></textarea>
+      </div>
+      <div class="admin-field admin-field--full">
+        <label for="terms">Ketentuan paket (satu poin per baris)</label>
+        <textarea id="terms" name="terms" rows="4" placeholder="Contoh:&#10;DP 50% untuk mengunci jadwal&#10;Reschedule maksimal H-3"><%= pkg.terms || '' %></textarea>
+        <span class="admin-hint">Tampil di halaman detail paket. Kosongkan jika belum ada.</span>
+      </div>
+      <div class="admin-field">
+        <label for="sort_order">Urutan dalam kategori</label>
+        <input type="number" id="sort_order" name="sort_order" min="0" value="<%= pkg.sort_order || 0 %>">
+      </div>
+      <div class="admin-field">
+        <label class="admin-check">
+          <input type="checkbox" name="is_active" value="1" <%= pkg.is_active ? 'checked' : '' %>>
+          <span>Tampilkan paket ini di website</span>
+        </label>
+      </div>
+    </div>
+
+    <fieldset class="admin-fieldset admin-fieldset--benefits">
+      <legend>Benefit &amp; Fasilitas Paket</legend>
+      <p class="admin-hint">
+        Baris di sini tampil di <strong>pricelist</strong> dan <strong>halaman detail paket</strong> — keduanya
+        membaca data yang sama. Pilih ikon yang mewakili isi benefit (durasi, lokasi, jumlah foto, kampus, dst).
+      </p>
+
+      <input type="hidden" name="benefit_rows" id="benefit_rows" value="<%= (benefits || []).length %>">
+
+      <div class="benefit-editor" data-benefit-editor>
+        <% (benefits || []).forEach(function (b, i) { %>
+          <div class="benefit-row" data-benefit-row>
+            <input type="hidden" name="benefit_id_<%= i %>" value="<%= b.id || '' %>">
+
+            <label class="benefit-row__text">
+              <span class="only-mobile">Teks benefit</span>
+              <input type="text" name="benefit_text_<%= i %>" value="<%= b.text %>" maxlength="200"
+                     placeholder="Contoh: 60 Menit Sesi Foto" aria-label="Teks benefit">
+            </label>
+
+            <details class="icon-picker" data-icon-picker>
+              <summary>
+                <span class="icon-picker__current" data-icon-current><%- icon(b.icon) %></span>
+                <span class="icon-picker__label" data-icon-label>
+                  <%= (BENEFIT_ICONS.find(function (ic) { return ic.key === b.icon; }) || BENEFIT_ICONS[0]).label %>
+                </span>
+                <span class="icon-picker__chev" aria-hidden="true">&#9662;</span>
+              </summary>
+              <div class="icon-picker__grid">
+                <% BENEFIT_ICONS.forEach(function (ic) { %>
+                  <label class="icon-picker__opt" title="<%= ic.label %>">
+                    <input type="radio" name="benefit_icon_<%= i %>" value="<%= ic.key %>"
+                           data-icon-key="<%= ic.key %>" data-icon-label="<%= ic.label %>"
+                           <%= (b.icon || 'check') === ic.key ? 'checked' : '' %>>
+                    <span class="icon-picker__box"><%- icon(ic.key) %></span>
+                    <span class="icon-picker__name"><%= ic.label %></span>
+                  </label>
+                <% }); %>
+              </div>
+            </details>
+
+            <label class="benefit-row__order">
+              <span class="only-mobile">Urutan</span>
+              <input type="number" name="benefit_order_<%= i %>" min="0" value="<%= b.sort_order == null ? i : b.sort_order %>" aria-label="Urutan">
+            </label>
+
+            <label class="benefit-row__active">
+              <input type="checkbox" name="benefit_active_<%= i %>" value="1" <%= b.is_active ? 'checked' : '' %>>
+              <span class="only-mobile">Aktif</span>
+            </label>
+
+            <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-remove-benefit
+                    aria-label="Hapus benefit">Hapus</button>
+          </div>
+        <% }); %>
+
+        <% if (!(benefits || []).length) { %>
+          <p class="admin-hint" data-benefit-empty>Belum ada benefit. Klik “+ Tambah Benefit” untuk membuatnya.</p>
+        <% } %>
+      </div>
+
+      <button type="button" class="admin-btn admin-btn--sm" data-add-benefit>+ Tambah Benefit</button>
+      <p class="admin-hint" style="margin-top:10px">
+        Urutan tampil mengikuti kolom Urutan (angka kecil tampil lebih dulu; bila angkanya sama, urutan
+        baris dipakai). Setelah disimpan, penomoran dirapikan otomatis. Menghapus baris lalu menyimpan akan
+        menghapus benefit itu dari website; riwayat booking lama tidak berubah.
+      </p>
+
+      <template id="benefit-row-template">
+        <div class="benefit-row" data-benefit-row>
+          <input type="hidden" name="benefit_id___IDX__" value="">
+          <label class="benefit-row__text">
+            <span class="only-mobile">Teks benefit</span>
+            <input type="text" name="benefit_text___IDX__" value="" maxlength="200"
+                   placeholder="Contoh: 30 Foto Edited" aria-label="Teks benefit">
+          </label>
+          <details class="icon-picker" data-icon-picker>
+            <summary>
+              <span class="icon-picker__current" data-icon-current><%- icon('check') %></span>
+              <span class="icon-picker__label" data-icon-label><%= BENEFIT_ICONS[0].label %></span>
+              <span class="icon-picker__chev" aria-hidden="true">&#9662;</span>
+            </summary>
+            <div class="icon-picker__grid">
+              <% BENEFIT_ICONS.forEach(function (ic, k) { %>
+                <label class="icon-picker__opt" title="<%= ic.label %>">
+                  <input type="radio" name="benefit_icon___IDX__" value="<%= ic.key %>"
+                         data-icon-key="<%= ic.key %>" data-icon-label="<%= ic.label %>" <%= k === 0 ? 'checked' : '' %>>
+                  <span class="icon-picker__box"><%- icon(ic.key) %></span>
+                  <span class="icon-picker__name"><%= ic.label %></span>
+                </label>
+              <% }); %>
+            </div>
+          </details>
+          <label class="benefit-row__order">
+            <span class="only-mobile">Urutan</span>
+            <input type="number" name="benefit_order___IDX__" min="0" value="0" aria-label="Urutan">
+          </label>
+          <label class="benefit-row__active">
+            <input type="checkbox" name="benefit_active___IDX__" value="1" checked>
+            <span class="only-mobile">Aktif</span>
+          </label>
+          <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-remove-benefit
+                  aria-label="Hapus benefit">Hapus</button>
+        </div>
+      </template>
+    </fieldset>
+
+    <fieldset class="admin-fieldset">
+      <legend>Penjualan &amp; penanda</legend>
+      <div class="admin-field-grid">
+        <div class="admin-field">
+          <label class="admin-check">
+            <input type="checkbox" name="is_best_seller" value="1" <%= pkg.is_best_seller ? 'checked' : '' %>>
+            <span>Tandai sebagai <strong>Best Seller</strong></span>
+          </label>
+        </div>
+        <div class="admin-field">
+          <label class="admin-check">
+            <input type="checkbox" name="is_recommended" value="1" <%= pkg.is_recommended ? 'checked' : '' %>>
+            <span>Tandai sebagai <strong>Recommended</strong> (badge bintang di pricelist)</span>
+          </label>
+        </div>
+        <div class="admin-field">
+          <label class="admin-check">
+            <input type="checkbox" name="sold_visible" value="1" <%= pkg.sold_visible === undefined || pkg.sold_visible ? 'checked' : '' %>>
+            <span>Tampilkan informasi terjual</span>
+          </label>
+        </div>
+        <div class="admin-field">
+          <label for="sold_count">Jumlah terjual (angka)</label>
+          <input type="number" id="sold_count" name="sold_count" min="0" value="<%= pkg.sold_count == null ? '' : pkg.sold_count %>" placeholder="contoh 150">
+          <span class="admin-hint">Diisi manual. Tidak otomatis dari booking.</span>
+        </div>
+        <div class="admin-field">
+          <label for="sold_label">Keterangan terjual</label>
+          <input type="text" id="sold_label" name="sold_label" maxlength="60" value="<%= pkg.sold_label || '' %>" placeholder="Sesi Telah Dipesan">
+          <span class="admin-hint">Kosongkan untuk memakai teks bawaan.</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <% if (pkg.image) { %>
+      <div class="admin-preview">
+        <span class="admin-hint">Foto paket saat ini</span>
+        <img src="<%= imageUrl(pkg.image) %>" alt="" style="max-width:320px">
+      </div>
+    <% } %>
+
+    <% if (pkg.id) { %>
+      <fieldset class="admin-fieldset">
+        <legend>Galeri foto paket (<%= (images || []).length %> foto)</legend>
+        <p class="admin-hint">
+          Foto pertama / bertanda utama dipakai sebagai cover. Semua foto di sini tampil sebagai
+          <strong>carousel otomatis</strong> pada kartu paket di halaman Pricelist (dan di halaman detail paket).
+          Minimal dua foto agar carousel berganti sendiri.
+        </p>
+
+        <div class="pkg-gallery-grid">
+          <% (images || []).forEach(function (img) { %>
+            <div class="pkg-gallery-card">
+              <img src="<%= imageUrl(img.image) %>" alt="<%= img.caption || pkg.name %>">
+              <% if (img.is_primary) { %><span class="admin-badge admin-badge--ok">Utama</span><% } %>
+              <div class="pkg-gallery-card__actions">
+                <% if (!img.is_primary) { %>
+                  <form method="post" action="<%= base %>/admin/packages/<%= pkg.id %>/images/<%= img.id %>/primary">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button type="submit" class="admin-link-btn">Jadikan utama</button>
+                  </form>
+                <% } %>
+                <form method="post" action="<%= base %>/admin/packages/<%= pkg.id %>/images/<%= img.id %>/delete"
+                      onsubmit="return confirm('Hapus foto ini?')">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button type="submit" class="admin-link-btn admin-link-btn--danger">Hapus</button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+          <% if (!(images || []).length) { %><p class="admin-hint">Belum ada foto galeri.</p><% } %>
+        </div>
+
+        <div class="admin-field-grid" style="margin-top:14px">
+          <div class="admin-field">
+            <label for="gallery_file">Upload foto baru</label>
+            <input type="file" id="gallery_file" name="gallery_file" accept="image/*">
+          </div>
+          <div class="admin-field">
+            <label for="gallery_url">atau URL/path</label>
+            <input type="text" id="gallery_url" name="gallery_url" placeholder="/uploads/foto.jpg">
+          </div>
+          <div class="admin-field">
+            <label for="caption">Keterangan (opsional)</label>
+            <input type="text" id="caption" name="caption" maxlength="160">
+          </div>
+          <div class="admin-field" style="justify-content:flex-end">
+            <button class="admin-btn" type="submit"
+                    formaction="<%= base %>/admin/packages/<%= pkg.id %>/images"
+                    formenctype="multipart/form-data">+ Tambah ke galeri</button>
+          </div>
+        </div>
+      </fieldset>
+    <% } else { %>
+      <p class="admin-hint" style="margin:12px 0">Simpan paket terlebih dahulu untuk mulai menambahkan galeri foto.</p>
+    <% } %>
+
+    <fieldset class="admin-fieldset admin-fieldset--durations">
+      <legend>Durasi, harga &amp; jumlah foto edit</legend>
+      <p class="admin-hint">
+        Satu baris = satu pilihan durasi. Isi harga tanpa titik (contoh 375000) dan jumlah foto edit untuk durasi itu.
+        Pengunjung melihat harga serta jumlah foto sesuai durasi yang mereka pilih.
+      </p>
+
+      <input type="hidden" name="duration_rows" id="duration_rows" value="<%= durations.length %>">
+
+      <div class="duration-table" data-duration-editor>
+        <div class="duration-table__head" aria-hidden="true">
+          <span>Durasi (menit)</span>
+          <span>Harga (Rp)</span>
+          <span>Foto edit</span>
+          <span>Catatan</span>
+          <span>Aktif</span>
+          <span></span>
+        </div>
+
+        <% durations.forEach(function (d, i) { %>
+          <div class="duration-table__row" data-duration-row>
+            <label class="duration-table__cell">
+              <span class="only-mobile">Durasi (menit)</span>
+              <input type="number" name="dur_min_<%= i %>" value="<%= d.duration_minutes %>" min="15" max="600" step="5" aria-label="Durasi menit">
+            </label>
+            <label class="duration-table__cell">
+              <span class="only-mobile">Harga (Rp)</span>
+              <div class="price-input">
+                <span>Rp</span>
+                <input type="text" inputmode="numeric" name="dur_price_<%= i %>" value="<%= d.price || '' %>" placeholder="belum diatur" aria-label="Harga">
+              </div>
+            </label>
+            <label class="duration-table__cell">
+              <span class="only-mobile">Foto edit</span>
+              <input type="number" name="dur_photos_<%= i %>" min="0" max="9999"
+                     value="<%= d.edited_photos == null ? '' : d.edited_photos %>" placeholder="contoh 20" aria-label="Jumlah foto edit">
+            </label>
+            <label class="duration-table__cell">
+              <span class="only-mobile">Catatan</span>
+              <input type="text" name="dur_note_<%= i %>" value="<%= d.description || '' %>" placeholder="opsional" aria-label="Catatan durasi">
+            </label>
+            <label class="duration-table__cell duration-table__check">
+              <input type="checkbox" name="dur_active_<%= i %>" value="1" <%= d.is_active ? 'checked' : '' %>>
+              <span class="only-mobile">Aktif</span>
+            </label>
+            <div class="duration-table__cell">
+              <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-remove-duration aria-label="Hapus durasi">Hapus</button>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+
+      <button type="button" class="admin-btn admin-btn--sm" data-add-duration>+ Tambah durasi</button>
+      <p class="admin-hint" style="margin-top:10px">
+        Menghapus baris lalu menyimpan akan menghapus pilihan durasi itu dari paket. Riwayat booking lama tidak berubah.
+      </p>
+
+      <template id="duration-row-template">
+        <div class="duration-table__row" data-duration-row>
+          <label class="duration-table__cell">
+            <span class="only-mobile">Durasi (menit)</span>
+            <input type="number" name="dur_min___IDX__" value="" min="15" max="600" step="5" aria-label="Durasi menit">
+          </label>
+          <label class="duration-table__cell">
+            <span class="only-mobile">Harga (Rp)</span>
+            <div class="price-input">
+              <span>Rp</span>
+              <input type="text" inputmode="numeric" name="dur_price___IDX__" value="" placeholder="belum diatur" aria-label="Harga">
+            </div>
+          </label>
+          <label class="duration-table__cell">
+            <span class="only-mobile">Foto edit</span>
+            <input type="number" name="dur_photos___IDX__" min="0" value="" placeholder="contoh 20" aria-label="Jumlah foto edit">
+          </label>
+          <label class="duration-table__cell">
+            <span class="only-mobile">Catatan</span>
+            <input type="text" name="dur_note___IDX__" value="" placeholder="opsional" aria-label="Catatan durasi">
+          </label>
+          <label class="duration-table__cell duration-table__check">
+            <input type="checkbox" name="dur_active___IDX__" value="1" checked>
+            <span class="only-mobile">Aktif</span>
+          </label>
+          <div class="duration-table__cell">
+            <button type="button" class="admin-btn admin-btn--sm admin-btn--danger" data-remove-duration aria-label="Hapus durasi">Hapus</button>
+          </div>
+        </div>
+      </template>
+    </fieldset>
+
+    <div class="admin-form__actions">
+      <button class="admin-btn admin-btn--primary" type="submit">Simpan paket</button>
+      <a class="admin-btn" href="<%= base %>/admin/packages">Batal</a>
+      <% if (pkg.id) { %>
+        <a class="admin-link" href="<%= base %>/pricelist" target="_blank" rel="noopener">Lihat di website &nearr;</a>
+      <% } %>
+    </div>
+  </form>
+</div>

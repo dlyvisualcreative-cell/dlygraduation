@@ -1,0 +1,98 @@
+<%
+  /**
+   * Pantau Order (blueprint §8). Hanya tahap yang SUDAH tercapai yang dirender.
+   * Waktu dalam WIB, aktor (admin/sistem/klien) ditampilkan.
+   */
+%>
+<%
+  const tlQueue = (timeline.items.find(function (s) { return s.key === 'editing_queue' && s.queue; }) || {}).queue || null;
+%>
+<section class="cp-page" data-cp-live data-stage="<%= timeline.current ? timeline.current.key : '' %>"
+         data-state="<%= timeline.current ? timeline.current.state : '' %>"
+         data-queue="<%= tlQueue ? tlQueue.position : '' %>"
+         data-next-at="<%= timeline.nextSessionAt || '' %>">
+  <header class="cp-page__head">
+    <div>
+      <span class="cp-eyebrow">Pantau Order</span>
+      <h1>Progres pesanan kamu</h1>
+      <p>Tahapan muncul otomatis setiap kali ada progres baru.</p>
+    </div>
+    <span class="cp-chip cp-chip--code"><%= booking.code %></span>
+  </header>
+
+  <% if (!timeline.items.length) { %>
+    <section class="cp-card">
+      <h2 class="cp-card__title">Belum ada progres</h2>
+      <p class="cp-muted">Timeline akan mulai terisi setelah admin mengonfirmasi booking kamu.</p>
+    </section>
+  <% } else { %>
+    <section class="cp-card">
+      <div class="cp-tl__head">
+        <span class="cp-tl__progress"><i style="width: <%= timeline.progress %>%"></i></span>
+        <small class="cp-muted"><%= timeline.reached || timeline.items.length %> dari <%= timeline.total %> tahap tercapai</small>
+      </div>
+
+      <ol class="cp-tl">
+        <% timeline.items.forEach(function (s) { %>
+          <%# Revisi 2 (08): tahap selesai = centang hijau, tahap aktif = indikator
+              "Sedang Berlangsung". Tahap yang belum terjadi memang tidak dirender. %>
+          <li class="cp-tl__item <%= s.state === 'active' ? 'is-current' : (s.state === 'upcoming' ? 'is-upcoming' : 'is-done') %>">
+            <span class="cp-tl__dot" aria-hidden="true">
+              <% if (s.state === 'done') { %>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                     stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.6 4.6L19 6.6"/></svg>
+              <% } %>
+            </span>
+            <div class="cp-tl__body">
+              <div class="cp-tl__title">
+                <span class="cp-tl__no"><%= s.no %></span>
+                <strong><%= s.title %></strong>
+                <% if (s.state === 'active') { %>
+                  <span class="cp-chip cp-chip--live">
+                    <span class="cp-chip__dot" aria-hidden="true"></span><%= s.chip || 'Sedang Berlangsung' %>
+                  </span>
+                <% } else if (s.state === 'upcoming') { %>
+                  <span class="cp-chip cp-chip--upcoming"><%= s.chip || 'Dijadwalkan' %></span>
+                <% } %>
+              </div>
+              <p class="cp-tl__blurb"><%= s.blurb %></p>
+
+              <% if (s.queue) { %>
+                <%# Posisi antrean AKTUAL, dihitung dari database — bukan angka statis. %>
+                <p class="cp-tl__queue">
+                  Antreanmu saat ini ke-<strong><%= s.queue.position %></strong> dari
+                  <strong><%= s.queue.total %></strong>
+                </p>
+              <% } %>
+
+              <% if (s.key === 'session_done' && s.state !== 'done') { %>
+                <p class="cp-tl__reminder"><%= SESSION_REMINDER %></p>
+              <% } %>
+              <small class="cp-muted">
+                <% if (s.state === 'upcoming') { %>
+                  Dijadwalkan <%= s.atLabel %>
+                <% } else { %>
+                  <%= s.atLabel %> ·
+                  <%= s.actor === 'klien' ? 'oleh kamu' : s.actor === 'admin' ? 'oleh admin' : 'otomatis' %>
+                <% } %>
+              </small>
+            </div>
+          </li>
+        <% }); %>
+      </ol>
+
+      <% if (editingDeadline) { %>
+        <div class="cp-deadline">
+          <span class="cp-deadline__label">Estimasi selesai editing</span>
+          <strong><%= deadlineLabel %></strong>
+          <small>10 hari kerja sejak pilihan foto dikirim (Sabtu, Minggu<%= holidays.length ? ' & hari libur' : '' %> tidak dihitung).</small>
+        </div>
+      <% } %>
+    </section>
+  <% } %>
+
+  <p class="cp-small-note">
+    Tahapan yang belum terjadi tidak ditampilkan. Setiap perubahan tersimpan lengkap dengan
+    tanggal, jam, dan sumber pemicunya.
+  </p>
+</section>

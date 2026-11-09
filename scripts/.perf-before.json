@@ -1,0 +1,529 @@
+[
+  {
+    "name": "Home desktop (no throttle)",
+    "url": "http://127.0.0.1:4460/",
+    "viewport": "1440x900",
+    "throttle": "none",
+    "requests": 17,
+    "kb": 4056,
+    "loadMs": 1013,
+    "lcp": 844,
+    "cls": 0.009,
+    "dcl": 589,
+    "fcp": 844,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 48
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 120
+      },
+      "image": {
+        "n": 10,
+        "kb": 3730
+      },
+      "script": {
+        "n": 1,
+        "kb": 53
+      },
+      "font": {
+        "n": 3,
+        "kb": 106
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "DLY-GRADUATION-2-1793926738390-c6c361.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      },
+      {
+        "src": "DLY00190-1793890858337-614855.jpg",
+        "natural": "1200x1800",
+        "shown": "571x640"
+      },
+      {
+        "src": "PDL00236-1793891043139-651b83.jpg",
+        "natural": "1201x1800",
+        "shown": "277x387"
+      },
+      {
+        "src": "FAD00630-1793891130614-7d4b8d.jpg",
+        "natural": "1200x1800",
+        "shown": "277x387"
+      },
+      {
+        "src": "DLY00132-1793891721681-7c358e.jpg",
+        "natural": "1200x1800",
+        "shown": "521x782"
+      },
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Home mobile (no throttle)",
+    "url": "http://127.0.0.1:4460/",
+    "viewport": "390x844",
+    "throttle": "none",
+    "requests": 17,
+    "kb": 4056,
+    "loadMs": 460,
+    "lcp": 416,
+    "cls": 0,
+    "dcl": 207,
+    "fcp": 416,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 48
+      },
+      "image": {
+        "n": 10,
+        "kb": 3730
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 120
+      },
+      "script": {
+        "n": 1,
+        "kb": 53
+      },
+      "font": {
+        "n": 3,
+        "kb": 106
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "DLY-GRADUATION-2-1793926738390-c6c361.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      },
+      {
+        "src": "DLY00132-1793890091285-191534.jpg",
+        "natural": "1200x1800",
+        "shown": "425x810"
+      },
+      {
+        "src": "DLY00185-1793890324921-219638.jpg",
+        "natural": "1200x1800",
+        "shown": "390x743"
+      },
+      {
+        "src": "DLY00246-1793890400489-f02e65.jpg",
+        "natural": "1200x1800",
+        "shown": "390x743"
+      },
+      {
+        "src": "DLY00013-1793890578707-6c77c8.jpg",
+        "natural": "1200x1800",
+        "shown": "390x743"
+      },
+      {
+        "src": "DLY00190-1793890858337-614855.jpg",
+        "natural": "1200x1800",
+        "shown": "166x232"
+      },
+      {
+        "src": "PDL00236-1793891043139-651b83.jpg",
+        "natural": "1201x1800",
+        "shown": "166x232"
+      },
+      {
+        "src": "FAD00630-1793891130614-7d4b8d.jpg",
+        "natural": "1200x1800",
+        "shown": "166x180"
+      },
+      {
+        "src": "DLY00132-1793891721681-7c358e.jpg",
+        "natural": "1200x1800",
+        "shown": "344x516"
+      },
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Home mobile (Slow 3G)",
+    "url": "http://127.0.0.1:4460/",
+    "viewport": "390x844",
+    "throttle": "slow",
+    "requests": 17,
+    "kb": 4056,
+    "loadMs": 81534,
+    "lcp": 54644,
+    "cls": 0.031,
+    "dcl": 22411,
+    "fcp": 13660,
+    "byType": {
+      "stylesheet": {
+        "n": 2,
+        "kb": 120
+      },
+      "document": {
+        "n": 1,
+        "kb": 48
+      },
+      "font": {
+        "n": 3,
+        "kb": 106
+      },
+      "script": {
+        "n": 1,
+        "kb": 53
+      },
+      "image": {
+        "n": 10,
+        "kb": 3730
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "DLY-GRADUATION-2-1793926738390-c6c361.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      },
+      {
+        "src": "DLY00132-1793890091285-191534.jpg",
+        "natural": "1200x1800",
+        "shown": "399x759"
+      },
+      {
+        "src": "DLY00185-1793890324921-219638.jpg",
+        "natural": "1200x1800",
+        "shown": "390x743"
+      },
+      {
+        "src": "DLY00246-1793890400489-f02e65.jpg",
+        "natural": "1200x1800",
+        "shown": "390x743"
+      },
+      {
+        "src": "DLY00013-1793890578707-6c77c8.jpg",
+        "natural": "1200x1800",
+        "shown": "393x748"
+      },
+      {
+        "src": "DLY00190-1793890858337-614855.jpg",
+        "natural": "1200x1800",
+        "shown": "166x232"
+      },
+      {
+        "src": "PDL00236-1793891043139-651b83.jpg",
+        "natural": "1201x1800",
+        "shown": "166x232"
+      },
+      {
+        "src": "FAD00630-1793891130614-7d4b8d.jpg",
+        "natural": "1200x1800",
+        "shown": "166x180"
+      },
+      {
+        "src": "DLY00132-1793891721681-7c358e.jpg",
+        "natural": "1200x1800",
+        "shown": "344x516"
+      },
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Gallery mobile (Slow 3G)",
+    "url": "http://127.0.0.1:4460/gallery",
+    "viewport": "390x844",
+    "throttle": "slow",
+    "requests": 11,
+    "kb": 2061,
+    "loadMs": 41634,
+    "lcp": 0,
+    "cls": 0.007,
+    "dcl": 21513,
+    "fcp": 13140,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 17
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 120
+      },
+      "font": {
+        "n": 2,
+        "kb": 85
+      },
+      "script": {
+        "n": 1,
+        "kb": 53
+      },
+      "image": {
+        "n": 5,
+        "kb": 1787
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      },
+      {
+        "src": "DLY00190-1793890858337-614855.jpg",
+        "natural": "1200x1800",
+        "shown": "268x335"
+      },
+      {
+        "src": "PDL00236-1793891043139-651b83.jpg",
+        "natural": "1201x1800",
+        "shown": "268x335"
+      },
+      {
+        "src": "FAD00630-1793891130614-7d4b8d.jpg",
+        "natural": "1200x1800",
+        "shown": "268x335"
+      },
+      {
+        "src": "DLY00190-1793890858337-614855.jpg",
+        "natural": "1200x1800",
+        "shown": "166x208"
+      },
+      {
+        "src": "PDL00236-1793891043139-651b83.jpg",
+        "natural": "1201x1800",
+        "shown": "166x125"
+      },
+      {
+        "src": "FAD00630-1793891130614-7d4b8d.jpg",
+        "natural": "1200x1800",
+        "shown": "166x208"
+      },
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Pricelist mobile",
+    "url": "http://127.0.0.1:4460/pricelist",
+    "viewport": "390x844",
+    "throttle": "none",
+    "requests": 9,
+    "kb": 1510,
+    "loadMs": 505,
+    "lcp": 492,
+    "cls": 0,
+    "dcl": 295,
+    "fcp": 492,
+    "byType": {
+      "document": {
+        "n": 1,
+        "kb": 34
+      },
+      "stylesheet": {
+        "n": 2,
+        "kb": 120
+      },
+      "image": {
+        "n": 3,
+        "kb": 1219
+      },
+      "script": {
+        "n": 1,
+        "kb": 53
+      },
+      "font": {
+        "n": 2,
+        "kb": 85
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      },
+      {
+        "src": "DLY00132-1793891721681-7c358e.jpg",
+        "natural": "1200x1800",
+        "shown": "344x516"
+      },
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "48x38"
+      }
+    ]
+  },
+  {
+    "name": "Portal mobile (Slow 3G, 45 photos)",
+    "url": "http://127.0.0.1:4460/selection/7be90d1e30749860ae31cdcc76ac0839a9f0c1f178408084",
+    "viewport": "390x844",
+    "throttle": "slow",
+    "requests": 32,
+    "kb": 7083,
+    "loadMs": 120003,
+    "lcp": 8668,
+    "cls": 0.093,
+    "dcl": 8428,
+    "fcp": 8668,
+    "byType": {
+      "stylesheet": {
+        "n": 3,
+        "kb": 140
+      },
+      "document": {
+        "n": 1,
+        "kb": 41
+      },
+      "script": {
+        "n": 2,
+        "kb": 66
+      },
+      "font": {
+        "n": 2,
+        "kb": 85
+      },
+      "image": {
+        "n": 24,
+        "kb": 6752
+      }
+    },
+    "oversizedImages": [
+      {
+        "src": "DLY-GRADUATION-2-1793889851345-9eb6ed.png",
+        "natural": "5000x4000",
+        "shown": "43x34"
+      },
+      {
+        "src": "1",
+        "natural": "1600x1000",
+        "shown": "171x214"
+      },
+      {
+        "src": "2",
+        "natural": "1600x1000",
+        "shown": "171x214"
+      },
+      {
+        "src": "3",
+        "natural": "1600x1000",
+        "shown": "171x214"
+      },
+      {
+        "src": "4",
+        "natural": "1600x1000",
+        "shown": "171x214"
+      },
+      {
+        "src": "5",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "6",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "7",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "8",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "9",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "10",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "11",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "12",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "13",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "14",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "15",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "16",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "17",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "18",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "19",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "20",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "21",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "22",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      },
+      {
+        "src": "23",
+        "natural": "1067x1600",
+        "shown": "171x214"
+      }
+    ]
+  }
+]
